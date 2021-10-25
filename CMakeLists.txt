@@ -3,17 +3,14 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(vulkandemo)
 
-add_executable(vulkandemo src/main.cpp)
+add_executable(vulkandemo src/main.cpp src/Platform.h src/Log.cpp src/Log.h src/App.cpp src/App.h src/FileSystem.cpp src/FileSystem.h src/Window.cpp src/Window.h src/GraphicsDevice.cpp src/GraphicsDevice.h)
 
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 set(RES_DIR ${PROJECT_SOURCE_DIR}/res)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 
 set(GLFW_DIR ${LIB_DIR}/glfw)
-set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL Build the GLFW example programs)
-set(GLFW_BUILD_TESTS OFF CACHE INTERNAL Build the GLFW test programs)
-set(GLFW_BUILD_DOCS OFF CACHE INTERNAL Build the GLFW documentation)
-set(GLFW_INSTALL OFF CACHE INTERNAL Generate installation target)
+
 add_subdirectory(${GLFW_DIR})
 target_compile_definitions(${PROJECT_NAME} PUBLIC GLFW_INCLUDE_NONE)
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_DIR}/include)
