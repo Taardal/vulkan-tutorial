@@ -2,7 +2,7 @@
 
 #include "FileSystem.h"
 #include "Window.h"
-#include "GraphicsDevice.h"
+#include "VulkanContext.h"
 
 namespace vulkandemo
 {
@@ -13,23 +13,23 @@ namespace vulkandemo
         {
             std::string Name;
             Window::Config Window;
-            GraphicsDevice::Config Graphics;
+            VulkanContext::Config Vulkan;
         };
 
-        App(const Config& config);
+        explicit App(const Config& config);
 
         ~App();
 
         void Run();
 
     private:
-        void Initialize() const;
+        bool Initialize() const;
 
         void Terminate();
 
         Config config;
         FileSystem* fileSystem;
         Window* window;
-        GraphicsDevice* graphicsDevice;
+        VulkanContext* vulkanContext;
     };
 }

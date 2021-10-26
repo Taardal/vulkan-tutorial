@@ -19,7 +19,7 @@ namespace vulkandemo
 
         Window(const Config& config);
 
-        void Initialize();
+        bool Initialize();
 
         void Terminate();
 

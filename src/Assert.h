@@ -4,6 +4,11 @@
 #include "Log.h"
 
 #ifdef VD_DEBUG
+    #define VD_ENABLE_BREAK
+    #define VD_ENABLE_ASSERT
+#endif
+
+#ifdef VD_ENABLE_BREAK
     #ifdef VD_PLATFORM_WINDOWS
         #define VD_BREAK() __debugbreak()
     #elif __has_builtin(__builtin_debugtrap)
@@ -16,15 +21,19 @@
             #define VD_BREAK() std::raise(SIGABRT)
         #endif
     #endif
-    #define VD_ASSERT(tag, expression) \
+#else
+    #define VD_BREAK()
+#endif
+
+#ifdef VD_ENABLE_ASSERT
+    #define VD_ASSERT(expression) \
         if (expression) \
         {} \
         else \
         { \
-            VD_LOG_ERROR(tag, "Could not assert [{0}]", VD_TO_STRING(expression)); \
+            VD_LOG_ERROR("Could not assert [{0}]", #expression); \
             VD_BREAK(); \
         }
 #else
-    #define VD_BREAK()
     #define VD_ASSERT(tag, expression)
 #endif

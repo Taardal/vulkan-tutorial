@@ -1,3 +1,15 @@
+# CLion
+.idea
+
+# Visual Studio Code
 .vscode
+
+# macOS
+.DS_Store
+
+# Build files
 build
 cmake-build-debug
+
+# Compiled binaries
+bin

@@ -1,4 +1,5 @@
 #include "App.h"
+#include "Environment.h"
 
 int main()
 {
@@ -7,9 +8,12 @@ int main()
     config.Window.Title = config.Name;
     config.Window.Width = 800;
     config.Window.Height = 600;
-    config.Graphics.Name = config.Name;
+    config.Vulkan.Name = config.Name;
+#ifdef VD_DEBUG
+    config.Vulkan.ValidationLayersEnabled = true;
+#endif
     
-    vulkandemo::App* app = new vulkandemo::App(config);
+    auto* app = new vulkandemo::App(config);
     app->Run();
     delete app;
 
