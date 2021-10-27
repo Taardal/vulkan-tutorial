@@ -1,15 +1,45 @@
+# Canonical build directory
+build
+
+# Binaries
+bin
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
+cmake_install.cmake
+cmake_uninstall.cmake
+
+# Makefile generator
+Makefile
+
 # CLion
 .idea
+cmake-build-debug
+cmake-build-release
 
 # Visual Studio Code
 .vscode
 
+# Visual Studio
+*.sln
+*.vcxproj*
+*.dir
+.vs
+Win32
+x64
+Debug
+Release
+CMakeSettings.json
+
+# Xcode
+*.build
+*.xcodeproj
+Debug
+Release
+
 # macOS
 .DS_Store
-
-# Build files
-build
-cmake-build-debug
-
-# Compiled binaries
-bin

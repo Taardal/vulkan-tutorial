@@ -1,1 +1,0 @@
-cmake -B .\cmake-build-debug
