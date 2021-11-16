@@ -1,7 +1,7 @@
 #include "Log.h"
 #include <sstream>
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     std::shared_ptr<spdlog::logger> Log::logger;
 

@@ -5,7 +5,7 @@
 
 #include <string>
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     class Window
     {

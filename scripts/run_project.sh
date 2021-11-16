@@ -51,4 +51,4 @@ echo "
 ##########################
 "
 cd "${executableDirectory}"
-./vulkandemo.exe
+./vulkandemo

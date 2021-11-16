@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     class VulkanContext
     {
@@ -25,6 +25,14 @@ namespace vulkandemo
         void Terminate();
 
     private:
+        bool CreateInstance();
+
+        void DestroyInstance();
+
+        bool CreateDebugMessenger();
+
+        void DestoryDebugMessenger();
+
         std::vector<const char*> GetExtensions() const;
 
         std::vector<const char*> GetRequiredExtensions() const;
@@ -39,8 +47,13 @@ namespace vulkandemo
 
         bool HasValidationLayers(const std::vector<const char*>& validationLayers, const std::vector<VkLayerProperties>& availableValidationLayers) const;
 
+        VkDebugUtilsMessengerCreateInfoEXT GetDebugMessengerCreateInfo() const;
+
     private:
+        static const VkAllocationCallbacks* ALLOCATOR;
+
         Config config;
         VkInstance instance;
+        VkDebugUtilsMessengerEXT debugMessenger;
     };
 }

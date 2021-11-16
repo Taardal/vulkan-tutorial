@@ -1,7 +1,7 @@
 #include "Window.h"
 #include "Log.h"
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     Window::Window(const Config& config)
         : config(config)

@@ -6,7 +6,7 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     App::App(const Config &config)
         : config(config),

@@ -3,7 +3,7 @@
 
 int main()
 {
-    vulkandemo::App::Config config{};
+    Vulkandemo::App::Config config{};
     config.Name = "Vulkan Demo";
     config.Window.Title = config.Name;
     config.Window.Width = 800;
@@ -13,7 +13,7 @@ int main()
     config.Vulkan.ValidationLayersEnabled = true;
 #endif
     
-    auto* app = new vulkandemo::App(config);
+    auto* app = new Vulkandemo::App(config);
     app->Run();
     delete app;
 

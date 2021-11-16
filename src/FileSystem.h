@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     class FileSystem
     {

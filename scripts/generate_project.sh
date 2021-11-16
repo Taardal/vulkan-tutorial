@@ -115,10 +115,4 @@ echo "
 #   Generating build files...   #
 #################################
 "
-if [[ -n "${generator}" ]]; then
-  generatorArgument="-G ${generator}"
-fi
-if [[ -n "${architecture}" ]]; then
-  architectureArgument="-A ${architecture}"
-fi
-cmake -DCMAKE_BUILD_TYPE="${buildType}" -S "${sourceDirectory}" -B "${buildDirectory}" "${generatorArgument}" "${architectureArgument}"
+cmake -DCMAKE_BUILD_TYPE="${buildType}" -S "${sourceDirectory}" -B "${buildDirectory}" "$([ -n "${generator}" ] && echo "-G ${generator}")" "$([ -n "${architecture}" ] && echo "-A ${architecture}")"

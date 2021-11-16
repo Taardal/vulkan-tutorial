@@ -1,11 +1,10 @@
 
 # UPDATE ME
-set(BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/cmake-build-debug/Debug)
-
-set(SHADER_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/res/shaders/${SHADER})
-set(SHADER_OUTPUT_PATH ${BUILD_PATH}/shaders/${SHADER}.spv)
+set(BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin/debug)
 
 function(compile_shader SHADER)
+    set(SHADER_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/assets/shaders/${SHADER})
+    set(SHADER_OUTPUT_PATH ${BUILD_PATH}/shaders/${SHADER}.spv)
     find_program(GLSLC glslc)
     get_filename_component(SHADER_OUTPUT_DIRECTORY ${SHADER_OUTPUT_PATH} DIRECTORY)
     file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIRECTORY})

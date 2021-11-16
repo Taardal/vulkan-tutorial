@@ -4,7 +4,7 @@
 #include "Window.h"
 #include "VulkanContext.h"
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     class App
     {

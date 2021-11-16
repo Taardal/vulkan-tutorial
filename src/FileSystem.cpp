@@ -2,7 +2,7 @@
 #include "Log.h"
 #include <fstream>
 
-namespace vulkandemo
+namespace Vulkandemo
 {
     std::vector<char> FileSystem::ReadBinaryFile(const char* path) const
     {
