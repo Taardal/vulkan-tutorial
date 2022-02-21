@@ -3,6 +3,8 @@ build
 
 # Binaries
 bin
+Debug
+Release
 
 # CMake
 CMakeCache.txt
@@ -31,15 +33,11 @@ cmake-build-release
 .vs
 Win32
 x64
-Debug
-Release
 CMakeSettings.json
 
 # Xcode
 *.build
 *.xcodeproj
-Debug
-Release
 
 # macOS
 .DS_Store

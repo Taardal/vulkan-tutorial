@@ -1,0 +1,10 @@
+# Canonical build directory
+build
+
+# Binaries
+bin
+Debug
+Release
+
+# macOS
+.DS_Store

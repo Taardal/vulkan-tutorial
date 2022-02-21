@@ -1,35 +1,34 @@
-#include "App.h"
 #include "Environment.h"
 #include <iostream>
 #include <sstream>
 
-void Run()
+void PrintHelp()
 {
-    Vulkandemo::App::Config config{};
-    config.Name = "Vulkan Demo";
-    config.Window.Title = config.Name;
-    config.Window.Width = 800;
-    config.Window.Height = 600;
-    config.Vulkan.Name = config.Name;
-#ifdef VD_DEBUG
-    config.Vulkan.ValidationLayersEnabled = true;
-#endif
-
-    auto* app = new Vulkandemo::App(config);
-    app->Run();
-    delete app;
+    std::cout << "Usage: vd [options] [command]" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Options:" << std::endl;
+    std::cout << "  -h, --help          Output usage information" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Commands:" << std::endl;
+    std::cout << "  build               Build project" << std::endl;
+    std::cout << "  deps                Install dependencies" << std::endl;
+    std::cout << "  glfw                Build and install glfw" << std::endl;
+    std::cout << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-    if (argc <= 1)
-    {
-        printf("No arguments");
-        return 1;
-    }
+#ifdef VD_DEBUG
     for (int i = 0; i < argc; i++)
     {
         printf("argc [%i/%i], argv [%s]\n", (i + 1), argc, argv[i]);
+    }
+#endif
+
+    if (argc <= 1)
+    {
+        PrintHelp();
+        return 0;
     }
 
     char* command = argv[1];
@@ -56,11 +55,8 @@ int main(int argc, char* argv[])
         std::string cmd = ss.str();
         printf("%s\n", cmd.c_str());
         std::system(cmd.c_str());
-
-        return 0;
     }
-
-    if (strcmp(command, "glfw") == 0)
+    else if (strcmp(command, "glfw") == 0)
     {
         printf("Building and installing GLFW...");
 
@@ -80,11 +76,8 @@ int main(int argc, char* argv[])
         std::string cmd = ss.str();
         printf("%s\n", cmd.c_str());
         std::system(cmd.c_str());
-
-        return 0;
     }
-
-    if (strcmp(command, "build") == 0)
+    else if (strcmp(command, "build") == 0)
     {
         printf("Building application...");
 
@@ -100,10 +93,10 @@ int main(int argc, char* argv[])
         std::string cmd = ss.str();
         printf("%s\n", cmd.c_str());
         std::system(cmd.c_str());
-
-        return 0;
     }
-
-    printf("Unknown command\n");
-    return 1;
+    else
+    {
+        PrintHelp();
+    }
+    return 0;
 }
