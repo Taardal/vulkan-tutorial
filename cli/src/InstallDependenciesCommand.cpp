@@ -4,7 +4,18 @@
 
 namespace VulkandemoCLI
 {
+    const char* InstallDependenciesCommand::NAME = "deps";
     const char* InstallDependenciesCommand::LIB_FOLDER = "lib";
+
+    const char* InstallDependenciesCommand::GetName() const
+    {
+        return NAME;
+    }
+
+    const char* InstallDependenciesCommand::GetDescription() const
+    {
+        return "Install dependencies (git submodules)";
+    }
 
     void InstallDependenciesCommand::Execute() const
     {

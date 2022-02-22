@@ -1,21 +1,25 @@
 #pragma once
 
 #include "Command.h"
-#include <unordered_map>
+#include <map>
 
 namespace VulkandemoCLI
 {
     class App
     {
     public:
+        App();
+
+        ~App();
+
         Command* GetCommand(int argc, char* argv[]) const;
 
+    private:
         void PrintHelp() const;
 
         void PrintInput(int argc, char* argv[]) const;
 
-    private:
-        static const std::unordered_map<std::string, Command*> COMMANDS;
-        static const char* HELP;
+        static const char* DEFAULT_EXE_NAME;
+        std::map<std::string, Command*> commands;
     };
 }

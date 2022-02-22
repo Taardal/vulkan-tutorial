@@ -4,6 +4,18 @@
 
 namespace VulkandemoCLI
 {
+    const char* BuildProjectCommand::NAME = "build";
+
+    const char* BuildProjectCommand::GetName() const
+    {
+        return NAME;
+    }
+
+    const char* BuildProjectCommand::GetDescription() const
+    {
+        return "Build project";
+    }
+
     void BuildProjectCommand::Execute() const
     {
         printf("Building application...");

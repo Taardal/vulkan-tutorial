@@ -4,6 +4,18 @@
 
 namespace VulkandemoCLI
 {
+    const char* InstallGLFWCommand::NAME = "glfw";
+
+    const char* InstallGLFWCommand::GetName() const
+    {
+        return NAME;
+    }
+
+    const char* InstallGLFWCommand::GetDescription() const
+    {
+        return "Install GLFW";
+    }
+
     void InstallGLFWCommand::Execute() const
     {
         printf("Building and installing GLFW...");
