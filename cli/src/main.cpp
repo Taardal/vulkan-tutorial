@@ -6,16 +6,22 @@ using namespace VulkandemoCLI;
 
 int main(int argc, char* argv[])
 {
+    auto* app = new App();
+
 #ifdef VD_DEBUG
-    PrintInput(argc, argv);
+    app->PrintInput(argc, argv);
 #endif
-    Command* command = ParseCommand(argc, argv);
+
+    Command* command = app->GetCommand(argc, argv);
     if (command != nullptr)
     {
         command->Execute();
     }
     else
     {
-        PrintHelp();
+        app->PrintHelp();
     }
+
+    delete app;
+    return 0;
 }

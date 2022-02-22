@@ -5,20 +5,17 @@
 
 namespace VulkandemoCLI
 {
-    void PrintHelp();
-
-    void PrintInput(int argc, char* argv[]);
-
-    Command* ParseCommand(int argc, char* argv[]);
-
-    void ExecuteCommand(Command* command);
-
     class App
     {
     public:
         Command* GetCommand(int argc, char* argv[]) const;
 
-    private:
+        void PrintHelp() const;
 
+        void PrintInput(int argc, char* argv[]) const;
+
+    private:
+        static const std::unordered_map<std::string, Command*> COMMANDS;
+        static const char* HELP;
     };
 }
