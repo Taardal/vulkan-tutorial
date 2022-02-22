@@ -41,3 +41,6 @@ CMakeSettings.json
 
 # macOS
 .DS_Store
+
+# CLI
+vd*

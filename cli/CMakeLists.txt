@@ -10,7 +10,14 @@ set(EXE_NAME vd)
 add_executable(
         ${PROJECT_NAME}
         ${SRC_DIR}/main.cpp
+        ${SRC_DIR}/BuildProjectCommand.cpp
+        ${SRC_DIR}/BuildProjectCommand.h
+        ${SRC_DIR}/Command.h
         ${SRC_DIR}/Environment.h
+        ${SRC_DIR}/InstallDependenciesCommand.cpp
+        ${SRC_DIR}/InstallDependenciesCommand.h
+        ${SRC_DIR}/InstallGLFWCommand.cpp
+        ${SRC_DIR}/InstallGLFWCommand.h
 )
 
 set_target_properties(
@@ -20,6 +27,12 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
         RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BIN_DIR}/debug
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BIN_DIR}/release
+)
+
+target_compile_definitions(
+        ${PROJECT_NAME}
+        PRIVATE
+        VD_EXE_NAME="${EXE_NAME}"
 )
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
