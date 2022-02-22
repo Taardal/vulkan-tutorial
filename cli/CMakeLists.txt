@@ -10,6 +10,8 @@ set(EXE_NAME vd)
 add_executable(
         ${PROJECT_NAME}
         ${SRC_DIR}/main.cpp
+        ${SRC_DIR}/App.cpp
+        ${SRC_DIR}/App.h
         ${SRC_DIR}/BuildProjectCommand.cpp
         ${SRC_DIR}/BuildProjectCommand.h
         ${SRC_DIR}/Command.h
