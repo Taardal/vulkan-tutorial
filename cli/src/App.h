@@ -14,6 +14,8 @@ namespace VulkandemoCLI
 
         Command* GetCommand(int argc, char* argv[]) const;
 
+        std::vector<Option> GetOptions(int argc, char* argv[]) const;
+
     private:
         void PrintHelp() const;
 

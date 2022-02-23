@@ -2,7 +2,6 @@
 #include "BuildProjectCommand.h"
 #include "InstallDependenciesCommand.h"
 #include "InstallGLFWCommand.h"
-#include <iostream>
 #include <map>
 
 namespace VulkandemoCLI
@@ -21,6 +20,50 @@ namespace VulkandemoCLI
     App::~App()
     {
         commands.clear();
+    }
+
+    std::vector<Option> App::GetOptions(int argc, char* argv[]) const
+    {
+        int firstOptionArgumentIndex = 2;
+        bool noOptions = argc < firstOptionArgumentIndex + 1;
+        if (noOptions)
+        {
+            return {};
+        }
+        std::vector<Option> options;
+        for (int i = firstOptionArgumentIndex; i < argc; i++)
+        {
+            std::string optionString(argv[i]);
+            if (optionString.length() == 0 || optionString[0] != '-')
+            {
+                continue;
+            }
+            int equalSignPosition = optionString.find("=");
+            if (equalSignPosition == std::string::npos)
+            {
+                Option option;
+                option.Name = optionString;
+                options.push_back(option);
+                continue;
+            }
+            Option option;
+            option.Name = optionString.substr(0, equalSignPosition);
+            option.Value = optionString.substr(equalSignPosition + 1, optionString.length());
+            options.push_back(option);
+        }
+
+        for (Option option : options)
+        {
+            printf("%s", option.Name.c_str());
+            if (option.Value.length() > 0)
+            {
+                printf("--> %s", option.Value.c_str());
+            }
+            printf("\n");
+        }
+        printf("\n");
+
+        return options;
     }
 
     Command* App::GetCommand(int argc, char* argv[]) const

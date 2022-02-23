@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Option.h"
+#include <vector>
+
 namespace VulkandemoCLI
 {
     class Command
@@ -9,6 +12,6 @@ namespace VulkandemoCLI
 
         virtual const char* GetDescription() const = 0;
 
-        virtual void Execute() const = 0;
+        virtual void Execute(const std::vector<Option>& options) const = 0;
     };
 }

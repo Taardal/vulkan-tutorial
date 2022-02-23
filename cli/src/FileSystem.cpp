@@ -5,7 +5,6 @@ namespace VulkandemoCLI
 {
     std::string FileSystem::ReadFile(const char* path) const
     {
-        printf("Reading file [%s]\n", path);
         std::string result;
         std::ifstream inputStream(path, std::ios::in | std::ios::binary);
         if (inputStream)

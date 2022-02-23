@@ -16,7 +16,7 @@ namespace VulkandemoCLI
         return "Install GLFW";
     }
 
-    void InstallGLFWCommand::Execute() const
+    void InstallGLFWCommand::Execute(const std::vector<Option>& options) const
     {
         printf("Building and installing GLFW...");
 

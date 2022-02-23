@@ -11,7 +11,7 @@ namespace VulkandemoCLI
 
         const char* GetDescription() const override;
 
-        void Execute() const override;
+        void Execute(const std::vector<Option>& options) const override;
 
         static const char* NAME;
     };

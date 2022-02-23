@@ -1,5 +1,4 @@
 #include "InstallDependenciesCommand.h"
-#include <iostream>
 #include <sstream>
 #include <vector>
 
@@ -20,19 +19,9 @@ namespace VulkandemoCLI
         return DESCRIPTION;
     }
 
-    void InstallDependenciesCommand::Execute() const
+    void InstallDependenciesCommand::Execute(const std::vector<Option>& options) const
     {
-        printf("%s\n", "#######################################");
-        printf("%s\n", "#  Installing git submodules...       #");
-        printf("%s\n", "#######################################");
-        printf("\n");
-
-        printf("%s\n", "git submodule update --init");
-        //std::system("git submodule update --init");
-
-        printf("%s\n", "#######################################");
-        printf("%s\n", "#  Setting git submodule versions...  #");
-        printf("%s\n", "#######################################");
+        std::system("git submodule update --init");
         printf("\n");
 
         FileSystem fileSystem;
@@ -50,7 +39,9 @@ namespace VulkandemoCLI
             std::stringstream ss;
             ss << "cd " << DEPENDENCIES_DIRECTORY_NAME << "/" << name << " && git checkout " << version;
             std::string command = ss.str();
-            //std::system(command.c_str());
+            std::system(command.c_str());
+            printf("\n");
         }
+        printf("\n");
     }
 }

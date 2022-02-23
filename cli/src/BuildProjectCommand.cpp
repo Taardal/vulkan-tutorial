@@ -16,7 +16,7 @@ namespace VulkandemoCLI
         return "Build project";
     }
 
-    void BuildProjectCommand::Execute() const
+    void BuildProjectCommand::Execute(const std::vector<Option>& options) const
     {
         printf("Building application...");
 

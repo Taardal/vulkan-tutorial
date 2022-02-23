@@ -22,6 +22,7 @@ add_executable(
         ${SRC_DIR}/InstallDependenciesCommand.h
         ${SRC_DIR}/InstallGLFWCommand.cpp
         ${SRC_DIR}/InstallGLFWCommand.h
+        ${SRC_DIR}/Option.h
 )
 
 set_target_properties(
