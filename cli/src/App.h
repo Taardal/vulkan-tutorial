@@ -19,6 +19,7 @@ namespace VulkandemoCLI
     private:
         void PrintHelp() const;
 
+    public:
         void PrintInput(int argc, char* argv[]) const;
 
         static const char* DEFAULT_EXE_NAME;

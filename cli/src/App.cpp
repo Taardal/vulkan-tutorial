@@ -33,31 +33,80 @@ namespace VulkandemoCLI
         std::vector<Option> options;
         for (int i = firstOptionArgumentIndex; i < argc; i++)
         {
-            std::string optionString(argv[i]);
-            if (optionString.length() == 0 || optionString[0] != '-')
+            std::string input(argv[i]);
+
+            bool longForm = input.length() > 2 && input.substr(0, 2) == "--";
+            bool shortForm = input.length() > 1 && input.substr(0, 1) == "-";
+
+            if (longForm)
             {
-                continue;
-            }
-            int equalSignPosition = optionString.find("=");
-            if (equalSignPosition == std::string::npos)
-            {
+                bool hasValueWithEquals = input.find("=") != std::string::npos;
+
+                std::string nextInput = argc - 1 >= i + 1 ? std::string(argv[i + 1]) : "";
+                bool nextInputIsValueForThisOption = nextInput.length() > 0 && nextInput.substr(0, 1) != "-";
+                bool hasValueWithSpace = nextInputIsValueForThisOption;
+
                 Option option;
-                option.Name = optionString;
+                if (hasValueWithEquals)
+                {
+                    printf("NOTICE ME: %s\n", input.c_str());
+                    printf("NOTICE ME: %lu\n", input.find("="));
+                    printf("NOTICE ME: %s\n", input.substr(2, input.find("=") - 2).c_str());
+                    option.Name = input.substr(2, input.find("=") - 2);
+                    option.NameWithDashes = input.substr(0, input.find("="));
+                    option.Value = input.substr(input.find("=") + 1, input.length());
+                }
+                else if (hasValueWithSpace)
+                {
+                    option.Name = input.substr(2, input.length());
+                    option.NameWithDashes = input;
+                    option.Value = nextInput;
+                }
+                else
+                {
+                    option.Name = input.substr(2, input.length());
+                    option.NameWithDashes = input;
+                }
                 options.push_back(option);
-                continue;
             }
-            Option option;
-            option.Name = optionString.substr(0, equalSignPosition);
-            option.Value = optionString.substr(equalSignPosition + 1, optionString.length());
-            options.push_back(option);
+            else if (shortForm)
+            {
+                bool hasValueWithEquals = input.find("=") != std::string::npos;
+
+                std::string nextInput = argc - 1 >= i + 1 ? std::string(argv[i + 1]) : "";
+                bool nextInputIsValueForThisOption = nextInput.length() > 0 && nextInput.substr(0, 1) != "-";
+                bool hasValueWithSpace = nextInputIsValueForThisOption;
+
+                Option option;
+                if (hasValueWithEquals)
+                {
+                    option.Name = input.substr(1, input.find("=") - 1);
+                    option.NameWithDashes = input.substr(0, input.find("="));
+                    option.Value = input.substr(input.find("=") + 1, input.length());
+                }
+                else if (hasValueWithSpace)
+                {
+                    option.Name = input.substr(1, input.length());
+                    option.NameWithDashes = input;
+                    option.Value = nextInput;
+                }
+                else
+                {
+                    option.Name = input.substr(1, input.length());
+                    option.NameWithDashes = input;
+                }
+                options.push_back(option);
+            }
         }
 
+        printf("\n");
         for (Option option : options)
         {
-            printf("%s", option.Name.c_str());
+            printf("%s\n", option.NameWithDashes.c_str());
+            printf("%s\n", option.Name.c_str());
             if (option.Value.length() > 0)
             {
-                printf("--> %s", option.Value.c_str());
+                printf("%s --> %s\n", option.Name.c_str(), option.Value.c_str());
             }
             printf("\n");
         }
