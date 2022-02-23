@@ -5,6 +5,7 @@
 namespace VulkandemoCLI
 {
     const char* InstallGLFWCommand::NAME = "glfw";
+    const char* InstallGLFWCommand::DESCRIPTION = "Install GLFW";
 
     const char* InstallGLFWCommand::GetName() const
     {
@@ -13,7 +14,7 @@ namespace VulkandemoCLI
 
     const char* InstallGLFWCommand::GetDescription() const
     {
-        return "Install GLFW";
+        return DESCRIPTION;
     }
 
     void InstallGLFWCommand::Execute(const std::vector<Option>& options) const
@@ -33,8 +34,8 @@ namespace VulkandemoCLI
         ss << also;
         ss << "cmake --install ./" << buildDir << " --config " << buildType;
 
-        std::string cmd = ss.str();
-        printf("%s\n", cmd.c_str());
-        std::system(cmd.c_str());
+        std::string command = ss.str();
+        printf("%s\n", command.c_str());
+        std::system(command.c_str());
     }
 }

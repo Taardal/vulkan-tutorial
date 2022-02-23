@@ -39,6 +39,7 @@ namespace VulkandemoCLI
             std::stringstream ss;
             ss << "cd " << DEPENDENCIES_DIRECTORY_NAME << "/" << name << " && git checkout " << version;
             std::string command = ss.str();
+            printf("%s\n", command.c_str());
             std::system(command.c_str());
             printf("\n");
         }

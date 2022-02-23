@@ -24,7 +24,7 @@ namespace VulkandemoCLI
 
     Command* App::GetCommand(int argc, char* argv[]) const
     {
-#ifdef VD_DEBUG
+#ifdef VDC_DEBUG
         PrintInput(argc, argv);
 #endif
         constexpr int commandIndex = 1;
@@ -111,8 +111,8 @@ namespace VulkandemoCLI
 
     void App::PrintHelp() const
     {
-#ifdef VD_EXE_NAME
-        const char* appName = VD_EXE_NAME;
+#ifdef VDC_EXE_NAME
+        const char* appName = VDC_EXE_NAME;
 #else
         const char* appName = DEFAULT_EXE_NAME;
 #endif

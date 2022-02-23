@@ -37,7 +37,7 @@ set_target_properties(
 target_compile_definitions(
         ${PROJECT_NAME}
         PRIVATE
-        VD_EXE_NAME="${EXE_NAME}"
+        VDC_EXE_NAME="${EXE_NAME}"
 )
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})

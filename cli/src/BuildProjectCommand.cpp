@@ -5,6 +5,7 @@
 namespace VulkandemoCLI
 {
     const char* BuildProjectCommand::NAME = "build";
+    const char* BuildProjectCommand::DESCRIPTION = "Build project";
 
     const char* BuildProjectCommand::GetName() const
     {
@@ -13,7 +14,7 @@ namespace VulkandemoCLI
 
     const char* BuildProjectCommand::GetDescription() const
     {
-        return "Build project";
+        return DESCRIPTION;
     }
 
     void BuildProjectCommand::Execute(const std::vector<Option>& options) const
@@ -29,8 +30,8 @@ namespace VulkandemoCLI
         ss << also;
         ss << "cmake --build " << buildDir << " --config " << buildType;
 
-        std::string cmd = ss.str();
-        printf("%s\n", cmd.c_str());
-        std::system(cmd.c_str());
+        std::string command = ss.str();
+        printf("%s\n", command.c_str());
+        std::system(command.c_str());
     }
 }
