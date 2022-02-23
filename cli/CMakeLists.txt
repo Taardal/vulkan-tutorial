@@ -16,6 +16,8 @@ add_executable(
         ${SRC_DIR}/BuildProjectCommand.h
         ${SRC_DIR}/Command.h
         ${SRC_DIR}/Environment.h
+        ${SRC_DIR}/FileSystem.h
+        ${SRC_DIR}/FileSystem.cpp
         ${SRC_DIR}/InstallDependenciesCommand.cpp
         ${SRC_DIR}/InstallDependenciesCommand.h
         ${SRC_DIR}/InstallGLFWCommand.cpp

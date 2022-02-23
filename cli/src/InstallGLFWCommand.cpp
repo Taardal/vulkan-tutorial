@@ -35,6 +35,6 @@ namespace VulkandemoCLI
 
         std::string cmd = ss.str();
         printf("%s\n", cmd.c_str());
-        //std::system(cmd.c_str());
+        std::system(cmd.c_str());
     }
 }

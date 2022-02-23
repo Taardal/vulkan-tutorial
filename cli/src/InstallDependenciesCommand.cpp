@@ -19,12 +19,18 @@ namespace VulkandemoCLI
 
     void InstallDependenciesCommand::Execute() const
     {
+        printf("%s\n", "NOTICE ME");
+        printf("%s\n", getenv("GLFW"));
+        printf("%s\n", getenv("GLM"));
+        printf("%s\n", getenv("SPDLOG"));
+        printf("\n");
+
         printf("Installing git submodules...\n");
         InstallGitSubmodules();
         printf("Setting git submodule versions...\n");
-        SetGitSubmoduleVersion("glfw", "3.3.4");
-        SetGitSubmoduleVersion("glm", "0.9.9.8");
-        SetGitSubmoduleVersion("spdlog", "v1.9.2");
+        SetGitSubmoduleVersion("glfw", getenv("GLFW"));
+        SetGitSubmoduleVersion("glm", getenv("GLM"));
+        SetGitSubmoduleVersion("spdlog", getenv("SPDLOG"));
     }
 
     void InstallDependenciesCommand::InstallGitSubmodules() const
