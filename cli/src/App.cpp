@@ -24,79 +24,57 @@ namespace VulkandemoCLI
 
     std::vector<Option> App::GetOptions(int argc, char* argv[]) const
     {
-        int firstOptionArgumentIndex = 2;
-        bool noOptions = argc < firstOptionArgumentIndex + 1;
+        int firstArgumentIndex = 2;
+
+        bool noOptions = argc < firstArgumentIndex + 1;
         if (noOptions)
         {
             return {};
         }
+
         std::vector<Option> options;
-        for (int i = firstOptionArgumentIndex; i < argc; i++)
+        for (int i = firstArgumentIndex; i < argc; i++)
         {
-            std::string input(argv[i]);
+            std::string argument(argv[i]);
 
-            bool longForm = input.length() > 2 && input.substr(0, 2) == "--";
-            bool shortForm = input.length() > 1 && input.substr(0, 1) == "-";
+            int longFormDashCount = 2;
+            int shortFormDashCount = 2;
 
-            if (longForm)
+            bool longForm = argument.length() > 2 && argument.substr(0, longFormDashCount) == "--";
+            bool shortForm = argument.length() > 1 && argument.substr(0, shortFormDashCount) == "-";
+
+            if (!longForm && !shortForm)
             {
-                bool hasValueWithEquals = input.find("=") != std::string::npos;
-
-                std::string nextInput = argc - 1 >= i + 1 ? std::string(argv[i + 1]) : "";
-                bool nextInputIsValueForThisOption = nextInput.length() > 0 && nextInput.substr(0, 1) != "-";
-                bool hasValueWithSpace = nextInputIsValueForThisOption;
-
-                Option option;
-                if (hasValueWithEquals)
-                {
-                    printf("NOTICE ME: %s\n", input.c_str());
-                    printf("NOTICE ME: %lu\n", input.find("="));
-                    printf("NOTICE ME: %s\n", input.substr(2, input.find("=") - 2).c_str());
-                    option.Name = input.substr(2, input.find("=") - 2);
-                    option.NameWithDashes = input.substr(0, input.find("="));
-                    option.Value = input.substr(input.find("=") + 1, input.length());
-                }
-                else if (hasValueWithSpace)
-                {
-                    option.Name = input.substr(2, input.length());
-                    option.NameWithDashes = input;
-                    option.Value = nextInput;
-                }
-                else
-                {
-                    option.Name = input.substr(2, input.length());
-                    option.NameWithDashes = input;
-                }
-                options.push_back(option);
+                continue;
             }
-            else if (shortForm)
+
+            int dashCount = longForm ? longFormDashCount : shortFormDashCount;
+            int argumentEqualSignIndex = argument.find("=");
+            bool hasValueWithEquals = argumentEqualSignIndex != std::string::npos;
+
+            int nextArgumentIndex = i + 1;
+            std::string nextArgument = argc - 1 >= nextArgumentIndex ? std::string(argv[nextArgumentIndex]) : "";
+            bool hasValueWithSpace = nextArgument.length() > 0 && nextArgument.substr(0, 1) != "-";
+
+            Option option;
+            if (hasValueWithEquals)
             {
-                bool hasValueWithEquals = input.find("=") != std::string::npos;
-
-                std::string nextInput = argc - 1 >= i + 1 ? std::string(argv[i + 1]) : "";
-                bool nextInputIsValueForThisOption = nextInput.length() > 0 && nextInput.substr(0, 1) != "-";
-                bool hasValueWithSpace = nextInputIsValueForThisOption;
-
-                Option option;
-                if (hasValueWithEquals)
-                {
-                    option.Name = input.substr(1, input.find("=") - 1);
-                    option.NameWithDashes = input.substr(0, input.find("="));
-                    option.Value = input.substr(input.find("=") + 1, input.length());
-                }
-                else if (hasValueWithSpace)
-                {
-                    option.Name = input.substr(1, input.length());
-                    option.NameWithDashes = input;
-                    option.Value = nextInput;
-                }
-                else
-                {
-                    option.Name = input.substr(1, input.length());
-                    option.NameWithDashes = input;
-                }
-                options.push_back(option);
+                option.Name = argument.substr(dashCount, argumentEqualSignIndex - dashCount);
+                option.NameWithDashes = argument.substr(0, argumentEqualSignIndex);
+                option.Value = argument.substr(argumentEqualSignIndex + 1, argument.length());
             }
+            else if (hasValueWithSpace)
+            {
+                option.Name = argument.substr(dashCount, argument.length());
+                option.NameWithDashes = argument;
+                option.Value = nextArgument;
+            }
+            else
+            {
+                option.Name = argument.substr(dashCount, argument.length());
+                option.NameWithDashes = argument;
+            }
+            options.push_back(option);
         }
 
         printf("\n");
