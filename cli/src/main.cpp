@@ -10,9 +10,7 @@ int main(int argc, char* argv[])
     Command* command = app->GetCommand(argc, argv);
     if (command != nullptr)
     {
-        app->PrintInput(argc, argv);
-        app->GetOptions(argc, argv);
-        //command->Execute(app->GetOptions(argc, argv));
+        command->Execute(app->GetOptions(argc, argv));
     }
     delete app;
     return 0;

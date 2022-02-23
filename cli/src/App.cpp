@@ -22,89 +22,19 @@ namespace VulkandemoCLI
         commands.clear();
     }
 
-    std::vector<Option> App::GetOptions(int argc, char* argv[]) const
-    {
-        int firstArgumentIndex = 2;
-
-        bool noOptions = argc < firstArgumentIndex + 1;
-        if (noOptions)
-        {
-            return {};
-        }
-
-        std::vector<Option> options;
-        for (int i = firstArgumentIndex; i < argc; i++)
-        {
-            std::string argument(argv[i]);
-
-            int longFormDashCount = 2;
-            int shortFormDashCount = 2;
-
-            bool longForm = argument.length() > 2 && argument.substr(0, longFormDashCount) == "--";
-            bool shortForm = argument.length() > 1 && argument.substr(0, shortFormDashCount) == "-";
-
-            if (!longForm && !shortForm)
-            {
-                continue;
-            }
-
-            int dashCount = longForm ? longFormDashCount : shortFormDashCount;
-            int argumentEqualSignIndex = argument.find("=");
-            bool hasValueWithEquals = argumentEqualSignIndex != std::string::npos;
-
-            int nextArgumentIndex = i + 1;
-            std::string nextArgument = argc - 1 >= nextArgumentIndex ? std::string(argv[nextArgumentIndex]) : "";
-            bool hasValueWithSpace = nextArgument.length() > 0 && nextArgument.substr(0, 1) != "-";
-
-            Option option;
-            if (hasValueWithEquals)
-            {
-                option.Name = argument.substr(dashCount, argumentEqualSignIndex - dashCount);
-                option.NameWithDashes = argument.substr(0, argumentEqualSignIndex);
-                option.Value = argument.substr(argumentEqualSignIndex + 1, argument.length());
-            }
-            else if (hasValueWithSpace)
-            {
-                option.Name = argument.substr(dashCount, argument.length());
-                option.NameWithDashes = argument;
-                option.Value = nextArgument;
-            }
-            else
-            {
-                option.Name = argument.substr(dashCount, argument.length());
-                option.NameWithDashes = argument;
-            }
-            options.push_back(option);
-        }
-
-        printf("\n");
-        for (Option option : options)
-        {
-            printf("%s\n", option.NameWithDashes.c_str());
-            printf("%s\n", option.Name.c_str());
-            if (option.Value.length() > 0)
-            {
-                printf("%s --> %s\n", option.Name.c_str(), option.Value.c_str());
-            }
-            printf("\n");
-        }
-        printf("\n");
-
-        return options;
-    }
-
     Command* App::GetCommand(int argc, char* argv[]) const
     {
 #ifdef VD_DEBUG
         PrintInput(argc, argv);
 #endif
-        bool noCommand = argc < 2;
+        constexpr int commandIndex = 1;
+        bool noCommand = argc < commandIndex + 1;
         if (noCommand)
         {
             PrintHelp();
             return nullptr;
         }
-        const char* command = argv[1];
+        const char* command = argv[commandIndex];
         bool printHelp = strcmp("-h", command) == 0 || strcmp("--help", command) == 0;
         if (printHelp)
         {
@@ -120,6 +50,65 @@ namespace VulkandemoCLI
         return iterator->second;
     }
 
+    std::vector<Option> App::GetOptions(int argc, char* argv[]) const
+    {
+        int firstArgumentIndex = 2;
+
+        bool noOptions = argc < firstArgumentIndex + 1;
+        if (noOptions)
+        {
+            return {};
+        }
+
+        std::vector<Option> options;
+        for (int i = firstArgumentIndex; i < argc; i++)
+        {
+            std::string argument(argv[i]);
+            std::string nextArgument = argc - 1 >= i + 1 ? std::string(argv[i + 1]) : "";
+
+            constexpr int longFormDashCount = 2;
+            constexpr int shortFormDashCount = 1;
+
+            bool longForm = argument.length() > 2 && argument.substr(0, longFormDashCount) == "--";
+            bool shortForm = argument.length() > 1 && argument.substr(0, shortFormDashCount) == "-";
+
+            if (!longForm && !shortForm)
+            {
+                continue;
+            }
+
+            int dashCount = longForm ? longFormDashCount : shortFormDashCount;
+            options.push_back(GetOption(argument, nextArgument, dashCount));
+        }
+        return options;
+    }
+
+    Option App::GetOption(const std::string& argument, const std::string& nextArgument, int dashCount) const
+    {
+        int argumentEqualSignIndex = argument.find("=");
+        bool hasValueWithEquals = argumentEqualSignIndex != std::string::npos;
+        bool hasValueWithSpace = nextArgument.length() > 0 && nextArgument.substr(0, 1) != "-";
+        Option option;
+        if (hasValueWithEquals)
+        {
+            option.Name = argument.substr(dashCount, argumentEqualSignIndex - dashCount);
+            option.NameWithDashes = argument.substr(0, argumentEqualSignIndex);
+            option.Value = argument.substr(argumentEqualSignIndex + 1, argument.length());
+        }
+        else if (hasValueWithSpace)
+        {
+            option.Name = argument.substr(dashCount, argument.length());
+            option.NameWithDashes = argument;
+            option.Value = nextArgument;
+        }
+        else
+        {
+            option.Name = argument.substr(dashCount, argument.length());
+            option.NameWithDashes = argument;
+        }
+        return option;
+    }
+
     void App::PrintHelp() const
     {
 #ifdef VD_EXE_NAME
@@ -128,8 +117,8 @@ namespace VulkandemoCLI
         const char* appName = DEFAULT_EXE_NAME;
 #endif
 
-        int keyLeftPadding = 5;
-        int valueLeftPadding = 15;
+        constexpr int keyLeftPadding = 5;
+        constexpr int valueLeftPadding = 15;
 
         printf("Usage:\n");
         int usageWidth = keyLeftPadding + strlen(appName);

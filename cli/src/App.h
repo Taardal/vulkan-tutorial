@@ -17,9 +17,10 @@ namespace VulkandemoCLI
         std::vector<Option> GetOptions(int argc, char* argv[]) const;
 
     private:
+        Option GetOption(const std::string& argument, const std::string& nextArgument, int dashCount) const;
+
         void PrintHelp() const;
 
-    public:
         void PrintInput(int argc, char* argv[]) const;
 
         static const char* DEFAULT_EXE_NAME;
