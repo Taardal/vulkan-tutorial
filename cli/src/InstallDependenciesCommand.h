@@ -10,6 +10,8 @@ namespace VulkandemoCLI
     class InstallDependenciesCommand : public Command
     {
     public:
+        InstallDependenciesCommand(FileSystem* fileSystem);
+
         const char* GetName() const override;
 
         const char* GetDescription() const override;
@@ -23,5 +25,7 @@ namespace VulkandemoCLI
     private:
         static const char* DEPENDENCIES_FILENAME;
         static const char* DEPENDENCIES_DIRECTORY_NAME;
+
+        FileSystem* fileSystem;
     };
 }

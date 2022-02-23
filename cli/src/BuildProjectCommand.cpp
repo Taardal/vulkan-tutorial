@@ -1,4 +1,5 @@
 #include "BuildProjectCommand.h"
+#include "Environment.h"
 #include <iostream>
 #include <sstream>
 
@@ -19,8 +20,6 @@ namespace VulkandemoCLI
 
     void BuildProjectCommand::Execute(const std::vector<Option>& options) const
     {
-        printf("Building application...");
-
         const char* also = " && ";
         const char* buildType = "Debug";
         const char* buildDir = "cmake-build-debug";
@@ -31,7 +30,9 @@ namespace VulkandemoCLI
         ss << "cmake --build " << buildDir << " --config " << buildType;
 
         std::string command = ss.str();
+#ifdef VDC_DEBUG
         printf("%s\n", command.c_str());
+#endif
         std::system(command.c_str());
     }
 }

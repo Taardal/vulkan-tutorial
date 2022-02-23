@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Command.h"
+#include "FileSystem.h"
 #include <map>
 
 namespace VulkandemoCLI
@@ -24,6 +25,7 @@ namespace VulkandemoCLI
         void PrintInput(int argc, char* argv[]) const;
 
         static const char* DEFAULT_EXE_NAME;
+        FileSystem* fileSystem;
         std::map<std::string, Command*> commands;
     };
 }

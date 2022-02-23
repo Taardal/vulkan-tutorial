@@ -19,8 +19,6 @@ namespace VulkandemoCLI
 
     void InstallGLFWCommand::Execute(const std::vector<Option>& options) const
     {
-        printf("Building and installing GLFW...");
-
         const char* also = " && ";
         const char* buildType = "Debug";
         const char* buildDir = "build";
@@ -35,7 +33,9 @@ namespace VulkandemoCLI
         ss << "cmake --install ./" << buildDir << " --config " << buildType;
 
         std::string command = ss.str();
+#ifdef VDC_DEBUG
         printf("%s\n", command.c_str());
+#endif
         std::system(command.c_str());
     }
 }

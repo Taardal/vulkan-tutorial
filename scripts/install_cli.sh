@@ -23,7 +23,7 @@ echo "-- Using CMake source directory [${sourceDirectory}]"
 buildDirectory="${workingDirectory}/build"
 echo "-- Using CMake build directory [${buildDirectory}]"
 
-buildType="Release"
+buildType="Debug"
 echo "-- Using build type [${buildType}]"
 
 echo "
@@ -31,7 +31,7 @@ echo "
 #  Generating build files...          #
 #######################################
 "
-cmake -B "${buildDirectory}" -S "${sourceDirectory}" -DCMAKE_BUILD_TYPE="${buildType}"
+cmake -DCMAKE_BUILD_TYPE="${buildType}" -B "${buildDirectory}" -S "${sourceDirectory}"
 
 echo "
 #######################################

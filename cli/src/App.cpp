@@ -1,5 +1,6 @@
 #include "App.h"
 #include "BuildProjectCommand.h"
+#include "Environment.h"
 #include "InstallDependenciesCommand.h"
 #include "InstallGLFWCommand.h"
 #include <map>
@@ -9,9 +10,10 @@ namespace VulkandemoCLI
     const char* App::DEFAULT_EXE_NAME = "vd";
 
     App::App()
-        : commands({
+        : fileSystem(new FileSystem()),
+          commands({
             {BuildProjectCommand::NAME, new BuildProjectCommand()},
-            {InstallDependenciesCommand::NAME, new InstallDependenciesCommand()},
+            {InstallDependenciesCommand::NAME, new InstallDependenciesCommand(fileSystem)},
             {InstallGLFWCommand::NAME, new InstallGLFWCommand()}
         })
     {
@@ -20,6 +22,7 @@ namespace VulkandemoCLI
     App::~App()
     {
         commands.clear();
+        delete fileSystem;
     }
 
     Command* App::GetCommand(int argc, char* argv[]) const
@@ -164,5 +167,6 @@ namespace VulkandemoCLI
         {
             printf("argc [%i/%i], argv [%s]\n", (i + 1), argc, argv[i]);
         }
+        printf("\n");
     }
 }
