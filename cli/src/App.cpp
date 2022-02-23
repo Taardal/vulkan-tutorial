@@ -88,15 +88,15 @@ namespace VulkandemoCLI
 
     Option App::GetOption(const std::string& argument, const std::string& nextArgument, int dashCount) const
     {
-        int argumentEqualSignIndex = argument.find("=");
-        bool hasValueWithEquals = argumentEqualSignIndex != std::string::npos;
+        int equalSignIndex = argument.find("=");
+        bool hasValueWithEquals = equalSignIndex != std::string::npos;
         bool hasValueWithSpace = nextArgument.length() > 0 && nextArgument.substr(0, 1) != "-";
         Option option;
         if (hasValueWithEquals)
         {
-            option.Name = argument.substr(dashCount, argumentEqualSignIndex - dashCount);
-            option.NameWithDashes = argument.substr(0, argumentEqualSignIndex);
-            option.Value = argument.substr(argumentEqualSignIndex + 1, argument.length());
+            option.Name = argument.substr(dashCount, equalSignIndex - dashCount);
+            option.NameWithDashes = argument.substr(0, equalSignIndex);
+            option.Value = argument.substr(equalSignIndex + 1, argument.length());
         }
         else if (hasValueWithSpace)
         {
