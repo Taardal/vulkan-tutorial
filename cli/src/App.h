@@ -6,26 +6,31 @@
 
 namespace VulkandemoCLI
 {
-    class App
+    struct App
     {
     public:
         App();
 
-        ~App();
+        void Run(int argc, char* argv[]) const;
 
-        Command* GetCommand(int argc, char* argv[]) const;
+    private:
+        Command GetCommand(int argc, char* argv[]) const;
 
         std::vector<Option> GetOptions(int argc, char* argv[]) const;
 
-    private:
         Option GetOption(const std::string& argument, const std::string& nextArgument, int dashCount) const;
 
         void PrintHelp() const;
 
         void PrintInput(int argc, char* argv[]) const;
 
+    public:
+        std::string Name;
+        std::string Usage;
+        std::vector<Command> Commands;
+
+    private:
         static const char* DEFAULT_EXE_NAME;
-        FileSystem* fileSystem;
-        std::map<std::string, Command*> commands;
+        Command helpCommand;
     };
 }

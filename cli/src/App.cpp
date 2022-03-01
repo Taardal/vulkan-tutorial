@@ -1,8 +1,6 @@
 #include "App.h"
-#include "BuildProjectCommand.h"
-#include "Environment.h"
-#include "InstallDependenciesCommand.h"
-#include "InstallGLFWCommand.h"
+#include "Context.h"
+#include "HelpCommand.h"
 #include <map>
 
 namespace VulkandemoCLI
@@ -10,47 +8,50 @@ namespace VulkandemoCLI
     const char* App::DEFAULT_EXE_NAME = "vd";
 
     App::App()
-        : fileSystem(new FileSystem()),
-          commands({
-            {BuildProjectCommand::NAME, new BuildProjectCommand()},
-            {InstallDependenciesCommand::NAME, new InstallDependenciesCommand(fileSystem)},
-            {InstallGLFWCommand::NAME, new InstallGLFWCommand()}
-        })
+        : helpCommand(CreateHelpCommand())
     {
     }
 
-    App::~App()
-    {
-        commands.clear();
-        delete fileSystem;
-    }
-
-    Command* App::GetCommand(int argc, char* argv[]) const
+    void App::Run(int argc, char* argv[]) const
     {
 #ifdef VDC_DEBUG
         PrintInput(argc, argv);
 #endif
+        const Command& command = GetCommand(argc, argv);
+        if (command.Name == "")
+        {
+            printf("%s\n", "Error: Unknown command");
+            return;
+        }
+        Context context;
+        context.App = this;
+        command.Action(context);
+    }
+
+    Command App::GetCommand(int argc, char* argv[]) const
+    {
         constexpr int commandIndex = 1;
         bool noCommand = argc < commandIndex + 1;
         if (noCommand)
         {
-            PrintHelp();
-            return nullptr;
+            return helpCommand;
         }
-        const char* command = argv[commandIndex];
-        bool printHelp = strcmp("-h", command) == 0 || strcmp("--help", command) == 0;
-        if (printHelp)
+        std::string commandArgument(argv[commandIndex]);
+        if (commandArgument == helpCommand.Name)
         {
-            PrintHelp();
-            return nullptr;
+            return helpCommand;
         }
-        const auto& iterator = commands.find(command);
-        if (iterator == commands.end())
+        else
         {
-            printf("Unknown command: %s\n", command);
-            return nullptr;
+            for (Command command : Commands)
+            {
+                if (command.Name == commandArgument)
+                {
+                    return command;
+                }
+            }
         }
-        return iterator->second;
+        return {};
     }
 
     std::vector<Option> App::GetOptions(int argc, char* argv[]) const
@@ -114,6 +115,7 @@ namespace VulkandemoCLI
 
     void App::PrintHelp() const
     {
+        /*
 #ifdef VDC_EXE_NAME
         const char* appName = VDC_EXE_NAME;
 #else
@@ -159,6 +161,7 @@ namespace VulkandemoCLI
             printf("%*s\n", descriptionWidth, command->GetDescription());
         }
         printf("\n");
+        */
     }
 
     void App::PrintInput(int argc, char* argv[]) const

@@ -1,17 +1,16 @@
 #pragma once
 
+#include "Context.h"
 #include "Option.h"
 #include <vector>
 
 namespace VulkandemoCLI
 {
-    class Command
+    struct Command
     {
-    public:
-        virtual const char* GetName() const = 0;
-
-        virtual const char* GetDescription() const = 0;
-
-        virtual void Execute(const std::vector<Option>& options) const = 0;
+        std::string Name;
+        std::string Usage;
+        std::vector<std::string> Aliases;
+        std::function<void(const Context&)> Action;
     };
 }
