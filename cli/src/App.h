@@ -2,6 +2,7 @@
 
 #include "Command.h"
 #include "FileSystem.h"
+#include "Flag.h"
 #include <map>
 
 namespace VulkandemoCLI
@@ -14,9 +15,13 @@ namespace VulkandemoCLI
         void Run(int argc, char* argv[]) const;
 
     private:
-        Command GetCommand(int argc, char* argv[]) const;
+        std::vector<Flag> GetFlags(const std::vector<std::string>& arguments) const;
 
-        std::vector<Option> GetOptions(int argc, char* argv[]) const;
+        std::vector<std::string> GetArguments(int argc, char* argv[]) const;
+
+        Command GetCommand(const std::vector<std::string>& arguments) const;
+
+        std::vector<Option> GetOptions(const std::vector<std::string>& arguments) const;
 
         Option GetOption(const std::string& argument, const std::string& nextArgument, int dashCount) const;
 
@@ -28,9 +33,12 @@ namespace VulkandemoCLI
         std::string Name;
         std::string Usage;
         std::vector<Command> Commands;
+        std::vector<Option> Options;
+        std::vector<Flag> Flags;
 
     private:
         static const char* DEFAULT_EXE_NAME;
         Command helpCommand;
+        Flag helpFlag;
     };
 }
