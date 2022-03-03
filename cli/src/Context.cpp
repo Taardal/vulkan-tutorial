@@ -11,9 +11,9 @@ namespace VulkandemoCLI
 
         ss << "CONTEXT" << std::endl;
         ss << "  COMMAND:" << std::endl;
-        ss << "    " << (Command->Name.size() > 0 ? Command->Name : "[EMPTY]") << std::endl;
-        ss << "  FLAGS: " << (*Flags).size() << std::endl;
-        for (const Flag& flag : *Flags)
+        ss << "    " << (Command != nullptr ? Command->Name : "[EMPTY]") << std::endl;
+        ss << "  FLAGS: " << Flags.size() << std::endl;
+        for (const Flag& flag : Flags)
         {
             ss << "    " << flag.Name.c_str();
             if (!flag.Value.empty())
@@ -22,10 +22,10 @@ namespace VulkandemoCLI
             }
             ss << std::endl;
         }
-        ss << "  ARGS: " << (*Args).size() << std::endl;
-        for (const std::string& arg : *Args)
+        ss << "  ARGS: " << Arguments.size() << std::endl;
+        for (const std::string& argument : Arguments)
         {
-            ss << "    " << arg.c_str() << std::endl;
+            ss << "    " << argument.c_str() << std::endl;
         }
 
         return ss.str();
@@ -33,7 +33,7 @@ namespace VulkandemoCLI
 
     bool Context::HasFlag(const std::string& name) const
     {
-        for (const Flag& flag : *Flags)
+        for (const Flag& flag : Flags)
         {
             if (flag.Name == name)
             {
@@ -45,7 +45,7 @@ namespace VulkandemoCLI
 
     Flag Context::GetFlag(const std::string& name) const
     {
-        for (const Flag& flag : *Flags)
+        for (const Flag& flag : Flags)
         {
             if (flag.Name == name)
             {

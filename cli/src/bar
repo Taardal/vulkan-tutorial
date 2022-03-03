@@ -1,7 +1,7 @@
 #include "App.h"
 #include "Context.h"
 #include "Environment.h"
-#include "HelpCommand.h"
+#include "Help.h"
 #include <sstream>
 #include <exception>
 

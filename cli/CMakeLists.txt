@@ -22,8 +22,8 @@ add_executable(
         ${SRC_DIR}/FileSystem.h
         ${SRC_DIR}/Flag.cpp
         ${SRC_DIR}/Flag.h
-        ${SRC_DIR}/HelpCommand.h
-        ${SRC_DIR}/HelpCommand.cpp
+        ${SRC_DIR}/Help.h
+        ${SRC_DIR}/Help.cpp
         ${SRC_DIR}/InstallDependenciesCommand.cpp
         ${SRC_DIR}/InstallDependenciesCommand.h
         ${SRC_DIR}/InstallGLFWCommand.cpp

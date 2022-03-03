@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
     Flag flag;
     flag.Name = "lang";
     flag.Usage = "Language for the greeting";
+    flag.Aliases = {"a", "b", "c", "d"};
 
     App app;
     app.Name = appName;
@@ -45,12 +46,13 @@ int main(int argc, char* argv[]) {
     app.Flags = {
         flag
     };
+
     app.Action = [](const Context& context) -> void
     {
         std::string name = "Nefertiti";
-        if (context.Args->size() > 0)
+        if (context.Arguments.size() > 0)
         {
-            name = context.Args[0];
+            name = context.Arguments[0];
         }
         if (context.GetFlag("lang").Value == "spanish")
         {
@@ -62,7 +64,7 @@ int main(int argc, char* argv[]) {
         }
         printf("%s\n", context.ToString().c_str());
     };
-    app.Run(argc, argv);
 
+    app.Run(argc, argv);
     return 0;
 }

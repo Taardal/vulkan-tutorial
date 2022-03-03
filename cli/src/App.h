@@ -17,11 +17,11 @@ namespace VulkandemoCLI
     private:
         void Initialize();
 
-        std::vector<std::string> GetArguments(int argc, char* argv[]) const;
+        Flag GetFlag(const std::string& segment, const Command* command) const;
 
-        Flag GetFlag(const std::string& argument, const Command& command) const;
+        const Flag* FindFlag(const std::string& name, const std::vector<Flag>& flags) const;
 
-        Command GetCommand(const std::string& argument) const;
+        const Command* FindCommand(const std::string& segment) const;
 
     public:
         std::string Name;

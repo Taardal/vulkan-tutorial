@@ -11,9 +11,9 @@ namespace VulkandemoCLI
     struct Context
     {
         const App* App;
-        const Command* Command;
+        const Command* Command = nullptr;
         std::vector<Flag> Flags;
-        std::vector<std::string> Args;
+        std::vector<std::string> Arguments;
 
         std::string ToString() const;
 

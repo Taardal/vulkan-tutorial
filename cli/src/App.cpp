@@ -1,14 +1,13 @@
 #include "App.h"
 #include "Context.h"
-#include "Environment.h"
-#include "HelpCommand.h"
+#include "Help.h"
 #include <sstream>
 #include <exception>
 
 namespace VulkandemoCLI
 {
     App::App()
-        : helpCommand(CreateHelpCommand())
+        : helpCommand(CreateHelpCommand()), helpFlag(CreateHelpFlag())
     {
     }
 
@@ -16,163 +15,142 @@ namespace VulkandemoCLI
     {
         Initialize();
 
-        Command command;
-        std::vector<Flag> flags;
-        std::vector<std::string> args;
+        Context context;
+        context.App = this;
 
-        const std::vector<std::string>& arguments = GetArguments(argc, argv);
-
-        bool previousArgumentWasFlag = false;
-
-        for (int i = 0; i < arguments.size(); i++)
+        int firstSegmentIndex = 1;
+        bool noSegments = argc - firstSegmentIndex == 0;
+        if (noSegments)
         {
-            const std::string& argument = arguments[i];
-
-            if (!args.empty())
+            context.Command = &helpCommand;
+            helpCommand.Action(context);
+            return;
+        }
+        bool previousSegmentWasFlag = false;
+        for (int i = firstSegmentIndex; i < argc; i++)
+        {
+            const std::string& segment = argv[i];
+            if (!context.Arguments.empty())
             {
-                args.push_back(argument);
+                context.Arguments.push_back(segment);
                 continue;
             }
-
-            const Flag& flag = GetFlag(argument, command);
-
+            const Flag& flag = GetFlag(segment, context.Command);
             if (!flag.Name.empty())
             {
-                previousArgumentWasFlag = true;
-                flags.push_back(flag);
+                previousSegmentWasFlag = true;
+                context.Flags.push_back(flag);
+                if (flag.Name == helpFlag.Name)
+                {
+                    context.Command = &helpCommand;
+                }
             }
-            else if (previousArgumentWasFlag)
+            else if (previousSegmentWasFlag)
             {
-                flags[flags.size() - 1].Value = argument;
-                previousArgumentWasFlag = false;
+                previousSegmentWasFlag = false;
+                context.Flags[context.Flags.size() - 1].Value = segment;
             }
             else
             {
-                previousArgumentWasFlag = false;
-
-                const Command& parsedCommand = GetCommand(argument);
-                if (parsedCommand.Name.size() > 0)
+                previousSegmentWasFlag = false;
+                context.Command = FindCommand(segment);
+                if (context.Command == nullptr)
                 {
-                    command = parsedCommand;
-                }
-                else
-                {
-                    args.push_back(argument);
+                    context.Arguments.push_back(segment);
                 }
             }
         }
-
-        Context context;
-        context.App = this;
-        context.Command = &command;
-        context.Flags = flags;
-        context.Args = args;
-
-        if (command.Name.size() > 0)
+        if (context.Command != nullptr)
         {
-            command.Action(context);
-            return;
+            context.Command->Action(context);
         }
-
-        Action(context);
+        else
+        {
+            Action(context);
+        }
     }
 
     void App::Initialize()
     {
         Commands.push_back(helpCommand);
-        helpFlag.Name = "help";
-        helpFlag.Aliases = {"h"};
-        helpFlag.Usage = "Show help";
         Flags.push_back(helpFlag);
     }
 
-    std::vector<std::string> App::GetArguments(int argc, char* argv[]) const
-    {
-        std::vector<std::string> arguments;
-        constexpr int firstArgumentIndex = 1;
-        if (argc > firstArgumentIndex)
-        {
-            for (int i = firstArgumentIndex; i < argc; i++)
-            {
-                arguments.push_back(std::string(argv[i]));
-            }
-        }
-        return arguments;
-    }
-
-    Flag App::GetFlag(const std::string &argument, const Command& command) const
+    Flag App::GetFlag(const std::string &segment, const Command* command) const
     {
         constexpr int longFormDashCount = 2;
         constexpr int shortFormDashCount = 1;
-        bool longForm = argument.length() > longFormDashCount && argument.substr(0, longFormDashCount) == "--";
-        bool shortForm = argument.length() > shortFormDashCount && argument.substr(0, shortFormDashCount) == "-";
+        bool longForm = segment.length() > longFormDashCount && segment.substr(0, longFormDashCount) == "--";
+        bool shortForm = segment.length() > shortFormDashCount && segment.substr(0, shortFormDashCount) == "-";
         bool isFlag = longForm || shortForm;
         if (!isFlag)
         {
             return {};
         }
-        Flag parsedFlag;
+        Flag flag;
         int dashCount = longForm ? longFormDashCount : shortFormDashCount;
-        int equalSignIndex = argument.find("=");
-        bool hasValueWithEquals = equalSignIndex != std::string::npos;
-        if (hasValueWithEquals)
+        int equalSignIndex = segment.find("=");
+        if (equalSignIndex != std::string::npos)
         {
-            parsedFlag.Name = argument.substr(dashCount, equalSignIndex - dashCount);
-            parsedFlag.Value = argument.substr(equalSignIndex + 1, argument.length());
+            flag.Name = segment.substr(dashCount, equalSignIndex - dashCount);
+            flag.Value = segment.substr(equalSignIndex + 1, segment.length());
         }
         else
         {
-            parsedFlag.Name = argument.substr(dashCount, argument.length());
+            flag.Name = segment.substr(dashCount, segment.length());
         }
-        bool parsedFlagIsDefined = false;
-        for (const Flag& definedFlag : Flags)
+        const Flag* definedFlag = FindFlag(flag.Name, Flags);
+        if (definedFlag == nullptr && command != nullptr)
         {
-            if (parsedFlag.Name == definedFlag.Name)
+            definedFlag = FindFlag(flag.Name, command->Flags);
+        }
+        if (definedFlag == nullptr)
+        {
+            std::stringstream ss;
+            ss << "Flag provided but not defined: " << segment;
+            throw std::runtime_error(ss.str());
+        }
+        flag.Name = definedFlag->Name;
+        flag.Usage = definedFlag->Usage;
+        flag.Aliases = definedFlag->Aliases;
+        return flag;
+    }
+
+    const Flag* App::FindFlag(const std::string& name, const std::vector<Flag>& flags) const
+    {
+        for (const Flag& flag : flags)
+        {
+            if (name == flag.Name)
             {
-                parsedFlag.Aliases = definedFlag.Aliases;
-                parsedFlag.Usage = definedFlag.Usage;
-                parsedFlagIsDefined = true;
-                break;
+                return &flag;
             }
-        }
-        if (!parsedFlagIsDefined && !command.Name.empty())
-        {
-            for (const Flag& commandFlag : command.Flags)
+            for (const std::string& alias : flag.Aliases)
             {
-                if (parsedFlag.Name == commandFlag.Name)
+                if (name == alias)
                 {
-                    parsedFlag.Aliases = commandFlag.Aliases;
-                    parsedFlag.Usage = commandFlag.Usage;
-                    parsedFlagIsDefined = true;
-                    break;
+                    return &flag;
                 }
             }
         }
-        if (!parsedFlagIsDefined)
-        {
-            std::stringstream ss;
-            ss << "Flag provided but not defined: " << argument;
-            throw std::runtime_error(ss.str());
-        }
-        return parsedFlag;
+        return nullptr;
     }
 
-    Command App::GetCommand(const std::string &argument) const
+    const Command* App::FindCommand(const std::string &segment) const
     {
         for (const Command& command : Commands)
         {
-            if (argument == command.Name)
+            if (segment == command.Name)
             {
-                return command;
+                return &command;
             }
             for (const std::string& commandAlias : command.Aliases)
             {
-                if (argument == commandAlias)
+                if (segment == commandAlias)
                 {
-                    return command;
+                    return &command;
                 }
             }
         }
-        return {};
+        return nullptr;
     }
 }
