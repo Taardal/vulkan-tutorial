@@ -8,15 +8,10 @@ namespace VulkandemoCLI
         Command command;
         command.Name = "help";
         command.Usage = "Shows a list of commands or help for one command";
+        command.Aliases = {"h"};
         command.Action = [](const Context& context) -> void
         {
-#ifdef VDC_EXE_NAME
-            const char* exeName = VDC_EXE_NAME;
-#else
-            const char* exeName = "vd";
-#endif
-
-            /*
+/*
 
 NAME:
    aa - Useful commands for animators working @ Apparat
@@ -34,9 +29,7 @@ COMMANDS:
 GLOBAL OPTIONS:
    --help, -h  show help (default: false)
 
-            */
-
-
+ */
             const App& app = *context.App;
 
             constexpr int keyLeftPadding = 4;
@@ -58,8 +51,8 @@ GLOBAL OPTIONS:
             printf("\n");
 
             printf("%s\n", "USAGE:");
-            int usageWidth = keyLeftPadding + strlen(exeName);
-            printf("%*s %s\n", usageWidth, exeName, "[command] [command options]");
+            int usageWidth = keyLeftPadding + strlen(app.Name.c_str());
+            printf("%*s %s\n", usageWidth, app.Name.c_str(), "[global options] command [command options] [arguments...]");
             printf("\n");
 
             printf("%s\n", "COMMANDS:");
@@ -68,9 +61,27 @@ GLOBAL OPTIONS:
                 int commandNameWidth = keyLeftPadding + strlen(command.Name.c_str());
                 printf("%*s", commandNameWidth, command.Name.c_str());
 
+                // Aliases
+
                 int keyRightPadding = longestKeyLength - strlen(command.Name.c_str());
                 int descriptionWidth = keyRightPadding + valueLeftPadding + strlen(command.Usage.c_str());
                 printf("%*s\n", descriptionWidth, command.Usage.c_str());
+            }
+            printf("\n");
+
+            printf("%s\n", "GLOBAL OPTIONS:");
+            for (const Flag& flag : app.Flags)
+            {
+                const char* prefix = "--";
+
+                int flagNameWidth = keyLeftPadding + strlen(flag.Name.c_str()) - strlen(prefix);
+                printf("%*s%s", flagNameWidth, prefix, flag.Name.c_str());
+
+                // Aliases
+
+                int keyRightPadding = longestKeyLength - strlen(flag.Name.c_str()) - strlen(prefix);
+                int descriptionWidth = keyRightPadding + valueLeftPadding + strlen(flag.Usage.c_str());
+                printf("%*s\n", descriptionWidth, flag.Usage.c_str());
             }
             printf("\n");
         };
