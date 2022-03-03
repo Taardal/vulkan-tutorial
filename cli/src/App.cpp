@@ -20,12 +20,6 @@ namespace VulkandemoCLI
         std::vector<Flag> flags;
         std::vector<std::string> args;
 
-        Context context;
-        context.App = this;
-        context.Command = &command;
-        context.Flags = &flags;
-        context.Args = &args;
-
         const std::vector<std::string>& arguments = GetArguments(argc, argv);
 
         bool previousArgumentWasFlag = false;
@@ -34,17 +28,15 @@ namespace VulkandemoCLI
         {
             const std::string& argument = arguments[i];
 
-            bool everyArgumentIsArg = !args.empty();
-            if (everyArgumentIsArg)
+            if (!args.empty())
             {
                 args.push_back(argument);
                 continue;
             }
 
-            const Flag& flag = GetFlag(argument, context);
+            const Flag& flag = GetFlag(argument, command);
 
-            bool argumentIsFlag = !flag.Name.empty();
-            if (argumentIsFlag)
+            if (!flag.Name.empty())
             {
                 previousArgumentWasFlag = true;
                 flags.push_back(flag);
@@ -69,6 +61,12 @@ namespace VulkandemoCLI
                 }
             }
         }
+
+        Context context;
+        context.App = this;
+        context.Command = &command;
+        context.Flags = flags;
+        context.Args = args;
 
         if (command.Name.size() > 0)
         {
@@ -102,7 +100,7 @@ namespace VulkandemoCLI
         return arguments;
     }
 
-    Flag App::GetFlag(const std::string &argument, const Context& context) const
+    Flag App::GetFlag(const std::string &argument, const Command& command) const
     {
         constexpr int longFormDashCount = 2;
         constexpr int shortFormDashCount = 1;
@@ -137,9 +135,9 @@ namespace VulkandemoCLI
                 break;
             }
         }
-        if (!parsedFlagIsDefined && context.Command != nullptr && !context.Command->Name.empty())
+        if (!parsedFlagIsDefined && !command.Name.empty())
         {
-            for (const Flag& commandFlag : context.Command->Flags)
+            for (const Flag& commandFlag : command.Flags)
             {
                 if (parsedFlag.Name == commandFlag.Name)
                 {

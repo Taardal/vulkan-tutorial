@@ -19,7 +19,7 @@ namespace VulkandemoCLI
 
         std::vector<std::string> GetArguments(int argc, char* argv[]) const;
 
-        Flag GetFlag(const std::string& argument, const Context& context) const;
+        Flag GetFlag(const std::string& argument, const Command& command) const;
 
         Command GetCommand(const std::string& argument) const;
 
