@@ -14,91 +14,40 @@ namespace VulkandemoCLI
 
     void App::Run(int argc, char* argv[])
     {
-        // SETUP
-        Commands.push_back(helpCommand);
-        helpFlag.Name = "help";
-        helpFlag.Aliases = {"h"};
-        helpFlag.Usage = "Show help";
-        Flags.push_back(helpFlag);
-
-        // RUN
-        Context context;
-        context.App = this;
+        Initialize();
 
         Command command;
         std::vector<Flag> flags;
         std::vector<std::string> args;
 
+        Context context;
+        context.App = this;
+        context.Command = &command;
+        context.Flags = &flags;
+        context.Args = &args;
+
         const std::vector<std::string>& arguments = GetArguments(argc, argv);
 
         bool previousArgumentWasFlag = false;
-        bool commandExists = false;
-        bool argumentsStarted = false;
 
         for (int i = 0; i < arguments.size(); i++)
         {
             const std::string& argument = arguments[i];
 
-            if (argumentsStarted)
+            bool everyArgumentIsArg = !args.empty();
+            if (everyArgumentIsArg)
             {
                 args.push_back(argument);
                 continue;
             }
 
-            constexpr int longFormDashCount = 2;
-            constexpr int shortFormDashCount = 1;
+            const Flag& flag = GetFlag(argument, context);
 
-            bool longForm = argument.length() > longFormDashCount && argument.substr(0, longFormDashCount) == "--";
-            bool shortForm = argument.length() > shortFormDashCount && argument.substr(0, shortFormDashCount) == "-";
-
-            int dashCount = longForm ? longFormDashCount : shortFormDashCount;
-
-            bool isFlag = longForm || shortForm;
-            if (isFlag)
+            bool argumentIsFlag = !flag.Name.empty();
+            if (argumentIsFlag)
             {
-                Flag flag;
-                int equalSignIndex = argument.find("=");
-                bool hasValueWithEquals = equalSignIndex != std::string::npos;
-                if (hasValueWithEquals)
-                {
-                    flag.Name = argument.substr(dashCount, equalSignIndex - dashCount);
-                    flag.Value = argument.substr(equalSignIndex + 1, argument.length());
-                }
-                else
-                {
-                    flag.Name = argument.substr(dashCount, argument.length());
-                }
-                bool flagExists = false;
-                for (const Flag& f : Flags)
-                {
-                    if (f.Name == flag.Name)
-                    {
-                        flagExists = true;
-                        break;
-                    }
-                }
-                if (!flagExists)
-                {
-                    for (const Flag& f : command.Flags)
-                    {
-                        if (f.Name == flag.Name)
-                        {
-                            flagExists = true;
-                            break;
-                        }
-                    }
-                }
-                if (flagExists)
-                {
-                    previousArgumentWasFlag = true;
-                    flags.push_back(flag);
-                }
-                else
-                {
-                    std::stringstream ss;
-                    ss << "Flag provided but not defined: " << argument;
-                    throw std::runtime_error(ss.str());
-                }
+                previousArgumentWasFlag = true;
+                flags.push_back(flag);
             }
             else if (previousArgumentWasFlag)
             {
@@ -109,42 +58,17 @@ namespace VulkandemoCLI
             {
                 previousArgumentWasFlag = false;
 
-                bool commandFound = false;
-                if (!commandExists)
+                const Command& parsedCommand = GetCommand(argument);
+                if (parsedCommand.Name.size() > 0)
                 {
-                    for (const Command& appCommand : Commands)
-                    {
-                        if (argument == appCommand.Name)
-                        {
-                            command = appCommand;
-                            commandExists = true;
-                            commandFound = true;
-                            break;
-                        }
-                        for (const std::string& appCommandAlias : appCommand.Aliases)
-                        {
-                            if (argument == appCommandAlias)
-                            {
-                                command = appCommand;
-                                commandExists = true;
-                                commandFound = true;
-                                break;
-                            }
-                        }
-                    }
+                    command = parsedCommand;
                 }
-
-                if (!commandFound)
+                else
                 {
                     args.push_back(argument);
-                    argumentsStarted = true;
                 }
             }
         }
-
-        context.Command = &command;
-        context.Flags = flags;
-        context.Args = args;
 
         if (command.Name.size() > 0)
         {
@@ -153,6 +77,15 @@ namespace VulkandemoCLI
         }
 
         Action(context);
+    }
+
+    void App::Initialize()
+    {
+        Commands.push_back(helpCommand);
+        helpFlag.Name = "help";
+        helpFlag.Aliases = {"h"};
+        helpFlag.Usage = "Show help";
+        Flags.push_back(helpFlag);
     }
 
     std::vector<std::string> App::GetArguments(int argc, char* argv[]) const
@@ -167,5 +100,81 @@ namespace VulkandemoCLI
             }
         }
         return arguments;
+    }
+
+    Flag App::GetFlag(const std::string &argument, const Context& context) const
+    {
+        constexpr int longFormDashCount = 2;
+        constexpr int shortFormDashCount = 1;
+        bool longForm = argument.length() > longFormDashCount && argument.substr(0, longFormDashCount) == "--";
+        bool shortForm = argument.length() > shortFormDashCount && argument.substr(0, shortFormDashCount) == "-";
+        bool isFlag = longForm || shortForm;
+        if (!isFlag)
+        {
+            return {};
+        }
+        Flag parsedFlag;
+        int dashCount = longForm ? longFormDashCount : shortFormDashCount;
+        int equalSignIndex = argument.find("=");
+        bool hasValueWithEquals = equalSignIndex != std::string::npos;
+        if (hasValueWithEquals)
+        {
+            parsedFlag.Name = argument.substr(dashCount, equalSignIndex - dashCount);
+            parsedFlag.Value = argument.substr(equalSignIndex + 1, argument.length());
+        }
+        else
+        {
+            parsedFlag.Name = argument.substr(dashCount, argument.length());
+        }
+        bool parsedFlagIsDefined = false;
+        for (const Flag& definedFlag : Flags)
+        {
+            if (parsedFlag.Name == definedFlag.Name)
+            {
+                parsedFlag.Aliases = definedFlag.Aliases;
+                parsedFlag.Usage = definedFlag.Usage;
+                parsedFlagIsDefined = true;
+                break;
+            }
+        }
+        if (!parsedFlagIsDefined && context.Command != nullptr && !context.Command->Name.empty())
+        {
+            for (const Flag& commandFlag : context.Command->Flags)
+            {
+                if (parsedFlag.Name == commandFlag.Name)
+                {
+                    parsedFlag.Aliases = commandFlag.Aliases;
+                    parsedFlag.Usage = commandFlag.Usage;
+                    parsedFlagIsDefined = true;
+                    break;
+                }
+            }
+        }
+        if (!parsedFlagIsDefined)
+        {
+            std::stringstream ss;
+            ss << "Flag provided but not defined: " << argument;
+            throw std::runtime_error(ss.str());
+        }
+        return parsedFlag;
+    }
+
+    Command App::GetCommand(const std::string &argument) const
+    {
+        for (const Command& command : Commands)
+        {
+            if (argument == command.Name)
+            {
+                return command;
+            }
+            for (const std::string& commandAlias : command.Aliases)
+            {
+                if (argument == commandAlias)
+                {
+                    return command;
+                }
+            }
+        }
+        return {};
     }
 }

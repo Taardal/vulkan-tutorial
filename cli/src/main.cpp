@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     app.Action = [](const Context& context) -> void
     {
         std::string name = "Nefertiti";
-        if (context.Args.size() > 0)
+        if (context.Args->size() > 0)
         {
             name = context.Args[0];
         }

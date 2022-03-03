@@ -12,8 +12,8 @@ namespace VulkandemoCLI
     {
         const App* App;
         const Command* Command;
-        std::vector<Flag> Flags;
-        std::vector<std::string> Args;
+        std::vector<Flag>* Flags;
+        std::vector<std::string>* Args;
 
         std::string ToString() const;
 

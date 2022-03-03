@@ -15,7 +15,13 @@ namespace VulkandemoCLI
         void Run(int argc, char* argv[]);
 
     private:
+        void Initialize();
+
         std::vector<std::string> GetArguments(int argc, char* argv[]) const;
+
+        Flag GetFlag(const std::string& argument, const Context& context) const;
+
+        Command GetCommand(const std::string& argument) const;
 
     public:
         std::string Name;
