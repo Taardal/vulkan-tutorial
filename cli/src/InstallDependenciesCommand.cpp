@@ -25,16 +25,16 @@ namespace VulkandemoCLI
                     continue;
                 }
                 int equalSignPosition = line.find("=");
-                std::string name = line.substr(0, equalSignPosition);
-                std::string version = line.substr(equalSignPosition + 1, line.length());
+                const std::string& name = line.substr(0, equalSignPosition);
+                const std::string& version = line.substr(equalSignPosition + 1, line.length());
                 printf("%s%s%s%s%s\n", "-- Using [", name.c_str(), "] version [", version.c_str(), "]");
                 std::stringstream ss;
                 ss << "cd " << "lib" << "/" << name << " && git checkout " << version;
-                std::string cmd = ss.str();
+                const std::string& command = ss.str();
 #ifdef VDC_DEBUG
-                printf("%s\n", cmd.c_str());
+                printf("%s\n", command.c_str());
 #endif
-                std::system(cmd.c_str());
+                std::system(command.c_str());
                 printf("\n");
             }
             printf("\n");

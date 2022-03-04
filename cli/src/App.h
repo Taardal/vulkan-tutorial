@@ -18,15 +18,15 @@ namespace VulkandemoCLI
     private:
         void Initialize();
 
-        Option GetOption(const std::string& segment, const Command* command) const;
+        Option GetOption(std::string_view segment, const Command* command) const;
 
-        const Option* FindOption(const std::string& name, const std::vector<Option>& flags) const;
+        const Option* FindOption(std::string_view name, const std::vector<Option>& flags) const;
 
-        const Command* FindCommand(const std::string& segment) const;
+        const Command* FindCommand(std::string_view segment) const;
 
     public:
-        std::string Name;
-        std::string Usage;
+        std::string_view Name;
+        std::string_view Usage;
         std::vector<Command> Commands;
         std::vector<Option> Options;
         std::function<void(const Context& context)> Action;

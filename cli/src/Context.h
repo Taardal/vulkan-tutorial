@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 namespace VulkandemoCLI
@@ -13,11 +14,11 @@ namespace VulkandemoCLI
         const App* App;
         const Command* Command = nullptr;
         std::vector<Option> Options;
-        std::vector<std::string> Arguments;
+        std::vector<std::string_view> Arguments;
 
-        bool HasOption(const std::string& name) const;
+        bool HasOption(std::string_view name) const;
 
-        Option GetOption(const std::string& name) const;
+        Option GetOption(std::string_view name) const;
 
         std::string ToString() const;
     };

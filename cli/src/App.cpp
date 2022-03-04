@@ -30,7 +30,7 @@ namespace VulkandemoCLI
         bool previousSegmentWasOption = false;
         for (int i = firstSegmentIndex; i < argc; i++)
         {
-            const std::string& segment = argv[i];
+            std::string_view segment(argv[i]);
             if (!context.Arguments.empty())
             {
                 context.Arguments.push_back(segment);

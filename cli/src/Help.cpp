@@ -32,13 +32,13 @@ namespace VulkandemoCLI
                 {
                     printf("%s\n", "NAME:");
                     int keyWidth = keyLeftPadding + command.Name.length();
-                    printf("%*s - %s\n", keyWidth, command.Name.c_str(), command.Usage.c_str());
+                    printf("%*s - %s\n", keyWidth, command.Name.data(), command.Usage.data());
                     printf("\n");
                 }
                 {
                     printf("%s\n", "USAGE:");
                     int keyWidth = keyLeftPadding + command.Name.length();
-                    printf("%*s %s\n", keyWidth, command.Name.c_str(), "[command options] [arguments...]");
+                    printf("%*s %s\n", keyWidth, command.Name.data(), "[command options] [arguments...]");
                     printf("\n");
                 }
                 {
@@ -50,7 +50,7 @@ namespace VulkandemoCLI
                     {
                         std::stringstream ss;
                         ss << longFormPrefix << option.Name;
-                        for (const std::string& alias : option.Aliases)
+                        for (std::string_view alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
@@ -64,7 +64,7 @@ namespace VulkandemoCLI
                     {
                         std::stringstream ss;
                         ss << longFormPrefix << option.Name;
-                        for (const std::string& alias : option.Aliases)
+                        for (std::string_view alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
@@ -72,10 +72,10 @@ namespace VulkandemoCLI
                         int keyWidth = keyLeftPadding + key.length();
                         printf("%*s", keyWidth, key.c_str());
 
-                        const std::string& value = option.Usage;
+                        std::string_view value = option.Usage;
                         int keyRightPadding = longestKeyLength - key.length();
                         int valueWidth = keyRightPadding + valueLeftPadding + value.length();
-                        printf("%*s\n", valueWidth, value.c_str());
+                        printf("%*s\n", valueWidth, value.data());
                     }
                 }
             }
@@ -84,13 +84,13 @@ namespace VulkandemoCLI
                 {
                     printf("%s\n", "NAME:");
                     int keyWidth = keyLeftPadding + app.Name.length();
-                    printf("%*s - %s\n", keyWidth, app.Name.c_str(), app.Usage.c_str());
+                    printf("%*s - %s\n", keyWidth, app.Name.data(), app.Usage.data());
                     printf("\n");
                 }
                 {
                     printf("%s\n", "USAGE:");
                     int keyWidth = keyLeftPadding + app.Name.length();
-                    printf("%*s %s\n", keyWidth, app.Name.c_str(), "[global options] command [command options] [arguments...]");
+                    printf("%*s %s\n", keyWidth, app.Name.data(), "[global options] command [command options] [arguments...]");
                     printf("\n");
                 }
                 {
@@ -100,7 +100,7 @@ namespace VulkandemoCLI
                     {
                         std::stringstream ss;
                         ss << command.Name;
-                        for (const std::string& alias : command.Aliases)
+                        for (std::string_view alias : command.Aliases)
                         {
                             ss << ", " << alias;
                         }
@@ -114,7 +114,7 @@ namespace VulkandemoCLI
                     {
                         std::stringstream ss;
                         ss << command.Name;
-                        for (const std::string& alias : command.Aliases)
+                        for (std::string_view alias : command.Aliases)
                         {
                             ss << ", " << alias;
                         }
@@ -122,10 +122,10 @@ namespace VulkandemoCLI
                         int keyWidth = keyLeftPadding + key.length();
                         printf("%*s", keyWidth, key.c_str());
 
-                        const std::string& value = command.Usage;
+                        std::string_view value = command.Usage;
                         int keyRightPadding = longestKeyLength - key.length();
                         int valueWidth = keyRightPadding + valueLeftPadding + value.length();
-                        printf("%*s\n", valueWidth, value.c_str());
+                        printf("%*s\n", valueWidth, value.data());
                     }
                     printf("\n");
                 }
@@ -138,7 +138,7 @@ namespace VulkandemoCLI
                     {
                         std::stringstream ss;
                         ss << longFormPrefix << option.Name;
-                        for (const std::string& alias : option.Aliases)
+                        for (std::string_view alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
@@ -152,18 +152,18 @@ namespace VulkandemoCLI
                     {
                         std::stringstream ss;
                         ss << longFormPrefix << option.Name;
-                        for (const std::string& alias : option.Aliases)
+                        for (std::string_view alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
                         const std::string& key = ss.str();
                         int keyWidth = keyLeftPadding + key.length();
-                        printf("%*s", keyWidth, key.c_str());
+                        printf("%*s", keyWidth, key.data());
 
-                        const std::string& value = option.Usage;
+                        std::string_view value = option.Usage;
                         int keyRightPadding = longestKeyLength - key.length();
                         int valueWidth = keyRightPadding + valueLeftPadding + value.length();
-                        printf("%*s\n", valueWidth, value.c_str());
+                        printf("%*s\n", valueWidth, value.data());
                     }
                 }
             }

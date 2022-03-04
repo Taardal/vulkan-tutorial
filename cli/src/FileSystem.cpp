@@ -3,7 +3,7 @@
 
 namespace VulkandemoCLI
 {
-    std::string FileSystem::ReadFile(const char* path) const
+    std::string FileSystem::ReadFile(std::string_view path) const
     {
         std::string result;
         std::ifstream inputStream(path, std::ios::in | std::ios::binary);
@@ -20,12 +20,12 @@ namespace VulkandemoCLI
             }
             else
             {
-                printf("Could not read from file [%s]\n", path);
+                printf("Could not read from file [%s]\n", path.data());
             }
         }
         else
         {
-            printf("Could not open file [%s]\n", path);
+            printf("Could not open file [%s]\n", path.data());
         }
         return result;
     }

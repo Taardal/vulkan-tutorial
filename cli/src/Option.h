@@ -7,9 +7,9 @@ namespace VulkandemoCLI
 {
     struct Option
     {
-        std::string Name;
-        std::string Usage;
-        std::string Value;
-        std::vector<std::string> Aliases;
+        std::string_view Name;
+        std::string_view Usage;
+        std::string_view Value;
+        std::vector<std::string_view> Aliases;
     };
 }

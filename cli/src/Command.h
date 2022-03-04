@@ -2,15 +2,16 @@
 
 #include "Context.h"
 #include "Option.h"
+#include <string>
 #include <vector>
 
 namespace VulkandemoCLI
 {
     struct Command
     {
-        std::string Name;
-        std::string Usage;
-        std::vector<std::string> Aliases;
+        std::string_view Name;
+        std::string_view Usage;
+        std::vector<std::string_view> Aliases;
         std::vector<Option> Options;
         std::function<void(const Context&)> Action;
     };

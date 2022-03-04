@@ -27,10 +27,10 @@ namespace VulkandemoCLI
                 printf("%s\n", "NOTICE ME");
             }
 
-            const std::string& buildTypeOptionValue = context.GetOption("buildType").Value;
-            const std::string& buildType = buildTypeOptionValue.size() > 0 ? buildTypeOptionValue : "Debug";
+            std::string_view buildTypeOptionValue = context.GetOption("buildType").Value;
+            std::string_view buildType = buildTypeOptionValue.size() > 0 ? buildTypeOptionValue : "Debug";
 
-            std::string buildDir = buildType;
+            std::string buildDir(buildType);
             std::transform(buildDir.begin(), buildDir.end(), buildDir.begin(), ::tolower);
             std::stringstream ss1;
             ss1 << "cmake-build-" << buildDir;
@@ -41,7 +41,7 @@ namespace VulkandemoCLI
             ss << " && ";
             ss << "cmake --build " << buildDir << " --config " << buildType;
 
-            std::string command = ss.str();
+            const std::string& command = ss.str();
 #ifdef VDC_DEBUG
             printf("%s\n", command.c_str());
 #endif

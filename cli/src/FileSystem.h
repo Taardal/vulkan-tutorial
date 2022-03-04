@@ -7,6 +7,6 @@ namespace VulkandemoCLI
     class FileSystem
     {
     public:
-        std::string ReadFile(const char* path) const;
+        std::string ReadFile(std::string_view) const;
     };
 }

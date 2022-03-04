@@ -5,7 +5,7 @@
 
 namespace VulkandemoCLI
 {
-    bool Context::HasOption(const std::string& name) const
+    bool Context::HasOption(std::string_view name) const
     {
         for (const Option& option : Options)
         {
@@ -17,7 +17,7 @@ namespace VulkandemoCLI
         return false;
     }
 
-    Option Context::GetOption(const std::string& name) const
+    Option Context::GetOption(std::string_view name) const
     {
         for (const Option& option : Options)
         {
@@ -46,9 +46,9 @@ namespace VulkandemoCLI
             ss << std::endl;
         }
         ss << "  ARGUMENTS: " << Arguments.size() << std::endl;
-        for (const std::string& argument : Arguments)
+        for (std::string_view argument : Arguments)
         {
-            ss << "    " << argument.c_str() << std::endl;
+            ss << "    " << argument << std::endl;
         }
         return ss.str();
     }
