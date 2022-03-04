@@ -54,21 +54,17 @@ namespace VulkandemoCLI
             {
                 previousSegmentWasFlag = false;
                 const Command* command = FindCommand(segment);
-                if (command != nullptr)
-                {
-                    if (command->Name == helpCommand.Name)
-                    {
-                        showHelp = true;
-                    }
-                    else
-                    {
-                        context.Command = command;
-                    }
-                }
-                else
+                if (command == nullptr)
                 {
                     context.Arguments.push_back(segment);
+                    continue;
                 }
+                if (command->Name == helpCommand.Name)
+                {
+                    showHelp = true;
+                    continue;
+                }
+                context.Command = command;
             }
         }
         if (showHelp)
