@@ -18,10 +18,14 @@ namespace VulkandemoCLI
         Context context;
         context.App = this;
 
-        const std::function<void(const Context&)>* action;
+        bool showHelp = false;
 
         int firstSegmentIndex = 1;
-        bool showHelp = argc - firstSegmentIndex == 0;
+        bool noSegments = argc - firstSegmentIndex == 0;
+        if (noSegments)
+        {
+            showHelp = true;
+        }
         bool previousSegmentWasFlag = false;
         for (int i = firstSegmentIndex; i < argc; i++)
         {
@@ -38,7 +42,7 @@ namespace VulkandemoCLI
                 context.Flags.push_back(flag);
                 if (flag.Name == helpFlag.Name)
                 {
-                    action = &helpCommand.Action;
+                    showHelp = true;
                 }
             }
             else if (previousSegmentWasFlag)
@@ -52,11 +56,14 @@ namespace VulkandemoCLI
                 const Command* command = FindCommand(segment);
                 if (command != nullptr)
                 {
-                    if (command->Name != helpCommand.Name)
+                    if (command->Name == helpCommand.Name)
+                    {
+                        showHelp = true;
+                    }
+                    else
                     {
                         context.Command = command;
                     }
-                    action = &command->Action;
                 }
                 else
                 {
@@ -76,7 +83,6 @@ namespace VulkandemoCLI
         {
             Action(context);
         }
-        (*action)(context);
     }
 
     void App::Initialize()
