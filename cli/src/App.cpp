@@ -18,14 +18,10 @@ namespace VulkandemoCLI
         Context context;
         context.App = this;
 
+        const std::function<void(const Context&)>* action;
+
         int firstSegmentIndex = 1;
-        bool noSegments = argc - firstSegmentIndex == 0;
-        if (noSegments)
-        {
-            context.Command = &helpCommand;
-            helpCommand.Action(context);
-            return;
-        }
+        bool showHelp = argc - firstSegmentIndex == 0;
         bool previousSegmentWasFlag = false;
         for (int i = firstSegmentIndex; i < argc; i++)
         {
@@ -42,7 +38,7 @@ namespace VulkandemoCLI
                 context.Flags.push_back(flag);
                 if (flag.Name == helpFlag.Name)
                 {
-                    context.Command = &helpCommand;
+                    action = &helpCommand.Action;
                 }
             }
             else if (previousSegmentWasFlag)
@@ -53,14 +49,26 @@ namespace VulkandemoCLI
             else
             {
                 previousSegmentWasFlag = false;
-                context.Command = FindCommand(segment);
-                if (context.Command == nullptr)
+                const Command* command = FindCommand(segment);
+                if (command != nullptr)
+                {
+                    if (command->Name != helpCommand.Name)
+                    {
+                        context.Command = command;
+                    }
+                    action = &command->Action;
+                }
+                else
                 {
                     context.Arguments.push_back(segment);
                 }
             }
         }
-        if (context.Command != nullptr)
+        if (showHelp)
+        {
+            helpCommand.Action(context);
+        }
+        else if (context.Command != nullptr)
         {
             context.Command->Action(context);
         }
@@ -68,6 +76,7 @@ namespace VulkandemoCLI
         {
             Action(context);
         }
+        (*action)(context);
     }
 
     void App::Initialize()

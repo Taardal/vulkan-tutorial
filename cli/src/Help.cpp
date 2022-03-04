@@ -58,6 +58,18 @@ OPTIONS:
             constexpr int keyLeftPadding = 4;
             constexpr int valueLeftPadding = 4;
 
+            if (context.Command != nullptr)
+            {
+                const Command& command = *context.Command;
+                {
+                    printf("%s\n", "NAME:");
+                    int keyWidth = keyLeftPadding + command.Name.length();
+                    printf("%*s - %s\n", keyWidth, command.Name.c_str(), command.Usage.c_str());
+                    printf("\n");
+                }
+                return;
+            }
+
             {
                 printf("%s\n", "NAME:");
                 int keyWidth = keyLeftPadding + app.Name.length();
