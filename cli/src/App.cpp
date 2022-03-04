@@ -7,7 +7,7 @@
 namespace VulkandemoCLI
 {
     App::App()
-        : helpCommand(CreateHelpCommand()), helpFlag(CreateHelpFlag())
+        : helpCommand(CreateHelpCommand()), helpOption(CreateHelpOption())
     {
     }
 
@@ -26,7 +26,8 @@ namespace VulkandemoCLI
         {
             showHelp = true;
         }
-        bool previousSegmentWasFlag = false;
+
+        bool previousSegmentWasOption = false;
         for (int i = firstSegmentIndex; i < argc; i++)
         {
             const std::string& segment = argv[i];
@@ -35,24 +36,24 @@ namespace VulkandemoCLI
                 context.Arguments.push_back(segment);
                 continue;
             }
-            const Flag& flag = GetFlag(segment, context.Command);
-            if (!flag.Name.empty())
+            const Option& option = GetOption(segment, context.Command);
+            if (!option.Name.empty())
             {
-                previousSegmentWasFlag = true;
-                context.Flags.push_back(flag);
-                if (flag.Name == helpFlag.Name)
+                previousSegmentWasOption = true;
+                context.Options.push_back(option);
+                if (option.Name == helpOption.Name)
                 {
                     showHelp = true;
                 }
             }
-            else if (previousSegmentWasFlag)
+            else if (previousSegmentWasOption)
             {
-                previousSegmentWasFlag = false;
-                context.Flags[context.Flags.size() - 1].Value = segment;
+                previousSegmentWasOption = false;
+                context.Options[context.Options.size() - 1].Value = segment;
             }
             else
             {
-                previousSegmentWasFlag = false;
+                previousSegmentWasOption = false;
                 const Command* command = FindCommand(segment);
                 if (command == nullptr)
                 {
@@ -84,62 +85,65 @@ namespace VulkandemoCLI
     void App::Initialize()
     {
         Commands.push_back(helpCommand);
-        Flags.push_back(helpFlag);
+        Options.push_back(helpOption);
     }
 
-    Flag App::GetFlag(const std::string &segment, const Command* command) const
+    Option App::GetOption(const std::string &segment, const Command* command) const
     {
         constexpr int longFormDashCount = 2;
         constexpr int shortFormDashCount = 1;
+
         bool longForm = segment.length() > longFormDashCount && segment.substr(0, longFormDashCount) == "--";
         bool shortForm = segment.length() > shortFormDashCount && segment.substr(0, shortFormDashCount) == "-";
-        bool isFlag = longForm || shortForm;
-        if (!isFlag)
+
+        bool isOption = longForm || shortForm;
+        if (!isOption)
         {
             return {};
         }
-        Flag flag;
+
+        Option option;
         int dashCount = longForm ? longFormDashCount : shortFormDashCount;
         int equalSignIndex = segment.find("=");
         if (equalSignIndex != std::string::npos)
         {
-            flag.Name = segment.substr(dashCount, equalSignIndex - dashCount);
-            flag.Value = segment.substr(equalSignIndex + 1, segment.length());
+            option.Name = segment.substr(dashCount, equalSignIndex - dashCount);
+            option.Value = segment.substr(equalSignIndex + 1, segment.length());
         }
         else
         {
-            flag.Name = segment.substr(dashCount, segment.length());
+            option.Name = segment.substr(dashCount, segment.length());
         }
-        const Flag* definedFlag = FindFlag(flag.Name, Flags);
-        if (definedFlag == nullptr && command != nullptr)
+        const Option* definedOption = FindOption(option.Name, Options);
+        if (definedOption == nullptr && command != nullptr)
         {
-            definedFlag = FindFlag(flag.Name, command->Flags);
+            definedOption = FindOption(option.Name, command->Options);
         }
-        if (definedFlag == nullptr)
+        if (definedOption == nullptr)
         {
             std::stringstream ss;
-            ss << "Flag provided but not defined: " << segment;
+            ss << "Option provided but not defined: " << segment;
             throw std::runtime_error(ss.str());
         }
-        flag.Name = definedFlag->Name;
-        flag.Usage = definedFlag->Usage;
-        flag.Aliases = definedFlag->Aliases;
-        return flag;
+        option.Name = definedOption->Name;
+        option.Usage = definedOption->Usage;
+        option.Aliases = definedOption->Aliases;
+        return option;
     }
 
-    const Flag* App::FindFlag(const std::string& name, const std::vector<Flag>& flags) const
+    const Option* App::FindOption(const std::string& name, const std::vector<Option>& options) const
     {
-        for (const Flag& flag : flags)
+        for (const Option& option : options)
         {
-            if (name == flag.Name)
+            if (name == option.Name)
             {
-                return &flag;
+                return &option;
             }
-            for (const std::string& alias : flag.Aliases)
+            for (const std::string& alias : option.Aliases)
             {
                 if (name == alias)
                 {
-                    return &flag;
+                    return &option;
                 }
             }
         }

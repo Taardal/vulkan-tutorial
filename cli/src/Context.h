@@ -6,19 +6,19 @@ namespace VulkandemoCLI
 {
     class App;
     class Command;
-    class Flag;
+    class Option;
 
     struct Context
     {
         const App* App;
         const Command* Command = nullptr;
-        std::vector<Flag> Flags;
+        std::vector<Option> Options;
         std::vector<std::string> Arguments;
 
+        bool HasOption(const std::string& name) const;
+
+        Option GetOption(const std::string& name) const;
+
         std::string ToString() const;
-
-        bool HasFlag(const std::string& name) const;
-
-        Flag GetFlag(const std::string& name) const;
     };
 }

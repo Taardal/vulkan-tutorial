@@ -16,15 +16,15 @@ int main(int argc, char* argv[]) {
     const char* appName = "vd";
 #endif
 
-    Flag cmdFlag;
-    cmdFlag.Name = "bar";
-    cmdFlag.Usage = "bar flag";
+    Option cmdOption;
+    cmdOption.Name = "bar";
+    cmdOption.Usage = "bar option";
 
     Command command;
     command.Name = "foo";
     command.Usage = "The Foo, The Bar and the WTF";
-    command.Flags = {
-            cmdFlag
+    command.Options = {
+            cmdOption
     };
     command.Action = [](const Context& context) -> void
     {
@@ -32,10 +32,10 @@ int main(int argc, char* argv[]) {
         printf("%s\n", context.ToString().c_str());
     };
 
-    Flag flag;
-    flag.Name = "lang";
-    flag.Usage = "Language for the greeting";
-    flag.Aliases = {"a", "b", "c", "d"};
+    Option option;
+    option.Name = "lang";
+    option.Usage = "Language for the greeting";
+    option.Aliases = {"a", "b", "c", "d"};
 
     App app;
     app.Name = appName;
@@ -43,8 +43,8 @@ int main(int argc, char* argv[]) {
     app.Commands = {
         command
     };
-    app.Flags = {
-        flag
+    app.Options = {
+        option
     };
 
     app.Action = [](const Context& context) -> void
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
         {
             name = context.Arguments[0];
         }
-        if (context.GetFlag("lang").Value == "spanish")
+        if (context.GetOption("lang").Value == "spanish")
         {
             printf("%s %s\n", "HOLA", name.c_str());
         }

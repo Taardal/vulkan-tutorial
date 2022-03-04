@@ -8,27 +8,27 @@ namespace VulkandemoCLI
 {
     Command CreateBuildProjectCommand()
     {
-        Flag buildTypeFlag;
-        buildTypeFlag.Name = "buildType";
-        buildTypeFlag.Aliases = {"b"};
+        Option buildTypeOption;
+        buildTypeOption.Name = "buildType";
+        buildTypeOption.Aliases = {"b"};
 
         Command command;
         command.Name = "build";
         command.Usage = "Build project";
-        command.Flags = {
-                buildTypeFlag
+        command.Options = {
+                buildTypeOption
         };
         command.Action = [](const Context& context) -> void
         {
-            if (context.HasFlag("buildType"))
+            if (context.HasOption("buildType"))
             {
                 printf("%s\n", "NOTICE ME");
                 printf("%s\n", "NOTICE ME");
                 printf("%s\n", "NOTICE ME");
             }
 
-            const std::string& buildTypeFlagValue = context.GetFlag("buildType").Value;
-            const std::string& buildType = buildTypeFlagValue.size() > 0 ? buildTypeFlagValue : "Debug";
+            const std::string& buildTypeOptionValue = context.GetOption("buildType").Value;
+            const std::string& buildType = buildTypeOptionValue.size() > 0 ? buildTypeOptionValue : "Debug";
 
             std::string buildDir = buildType;
             std::transform(buildDir.begin(), buildDir.end(), buildDir.begin(), ::tolower);

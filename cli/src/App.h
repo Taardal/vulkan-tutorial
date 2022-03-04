@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Command.h"
-#include "FileSystem.h"
-#include "Flag.h"
-#include <map>
+#include "Option.h"
+#include <string>
+#include <vector>
+#include <functional>
 
 namespace VulkandemoCLI
 {
@@ -17,21 +18,21 @@ namespace VulkandemoCLI
     private:
         void Initialize();
 
-        Flag GetFlag(const std::string& segment, const Command* command) const;
+        Option GetOption(const std::string& segment, const Command* command) const;
 
-        const Flag* FindFlag(const std::string& name, const std::vector<Flag>& flags) const;
+        const Option* FindOption(const std::string& name, const std::vector<Option>& flags) const;
 
         const Command* FindCommand(const std::string& segment) const;
 
     public:
         std::string Name;
         std::string Usage;
-        std::function<void(const Context& context)> Action;
         std::vector<Command> Commands;
-        std::vector<Flag> Flags;
+        std::vector<Option> Options;
+        std::function<void(const Context& context)> Action;
 
     private:
         Command helpCommand;
-        Flag helpFlag;
+        Option helpOption;
     };
 }

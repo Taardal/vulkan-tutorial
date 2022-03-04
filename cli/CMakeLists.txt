@@ -20,8 +20,6 @@ add_executable(
         ${SRC_DIR}/Environment.h
         ${SRC_DIR}/FileSystem.cpp
         ${SRC_DIR}/FileSystem.h
-        ${SRC_DIR}/Flag.cpp
-        ${SRC_DIR}/Flag.h
         ${SRC_DIR}/Help.h
         ${SRC_DIR}/Help.cpp
         ${SRC_DIR}/InstallDependenciesCommand.cpp

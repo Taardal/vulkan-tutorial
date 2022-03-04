@@ -4,13 +4,13 @@
 
 namespace VulkandemoCLI
 {
-    Flag CreateHelpFlag()
+    Option CreateHelpOption()
     {
-        Flag flag;
-        flag.Name = "help";
-        flag.Aliases = {"h"};
-        flag.Usage = "Show help";
-        return flag;
+        Option option;
+        option.Name = "help";
+        option.Aliases = {"h"};
+        option.Usage = "Show help";
+        return option;
     }
 
     Command CreateHelpCommand()
@@ -46,25 +46,25 @@ namespace VulkandemoCLI
                     const char* longFormPrefix = "--";
                     const char* shortFormPrefix = "-";
                     int longestKeyLength = 0;
-                    for (const Flag& flag : command.Flags)
+                    for (const Option& option : command.Options)
                     {
                         std::stringstream ss;
-                        ss << longFormPrefix << flag.Name;
-                        for (const std::string& alias : flag.Aliases)
+                        ss << longFormPrefix << option.Name;
+                        for (const std::string& alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
-                        int flagKeyLength = ss.str().length();
-                        if (flagKeyLength > longestKeyLength)
+                        int optionKeyLength = ss.str().length();
+                        if (optionKeyLength > longestKeyLength)
                         {
-                            longestKeyLength = flagKeyLength;
+                            longestKeyLength = optionKeyLength;
                         }
                     }
-                    for (const Flag& flag : command.Flags)
+                    for (const Option& option : command.Options)
                     {
                         std::stringstream ss;
-                        ss << longFormPrefix << flag.Name;
-                        for (const std::string& alias : flag.Aliases)
+                        ss << longFormPrefix << option.Name;
+                        for (const std::string& alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
@@ -72,12 +72,11 @@ namespace VulkandemoCLI
                         int keyWidth = keyLeftPadding + key.length();
                         printf("%*s", keyWidth, key.c_str());
 
-                        const std::string& value = flag.Usage;
+                        const std::string& value = option.Usage;
                         int keyRightPadding = longestKeyLength - key.length();
                         int valueWidth = keyRightPadding + valueLeftPadding + value.length();
                         printf("%*s\n", valueWidth, value.c_str());
                     }
-                    printf("\n");
                 }
             }
             else
@@ -135,25 +134,25 @@ namespace VulkandemoCLI
                     const char* longFormPrefix = "--";
                     const char* shortFormPrefix = "-";
                     int longestKeyLength = 0;
-                    for (const Flag& flag : app.Flags)
+                    for (const Option& option : app.Options)
                     {
                         std::stringstream ss;
-                        ss << longFormPrefix << flag.Name;
-                        for (const std::string& alias : flag.Aliases)
+                        ss << longFormPrefix << option.Name;
+                        for (const std::string& alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
-                        int flagKeyLength = ss.str().length();
-                        if (flagKeyLength > longestKeyLength)
+                        int optionKeyLength = ss.str().length();
+                        if (optionKeyLength > longestKeyLength)
                         {
-                            longestKeyLength = flagKeyLength;
+                            longestKeyLength = optionKeyLength;
                         }
                     }
-                    for (const Flag& flag : app.Flags)
+                    for (const Option& option : app.Options)
                     {
                         std::stringstream ss;
-                        ss << longFormPrefix << flag.Name;
-                        for (const std::string& alias : flag.Aliases)
+                        ss << longFormPrefix << option.Name;
+                        for (const std::string& alias : option.Aliases)
                         {
                             ss << ", " << shortFormPrefix << alias;
                         }
@@ -161,12 +160,11 @@ namespace VulkandemoCLI
                         int keyWidth = keyLeftPadding + key.length();
                         printf("%*s", keyWidth, key.c_str());
 
-                        const std::string& value = flag.Usage;
+                        const std::string& value = option.Usage;
                         int keyRightPadding = longestKeyLength - key.length();
                         int valueWidth = keyRightPadding + valueLeftPadding + value.length();
                         printf("%*s\n", valueWidth, value.c_str());
                     }
-                    printf("\n");
                 }
             }
         };

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Command.h"
+#include "Option.h"
 
 namespace VulkandemoCLI
 {
-    Flag CreateHelpFlag();
+    Option CreateHelpOption();
 
     Command CreateHelpCommand();
 }
