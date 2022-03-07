@@ -38,10 +38,10 @@ namespace VulkandemoCLI
         ss << "  FLAGS: " << Options.size() << std::endl;
         for (const Option& option : Options)
         {
-            ss << "    " << option.Name.c_str();
+            ss << "    " << option.Name.data();
             if (!option.Value.empty())
             {
-                ss << " --> " << option.Value.c_str();
+                ss << " --> " << option.Value.data();
             }
             ss << std::endl;
         }

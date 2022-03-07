@@ -2,7 +2,6 @@
 #include "Context.h"
 #include "Help.h"
 #include <sstream>
-#include <exception>
 
 namespace VulkandemoCLI
 {
@@ -36,7 +35,7 @@ namespace VulkandemoCLI
                 context.Arguments.push_back(segment);
                 continue;
             }
-            const Option& option = GetOption(segment, context.Command);
+            Option option = GetOption(segment, context.Command);
             if (!option.Name.empty())
             {
                 previousSegmentWasOption = true;
@@ -88,7 +87,7 @@ namespace VulkandemoCLI
         Options.push_back(helpOption);
     }
 
-    Option App::GetOption(const std::string &segment, const Command* command) const
+    Option App::GetOption(std::string_view segment, const Command* command) const
     {
         constexpr int longFormDashCount = 2;
         constexpr int shortFormDashCount = 1;
@@ -131,7 +130,7 @@ namespace VulkandemoCLI
         return option;
     }
 
-    const Option* App::FindOption(const std::string& name, const std::vector<Option>& options) const
+    const Option* App::FindOption(std::string_view name, const std::vector<Option>& options) const
     {
         for (const Option& option : options)
         {
@@ -139,7 +138,7 @@ namespace VulkandemoCLI
             {
                 return &option;
             }
-            for (const std::string& alias : option.Aliases)
+            for (std::string_view alias : option.Aliases)
             {
                 if (name == alias)
                 {
@@ -150,7 +149,7 @@ namespace VulkandemoCLI
         return nullptr;
     }
 
-    const Command* App::FindCommand(const std::string &segment) const
+    const Command* App::FindCommand(std::string_view segment) const
     {
         for (const Command& command : Commands)
         {
@@ -158,7 +157,7 @@ namespace VulkandemoCLI
             {
                 return &command;
             }
-            for (const std::string& commandAlias : command.Aliases)
+            for (std::string_view commandAlias : command.Aliases)
             {
                 if (segment == commandAlias)
                 {
