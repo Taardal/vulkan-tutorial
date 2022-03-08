@@ -1,15 +1,19 @@
-
-# UPDATE ME
-set(BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin/debug)
-
 function(compile_shader SHADER)
-    set(SHADER_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/assets/shaders/${SHADER})
-    set(SHADER_OUTPUT_PATH ${BUILD_PATH}/shaders/${SHADER}.spv)
+    set(SHADER_ASSET_PATH ${SHADER_ASSETS_DIR}/${SHADER})
+    set(SHADER_OUTPUT_PATH ${SHADER_OUTPUT_DIR}/${SHADER}.spv)
     find_program(GLSLC glslc)
     get_filename_component(SHADER_OUTPUT_DIRECTORY ${SHADER_OUTPUT_PATH} DIRECTORY)
     file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIRECTORY})
-    exec_program(${GLSLC} ARGS -o ${SHADER_OUTPUT_PATH} ${SHADER_RESOURCE_PATH})
+    exec_program(${GLSLC} ARGS -o ${SHADER_OUTPUT_PATH} ${SHADER_ASSET_PATH})
 endfunction()
 
-compile_shader(simple_shader.vert)
-compile_shader(simple_shader.frag)
+function(compile_shaders WILDCARD)
+    file(GLOB files "${SHADER_ASSETS_DIR}/${WILDCARD}")
+    foreach (file ${files})
+        get_filename_component(FILENAME ${file} NAME)
+        compile_shader(${FILENAME})
+    endforeach ()
+endfunction()
+
+compile_shaders(*.vert)
+compile_shaders(*.frag)

@@ -1,0 +1,19 @@
+# This project uses GIT SUBMODULES for dependency management
+# This file indicates the NAME and VERSION (i.e. git tag) of each submodule used
+#
+# The NAME is the last segment of the path specified in .gitmodules.
+# The VERSION is the git tag that the submodule will be checked out to.
+#
+# Example:
+#   The following submodule in .gitmodules...
+#       [submodule "lib/glfw"]
+#        	path = lib/glfw
+#        	url = https://github.com/glfw/glfw
+#
+#    ...would correspond to...
+#       NAME --> glfw
+#       VERSION --> Any tag from https://github.com/glfw/glfw/tags
+#
+glfw=3.3.4
+glm=0.9.9.8
+spdlog=v1.9.2

@@ -12,10 +12,8 @@ int main()
 #ifdef VD_DEBUG
     config.Vulkan.ValidationLayersEnabled = true;
 #endif
-    
+
     auto* app = new Vulkandemo::App(config);
     app->Run();
     delete app;
-
-    return 0;
 }
