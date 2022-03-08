@@ -2,6 +2,7 @@
 #include "FileSystem.h"
 #include "InstallDependenciesCommand.h"
 #include "InstallGLFWCommand.h"
+#include "RunProjectCommand.h"
 #include <cli.h>
 
 int main(int argc, char* argv[]) {
@@ -19,7 +20,8 @@ int main(int argc, char* argv[]) {
     app.Commands = {
         VulkandemoCLI::CreateBuildProjectCommand(),
         VulkandemoCLI::CreateInstallDependenciesCommand(fileSystem),
-        VulkandemoCLI::CreateInstallGLFWCommand()
+        VulkandemoCLI::CreateInstallGLFWCommand(),
+        VulkandemoCLI::CreateRunProjectCommand()
     };
 
     app.Run(argc, argv);

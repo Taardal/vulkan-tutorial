@@ -27,13 +27,19 @@ namespace VulkandemoCLI
         cmakeSourceDirectoryOption.DefaultValue = ".";
         cmakeSourceDirectoryOption.Aliases = {"c"};
 
+        CLI::Option glfwOption;
+        glfwOption.Name = "glfw";
+        glfwOption.Usage = "Build GLFW as part of this project instead of using binaries installed on local machine";
+        glfwOption.Aliases = {"g"};
+
         CLI::Command command;
         command.Name = "build";
         command.Usage = "Build project";
         command.Options = {
                 buildTypeOption,
                 buildDirectoryOption,
-                cmakeSourceDirectoryOption
+                cmakeSourceDirectoryOption,
+                glfwOption
         };
         command.Action = [](const CLI::Context& context) -> void
         {
@@ -71,7 +77,13 @@ namespace VulkandemoCLI
             }
 
             std::stringstream ss;
-            ss << "cmake -DCMAKE_BUILD_TYPE=" << buildType << " -B " << buildDirectory << " -S " << cmakeSourceDirectory;
+            ss << "cmake -DCMAKE_BUILD_TYPE=" << buildType;
+            if (context.HasOption("glfw"))
+            {
+                ss << " -DBUILD_GLFW_SRC=ON";
+            }
+            ss << " -B " << buildDirectory;
+            ss << " -S " << cmakeSourceDirectory;
 #ifdef VDC_PLATFORM_WINDOWS
             ss << " -A x64";
 #endif

@@ -61,6 +61,7 @@ install(
         TARGETS ${PROJECT_NAME}
         DESTINATION ${BIN_DIR}
 )
+add_subdirectory(cli)
 
 option(
         BUILD_GLFW_SRC
