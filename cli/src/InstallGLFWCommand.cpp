@@ -27,7 +27,7 @@ namespace VulkandemoCLI
 
         CLI::Command command;
         command.Name = "glfw";
-        command.Usage = "Build and install GLFW on your local machine";
+        command.Usage = "Install GLFW on local machine";
         command.Options = {
                 buildTypeOption,
                 buildDirectoryOption,

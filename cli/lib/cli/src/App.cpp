@@ -102,7 +102,7 @@ namespace CLI
 
         Option option;
         int dashCount = longForm ? longFormDashCount : shortFormDashCount;
-        int equalSignIndex = segment.find("=");
+        int equalSignIndex = (int) segment.find('=');
         if (equalSignIndex != std::string::npos)
         {
             option.Name = segment.substr(dashCount, equalSignIndex - dashCount);

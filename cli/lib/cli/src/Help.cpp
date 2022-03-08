@@ -17,7 +17,7 @@ namespace CLI
     {
         Command command;
         command.Name = "help";
-        command.Usage = "Shows a list of commands or help for one command";
+        command.Usage = "Show available commands and options";
         command.Aliases = {"h"};
         command.Action = [](const Context& context) -> void
         {

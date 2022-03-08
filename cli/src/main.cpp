@@ -1,4 +1,5 @@
 #include "BuildProjectCommand.h"
+#include "CompileShadersCommand.h"
 #include "FileSystem.h"
 #include "InstallDependenciesCommand.h"
 #include "InstallGLFWCommand.h"
@@ -19,6 +20,7 @@ int main(int argc, char* argv[]) {
     app.Usage = "Vulkandemo CLI";
     app.Commands = {
         VulkandemoCLI::CreateBuildProjectCommand(),
+        VulkandemoCLI::CreateCompileShadersCommand(),
         VulkandemoCLI::CreateInstallDependenciesCommand(fileSystem),
         VulkandemoCLI::CreateInstallGLFWCommand(),
         VulkandemoCLI::CreateRunProjectCommand()
