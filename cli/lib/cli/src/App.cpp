@@ -3,7 +3,7 @@
 #include "Help.h"
 #include <sstream>
 
-namespace VulkandemoCLI
+namespace CLI
 {
     App::App()
         : helpCommand(CreateHelpCommand()), helpOption(CreateHelpOption())

@@ -3,7 +3,7 @@
 #include "Command.h"
 #include "Option.h"
 
-namespace VulkandemoCLI
+namespace CLI
 {
     Option CreateHelpOption();
 

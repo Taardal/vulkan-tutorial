@@ -1,11 +1,8 @@
-#include "App.h"
-#include "Environment.h"
 #include "BuildProjectCommand.h"
 #include "FileSystem.h"
 #include "InstallDependenciesCommand.h"
 #include "InstallGLFWCommand.h"
-
-using namespace VulkandemoCLI;
+#include <cli.h>
 
 int main(int argc, char* argv[]) {
 #ifdef VDC_EXE_NAME
@@ -14,17 +11,17 @@ int main(int argc, char* argv[]) {
     const char* appName = "vd";
 #endif
 
-    FileSystem fileSystem;
+    VulkandemoCLI::FileSystem fileSystem;
 
-    App app;
+    CLI::App app;
     app.Name = appName;
     app.Usage = "Vulkandemo CLI";
     app.Commands = {
-        CreateBuildProjectCommand(),
-        CreateInstallDependenciesCommand(fileSystem),
-        CreateInstallGLFWCommand()
+        VulkandemoCLI::CreateBuildProjectCommand(),
+        VulkandemoCLI::CreateInstallDependenciesCommand(fileSystem),
+        VulkandemoCLI::CreateInstallGLFWCommand()
     };
-    app.Run(argc, argv);
 
+    app.Run(argc, argv);
     return 0;
 }

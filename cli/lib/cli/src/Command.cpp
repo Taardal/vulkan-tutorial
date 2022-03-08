@@ -1,6 +1,6 @@
 #include "Command.h"
 
-namespace VulkandemoCLI
+namespace CLI
 {
     bool Command::HasOption(std::string_view name) const
     {

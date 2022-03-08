@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Command.h"
+#include <cli.h>
 
 namespace VulkandemoCLI
 {
-    Command CreateInstallGLFWCommand();
+    CLI::Command CreateInstallGLFWCommand();
 }

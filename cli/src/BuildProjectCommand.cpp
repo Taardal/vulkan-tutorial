@@ -1,32 +1,33 @@
 #include "BuildProjectCommand.h"
 #include "Environment.h"
+#include <cli.h>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
 
 namespace VulkandemoCLI
 {
-    Command CreateBuildProjectCommand()
+    CLI::Command CreateBuildProjectCommand()
     {
-        Option buildTypeOption;
+        CLI::Option buildTypeOption;
         buildTypeOption.Name = "buildType";
         buildTypeOption.Usage = "Which build type to use. Must be Debug or Release";
         buildTypeOption.DefaultValue = "Debug";
         buildTypeOption.Aliases = {"b"};
 
-        Option buildDirectoryOption;
+        CLI::Option buildDirectoryOption;
         buildDirectoryOption.Name = "buildDir";
         buildDirectoryOption.Usage = "Where to store build files generated with CMake";
         buildDirectoryOption.DefaultValue = "build";
         buildDirectoryOption.Aliases = {"d"};
 
-        Option cmakeSourceDirectoryOption;
+        CLI::Option cmakeSourceDirectoryOption;
         cmakeSourceDirectoryOption.Name = "cmakeDir";
         cmakeSourceDirectoryOption.Usage = "Where the CMake source files are located";
         cmakeSourceDirectoryOption.DefaultValue = ".";
         cmakeSourceDirectoryOption.Aliases = {"c"};
 
-        Command command;
+        CLI::Command command;
         command.Name = "build";
         command.Usage = "Build project";
         command.Options = {
@@ -34,9 +35,9 @@ namespace VulkandemoCLI
                 buildDirectoryOption,
                 cmakeSourceDirectoryOption
         };
-        command.Action = [](const Context& context) -> void
+        command.Action = [](const CLI::Context& context) -> void
         {
-            const Option* buildTypeOption = context.GetOption("buildType");
+            const CLI::Option* buildTypeOption = context.GetOption("buildType");
             std::string_view buildType;
             if (buildTypeOption != nullptr)
             {
@@ -46,7 +47,7 @@ namespace VulkandemoCLI
                 buildType = context.Command->GetOption("buildType")->DefaultValue;
             }
 
-            const Option* buildDirectoryOption = context.GetOption("buildDir");
+            const CLI::Option* buildDirectoryOption = context.GetOption("buildDir");
             std::string buildDirectory;
             if (buildDirectoryOption != nullptr && buildDirectoryOption->Value.length() > 0)
             {
@@ -59,7 +60,7 @@ namespace VulkandemoCLI
                 buildDirectory =  "cmake-build-" + buildTypeCopy;
             }
 
-            const Option* cmakeSourceDirectoryOption = context.GetOption("cmakeDir");
+            const CLI::Option* cmakeSourceDirectoryOption = context.GetOption("cmakeDir");
             std::string_view cmakeSourceDirectory;
             if (cmakeSourceDirectoryOption != nullptr)
             {

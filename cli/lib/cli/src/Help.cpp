@@ -2,7 +2,7 @@
 #include "App.h"
 #include <sstream>
 
-namespace VulkandemoCLI
+namespace CLI
 {
     Option CreateHelpOption()
     {

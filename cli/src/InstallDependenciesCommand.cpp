@@ -4,12 +4,12 @@
 
 namespace VulkandemoCLI
 {
-    Command CreateInstallDependenciesCommand(const FileSystem& fileSystem)
+    CLI::Command CreateInstallDependenciesCommand(const FileSystem& fileSystem)
     {
-        Command command;
+        CLI::Command command;
         command.Name = "deps";
         command.Usage = "Install dependencies";
-        command.Action = [&](const Context& context) -> void
+        command.Action = [&](const CLI::Context& context) -> void
         {
             std::system("git submodule update --init");
             printf("\n");

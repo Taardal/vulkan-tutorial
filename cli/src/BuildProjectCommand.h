@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Command.h"
+#include <cli.h>
 
 namespace VulkandemoCLI
 {
-    Command CreateBuildProjectCommand();
+    CLI::Command CreateBuildProjectCommand();
 }

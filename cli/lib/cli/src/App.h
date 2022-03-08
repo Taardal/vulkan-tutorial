@@ -6,7 +6,7 @@
 #include <vector>
 #include <functional>
 
-namespace VulkandemoCLI
+namespace CLI
 {
     struct App
     {

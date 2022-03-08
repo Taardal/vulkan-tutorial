@@ -3,7 +3,7 @@
 #include "Command.h"
 #include <sstream>
 
-namespace VulkandemoCLI
+namespace CLI
 {
     bool Context::HasOption(std::string_view name) const
     {

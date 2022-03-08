@@ -1,6 +1,6 @@
 #include "Option.h"
 
-namespace VulkandemoCLI
+namespace CLI
 {
     std::string_view Option::GetValue() const
     {

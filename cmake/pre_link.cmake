@@ -1,0 +1,2 @@
+# Run after sources have been compiled but before linking the binary or running the librarian or archiver tool of a static library.
+# This is not defined for targets created by the add_custom_target() command.

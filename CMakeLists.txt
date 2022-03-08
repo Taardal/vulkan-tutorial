@@ -3,33 +3,15 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(vulkandemo)
 
-option(
-        BUILD_GLFW_SRC 
-        "Build GLFW as part of this project instead of using installed binaries" 
-        OFF
-)
-
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 set(BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake)
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 
-# Set output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BIN_DIR}/debug)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BIN_DIR}/release)
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BIN_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${BIN_DIR}/lib/debug)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${BIN_DIR}/lib/release)
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${BIN_DIR}/lib/debug)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${BIN_DIR}/lib/release)
-
-# Set cmake modules
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_DIR}/modules)
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
+        set(CMAKE_BUILD_TYPE Debug)
+endif()
 
 add_executable(
         ${PROJECT_NAME}
@@ -48,6 +30,15 @@ add_executable(
         ${SRC_DIR}/Window.h
 )
 
+set_target_properties(
+        ${PROJECT_NAME}
+        PROPERTIES
+        RUNTIME_OUTPUT_NAME ${PROJECT_NAME}
+        RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BIN_DIR}/debug
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BIN_DIR}/release
+)
+
 add_custom_command(
         TARGET ${PROJECT_NAME}
         PRE_BUILD
@@ -63,7 +54,7 @@ add_custom_command(
 add_custom_command(
         TARGET ${PROJECT_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_DIR}/post_build.cmake
+        COMMAND ${CMAKE_COMMAND} -DBIN_DIR=${BIN_DIR} -DASSETS_DIR=${ASSETS_DIR} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -P ${CMAKE_DIR}/post_build.cmake
 )
 
 install(
@@ -71,6 +62,11 @@ install(
         DESTINATION ${BIN_DIR}
 )
 
+option(
+        BUILD_GLFW_SRC
+        "Build GLFW as part of this project instead of using binaries installed on local machine"
+        OFF
+)
 if (${BUILD_GLFW_SRC})
         set(GLFW_DIR ${LIB_DIR}/glfw)
         set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

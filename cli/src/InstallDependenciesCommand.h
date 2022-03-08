@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Command.h"
 #include "FileSystem.h"
+#include <cli.h>
 
 namespace VulkandemoCLI
 {
-    Command CreateInstallDependenciesCommand(const FileSystem& fileSystem);
+    CLI::Command CreateInstallDependenciesCommand(const FileSystem& fileSystem);
 }

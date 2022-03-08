@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace VulkandemoCLI
+namespace CLI
 {
     struct Option
     {
