@@ -14,5 +14,9 @@ namespace VulkandemoCLI
         std::vector<std::string_view> Aliases;
         std::vector<Option> Options;
         std::function<void(const Context&)> Action;
+
+        bool HasOption(std::string_view name) const;
+
+        const Option* GetOption(std::string_view name) const;
     };
 }

@@ -18,7 +18,9 @@ namespace VulkandemoCLI
 
         bool HasOption(std::string_view name) const;
 
-        Option GetOption(std::string_view name) const;
+        const Option* GetOption(std::string_view name) const;
+
+        const Option* GetOptionOrDefault(std::string_view name) const;
 
         std::string ToString() const;
     };

@@ -6,25 +6,80 @@ namespace VulkandemoCLI
 {
     Command CreateInstallGLFWCommand()
     {
+        Option buildTypeOption;
+        buildTypeOption.Name = "buildType";
+        buildTypeOption.Usage = "Which build type to use. Must be Debug or Release";
+        buildTypeOption.DefaultValue = "Release";
+        buildTypeOption.Aliases = {"b"};
+
+        Option buildDirectoryOption;
+        buildDirectoryOption.Name = "buildDir";
+        buildDirectoryOption.Usage = "Where to store build files generated with CMake";
+        buildDirectoryOption.DefaultValue = "build";
+        buildDirectoryOption.Aliases = {"d"};
+
+        Option cmakeSourceDirectoryOption;
+        cmakeSourceDirectoryOption.Name = "cmakeDir";
+        cmakeSourceDirectoryOption.Usage = "Where the CMake source files are located (CMakeLists.txt)";
+        cmakeSourceDirectoryOption.DefaultValue = ".";
+        cmakeSourceDirectoryOption.Aliases = {"c"};
+
         Command command;
         command.Name = "glfw";
-        command.Usage = "Build and install GLFW";
+        command.Usage = "Build and install GLFW on your local machine";
+        command.Options = {
+                buildTypeOption,
+                buildDirectoryOption,
+                cmakeSourceDirectoryOption
+        };
         command.Action = [](const Context& context) -> void
         {
             const char* also = " && ";
-            const char* buildType = "Debug";
-            const char* buildDir = "build";
+
+            const Option* buildTypeOption = context.GetOption("buildType");
+            std::string_view buildType;
+            if (buildTypeOption != nullptr)
+            {
+                buildType = buildTypeOption->GetValue();
+            } else
+            {
+                buildType = context.Command->GetOption("buildType")->DefaultValue;
+            }
+
+            const Option* buildDirectoryOption = context.GetOption("buildDir");
+            std::string buildDirectory;
+            if (buildDirectoryOption != nullptr)
+            {
+                buildDirectory = buildDirectoryOption->Value;
+            }
+            else
+            {
+                buildDirectory = context.Command->GetOption("buildDir")->DefaultValue;
+            }
+
+            const Option* cmakeSourceDirectoryOption = context.GetOption("cmakeDir");
+            std::string_view cmakeSourceDirectory;
+            if (cmakeSourceDirectoryOption != nullptr)
+            {
+                cmakeSourceDirectory = cmakeSourceDirectoryOption->GetValue();
+            } else
+            {
+                cmakeSourceDirectory = context.Command->GetOption("cmakeDir")->DefaultValue;
+            }
 
             std::stringstream ss;
             ss << "cd lib/glfw";
             ss << also;
-            ss << "cmake -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=" << buildType << " -S . -B ./" << buildDir;
+            ss << "cmake -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=" << buildType << " -B " << buildDirectory << " -S " << cmakeSourceDirectory;
+#ifdef VDC_PLATFORM_WINDOWS
+            ss << " -A x64";
+#endif
             ss << also;
-            ss << "cmake --build ./" << buildDir << " --config " << buildType;
+            ss << "cmake --build " << buildDirectory << " --config " << buildType;
             ss << also;
-            ss << "cmake --install ./" << buildDir << " --config " << buildType;
+            ss << "cmake --install " << buildDirectory << " --config " << buildType;
 
-            const std::string& command = ss.str();
+            std::string command = ss.str();
 #ifdef VDC_DEBUG
             printf("%s\n", command.c_str());
 #endif

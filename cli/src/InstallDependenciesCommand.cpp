@@ -1,7 +1,6 @@
 #include "InstallDependenciesCommand.h"
 #include "Environment.h"
 #include <sstream>
-#include <vector>
 
 namespace VulkandemoCLI
 {
@@ -12,8 +11,6 @@ namespace VulkandemoCLI
         command.Usage = "Install dependencies";
         command.Action = [&](const Context& context) -> void
         {
-            printf("%s\n", "Installing dependencies");
-
             std::system("git submodule update --init");
             printf("\n");
 
@@ -30,7 +27,7 @@ namespace VulkandemoCLI
                 printf("%s%s%s%s%s\n", "-- Using [", name.c_str(), "] version [", version.c_str(), "]");
                 std::stringstream ss;
                 ss << "cd " << "lib" << "/" << name << " && git checkout " << version;
-                const std::string& command = ss.str();
+                std::string command = ss.str();
 #ifdef VDC_DEBUG
                 printf("%s\n", command.c_str());
 #endif

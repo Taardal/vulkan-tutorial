@@ -25,7 +25,6 @@ namespace VulkandemoCLI
         {
             showHelp = true;
         }
-
         bool previousSegmentWasOption = false;
         for (int i = firstSegmentIndex; i < argc; i++)
         {

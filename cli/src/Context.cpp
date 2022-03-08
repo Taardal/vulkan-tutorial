@@ -17,16 +17,32 @@ namespace VulkandemoCLI
         return false;
     }
 
-    Option Context::GetOption(std::string_view name) const
+    const Option* Context::GetOption(std::string_view name) const
     {
         for (const Option& option : Options)
         {
             if (option.Name == name)
             {
-                return option;
+                return &option;
             }
         }
-        return {};
+        return nullptr;
+    }
+
+    const Option* Context::GetOptionOrDefault(std::string_view name) const
+    {
+        const Option* option = GetOption(name);
+        if (option == nullptr && Command != nullptr)
+        {
+            for (const Option& commandOption : Command->Options)
+            {
+                if (commandOption.Name == name)
+                {
+                    return &commandOption;
+                }
+            }
+        }
+        return nullptr;
     }
 
     std::string Context::ToString() const

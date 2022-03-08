@@ -72,7 +72,13 @@ namespace VulkandemoCLI
                         int keyWidth = keyLeftPadding + key.length();
                         printf("%*s", keyWidth, key.c_str());
 
-                        std::string_view value = option.Usage;
+                        std::string value = option.Usage.length() > 0 ? std::string(option.Usage) : "";
+                        if (option.DefaultValue.length() > 0)
+                        {
+                            std::stringstream ss;
+                            ss << value << " (Default: " << option.DefaultValue << ")";
+                            value = ss.str();
+                        }
                         int keyRightPadding = longestKeyLength - key.length();
                         int valueWidth = keyRightPadding + valueLeftPadding + value.length();
                         printf("%*s\n", valueWidth, value.data());
@@ -160,7 +166,13 @@ namespace VulkandemoCLI
                         int keyWidth = keyLeftPadding + key.length();
                         printf("%*s", keyWidth, key.data());
 
-                        std::string_view value = option.Usage;
+                        std::string value = option.Usage.length() > 0 ? std::string(option.Usage) : "";
+                        if (option.DefaultValue.length() > 0)
+                        {
+                            std::stringstream ss;
+                            ss << value << " (Default: " << option.DefaultValue << ")";
+                            value = ss.str();
+                        }
                         int keyRightPadding = longestKeyLength - key.length();
                         int valueWidth = keyRightPadding + valueLeftPadding + value.length();
                         printf("%*s\n", valueWidth, value.data());

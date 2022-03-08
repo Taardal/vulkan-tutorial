@@ -14,6 +14,7 @@ add_executable(
         ${SRC_DIR}/App.h
         ${SRC_DIR}/BuildProjectCommand.cpp
         ${SRC_DIR}/BuildProjectCommand.h
+        ${SRC_DIR}/Command.cpp
         ${SRC_DIR}/Command.h
         ${SRC_DIR}/Context.cpp
         ${SRC_DIR}/Context.h
@@ -26,6 +27,7 @@ add_executable(
         ${SRC_DIR}/InstallDependenciesCommand.h
         ${SRC_DIR}/InstallGLFWCommand.cpp
         ${SRC_DIR}/InstallGLFWCommand.h
+        ${SRC_DIR}/Option.cpp
         ${SRC_DIR}/Option.h
 )
 
