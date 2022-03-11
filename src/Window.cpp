@@ -1,11 +1,9 @@
 #include "Window.h"
-
-#include <utility>
 #include "Log.h"
 
 namespace Vulkandemo {
 
-    Window::Window(Config config) : config(std::move(config)), glfwWindow(nullptr) {
+    Window::Window(const Config& config) : config(config), glfwWindow(nullptr) {
     }
 
     bool Window::initialize() {

@@ -22,10 +22,10 @@ namespace Vulkandemo {
     private:
         Config config;
         VkInstance vkInstance;
-        VkDebugUtilsMessengerEXT debugMessenger;
+        VkDebugUtilsMessengerEXT vkDebugMessenger;
 
     public:
-        explicit Vulkan(Config config);
+        explicit Vulkan(const Config& config);
 
         bool initialize();
 

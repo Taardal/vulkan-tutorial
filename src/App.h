@@ -21,7 +21,7 @@ namespace Vulkandemo {
         Vulkan* vulkanContext;
 
     public:
-        explicit App(Config config);
+        explicit App(const Config& config);
 
         ~App();
 
