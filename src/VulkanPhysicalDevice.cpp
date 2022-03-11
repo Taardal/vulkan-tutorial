@@ -33,26 +33,14 @@ namespace Vulkandemo {
             return false;
         }
 
-        /*
-        for (VkPhysicalDevice device : devices) {
-            //VD_LOG_DEBUG(device.deviceName);
-            if (isDeviceSuitable(device)) {
-                physicalDevice = device;
-                //break;
-            }
-        }
-        if (physicalDevice == VK_NULL_HANDLE) {
-            VD_LOG_ERROR("Could not get physical device");
-            return false;
-        }
-        */
-
         return true;
     }
 
     void VulkanPhysicalDevice::terminate() {
 
     }
+
+#define TO_STRING(value) #value
 
     int VulkanPhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) const {
         VkPhysicalDeviceProperties deviceProperties;
@@ -72,14 +60,21 @@ namespace Vulkandemo {
         // Maximum possible size of textures affects graphics quality
         score += (int) deviceProperties.limits.maxImageDimension2D;
 
-        // Application can't function without geometry shaders
-        /*
-        if (!deviceFeatures.geometryShader) {
-            return 0;
+        const char* deviceType;
+        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_OTHER) {
+            deviceType = "OTHER";
+        } else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
+            deviceType = "INTEGRATED";
+        } else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+            deviceType = "DISCRETE";
+        } else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
+            deviceType = "VIRTUAL";
+        } else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) {
+            deviceType = "CPU";
+        } else {
+            deviceType = "UNKNOWN";
         }
-        */
-
-        VD_LOG_DEBUG("{0}, {1} --> Score: {2}", deviceProperties.deviceName, deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ? "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU" : deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU ? "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU" : "UNKNOWN", score);
+        VD_LOG_DEBUG("{0} {1}: {2}", deviceProperties.deviceName, deviceType, score);
         return score;
     }
 
