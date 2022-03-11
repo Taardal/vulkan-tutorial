@@ -35,28 +35,28 @@ namespace VulkandemoCLI {
         command.Action = [](const CLI::Context& context) -> void {
             const char* also = " && ";
 
-            const CLI::Option* buildTypeOption = context.getOption("buildType");
+            const CLI::Option* buildTypeOption = context.GetOption("buildType");
             std::string_view buildType;
             if (buildTypeOption != nullptr) {
-                buildType = buildTypeOption->getValue();
+                buildType = buildTypeOption->GetValue();
             } else {
-                buildType = context.Command->getOption("buildType")->DefaultValue;
+                buildType = context.Command->GetOption("buildType")->DefaultValue;
             }
 
-            const CLI::Option* buildDirectoryOption = context.getOption("buildDir");
+            const CLI::Option* buildDirectoryOption = context.GetOption("buildDir");
             std::string buildDirectory;
             if (buildDirectoryOption != nullptr) {
                 buildDirectory = buildDirectoryOption->Value;
             } else {
-                buildDirectory = context.Command->getOption("buildDir")->DefaultValue;
+                buildDirectory = context.Command->GetOption("buildDir")->DefaultValue;
             }
 
-            const CLI::Option* cmakeSourceDirectoryOption = context.getOption("cmakeDir");
+            const CLI::Option* cmakeSourceDirectoryOption = context.GetOption("cmakeDir");
             std::string_view cmakeSourceDirectory;
             if (cmakeSourceDirectoryOption != nullptr) {
-                cmakeSourceDirectory = cmakeSourceDirectoryOption->getValue();
+                cmakeSourceDirectory = cmakeSourceDirectoryOption->GetValue();
             } else {
-                cmakeSourceDirectory = context.Command->getOption("cmakeDir")->DefaultValue;
+                cmakeSourceDirectory = context.Command->GetOption("cmakeDir")->DefaultValue;
             }
 
             std::stringstream ss;

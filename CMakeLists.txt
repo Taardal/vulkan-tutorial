@@ -30,6 +30,8 @@ add_executable(
         ${SRC_DIR}/Window.h
 )
 
+add_subdirectory(cli)
+
 set_target_properties(
         ${PROJECT_NAME}
         PROPERTIES

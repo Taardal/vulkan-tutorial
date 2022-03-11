@@ -40,9 +40,9 @@ namespace VulkandemoCLI {
                 releaseOption
         };
         command.Action = [](const CLI::Context& context) -> void {
-            const char* buildType = context.hasOption("release") ? "Release" : "Debug";
+            const char* buildType = context.HasOption("release") ? "Release" : "Debug";
 
-            const CLI::Option* buildDirectoryOption = context.getOption("buildDir");
+            const CLI::Option* buildDirectoryOption = context.GetOption("buildDir");
             std::string buildDirectory;
             if (buildDirectoryOption != nullptr && buildDirectoryOption->Value.length() > 0) {
                 buildDirectory = buildDirectoryOption->Value;
@@ -52,17 +52,17 @@ namespace VulkandemoCLI {
                 buildDirectory = "cmake-build-" + buildTypeCopy;
             }
 
-            const CLI::Option* cmakeSourceDirectoryOption = context.getOption("cmakeDir");
+            const CLI::Option* cmakeSourceDirectoryOption = context.GetOption("cmakeDir");
             std::string_view cmakeSourceDirectory;
             if (cmakeSourceDirectoryOption != nullptr) {
-                cmakeSourceDirectory = cmakeSourceDirectoryOption->getValue();
+                cmakeSourceDirectory = cmakeSourceDirectoryOption->GetValue();
             } else {
-                cmakeSourceDirectory = context.Command->getOption("cmakeDir")->DefaultValue;
+                cmakeSourceDirectory = context.Command->GetOption("cmakeDir")->DefaultValue;
             }
 
             std::stringstream ss;
             ss << "cmake -DCMAKE_BUILD_TYPE=" << buildType;
-            if (context.hasOption("glfw")) {
+            if (context.HasOption("glfw")) {
                 ss << " -DBUILD_GLFW_SRC=ON";
             }
             ss << " -B " << buildDirectory;
