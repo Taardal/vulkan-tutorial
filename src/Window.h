@@ -20,7 +20,7 @@ namespace Vulkandemo {
         GLFWwindow* glfwWindow;
 
     public:
-        explicit Window(const Config& config);
+        explicit Window(Config config);
 
         bool initialize();
 

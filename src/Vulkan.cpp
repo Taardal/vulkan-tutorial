@@ -3,7 +3,7 @@
 
 #include <GLFW/glfw3.h>
 #include <unordered_set>
-#include <iostream>
+#include <utility>
 
 namespace Vulkandemo
 {
@@ -33,7 +33,7 @@ namespace Vulkandemo {
 
     const VkAllocationCallbacks* Vulkan::ALLOCATOR = VK_NULL_HANDLE;
 
-    Vulkan::Vulkan(const Config& config) : config(config), vkInstance(VK_NULL_HANDLE), vkDebugMessenger(VK_NULL_HANDLE) {
+    Vulkan::Vulkan(Config config) : config(std::move(config)), vkInstance(VK_NULL_HANDLE), debugMessenger(VK_NULL_HANDLE) {
     }
 
     bool Vulkan::initialize() {
@@ -116,7 +116,7 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not look up address of extension function [{0}]", functionName);
             return false;
         }
-        return function(vkInstance, &createInfo, ALLOCATOR, &vkDebugMessenger) == VK_SUCCESS;
+        return function(vkInstance, &createInfo, ALLOCATOR, &debugMessenger) == VK_SUCCESS;
     }
 
     void Vulkan::destroyDebugMessenger() {
@@ -126,7 +126,7 @@ namespace Vulkandemo {
             VD_LOG_WARN("Could not look up address of extension function [{0}]", functionName);
             return;
         }
-        function(vkInstance, vkDebugMessenger, ALLOCATOR);
+        function(vkInstance, debugMessenger, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan debug messenger");
     }
 
