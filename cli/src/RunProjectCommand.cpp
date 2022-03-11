@@ -2,10 +2,9 @@
 #include "Environment.h"
 #include <sstream>
 
-namespace VulkandemoCLI
-{
-    CLI::Command CreateRunProjectCommand()
-    {
+namespace VulkandemoCLI {
+
+    CLI::Command createRunProjectCommand() {
         CLI::Option buildOption;
         buildOption.Name = "build";
         buildOption.Usage = "Build project before running";
@@ -29,18 +28,15 @@ namespace VulkandemoCLI
                 glfwOption,
                 releaseOption,
         };
-        command.Action = [](const CLI::Context& context) -> void
-        {
+        command.Action = [](const CLI::Context& context) -> void {
             const char* binDirName = "bin";
             const char* buildType = context.HasOption("release") ? "Release" : "Debug";
             const char* buildTypeDirName = context.HasOption("release") ? "release" : "debug";
 
-            if (context.HasOption("build"))
-            {
+            if (context.HasOption("build")) {
                 std::stringstream ss;
                 ss << "./" << context.App->Name << " build --buildType=" << buildType;
-                if (context.HasOption("glfw"))
-                {
+                if (context.HasOption("glfw")) {
                     ss << " --glfw";
                 }
                 std::string buildCommand = ss.str();

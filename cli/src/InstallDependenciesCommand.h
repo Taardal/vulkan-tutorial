@@ -5,5 +5,5 @@
 
 namespace VulkandemoCLI
 {
-    CLI::Command CreateInstallDependenciesCommand(const FileSystem& fileSystem);
+    CLI::Command createInstallDependenciesCommand(const FileSystem& fileSystem);
 }
