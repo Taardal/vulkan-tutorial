@@ -30,13 +30,13 @@ namespace VulkandemoCLI {
         };
         command.Action = [](const CLI::Context& context) -> void {
             const char* binDirName = "bin";
-            const char* buildType = context.HasOption("release") ? "Release" : "Debug";
-            const char* buildTypeDirName = context.HasOption("release") ? "release" : "debug";
+            const char* buildType = context.hasOption("release") ? "Release" : "Debug";
+            const char* buildTypeDirName = context.hasOption("release") ? "release" : "debug";
 
-            if (context.HasOption("build")) {
+            if (context.hasOption("build")) {
                 std::stringstream ss;
                 ss << "./" << context.App->Name << " build --buildType=" << buildType;
-                if (context.HasOption("glfw")) {
+                if (context.hasOption("glfw")) {
                     ss << " --glfw";
                 }
                 std::string buildCommand = ss.str();
