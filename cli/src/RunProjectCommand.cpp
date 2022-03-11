@@ -23,6 +23,7 @@ namespace VulkandemoCLI {
         CLI::Command command;
         command.Name = "run";
         command.Usage = "Run project";
+        command.Aliases = {"r"};
         command.Options = {
                 buildOption,
                 glfwOption,

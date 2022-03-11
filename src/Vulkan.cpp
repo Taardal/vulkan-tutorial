@@ -2,7 +2,6 @@
 #include "Log.h"
 
 #include <GLFW/glfw3.h>
-#include <unordered_set>
 #include <utility>
 
 namespace Vulkandemo {
