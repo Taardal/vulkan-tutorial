@@ -3,6 +3,7 @@
 #include "FileSystem.h"
 #include "Window.h"
 #include "Vulkan.h"
+#include "VulkanPhysicalDevice.h"
 
 namespace Vulkandemo {
 
@@ -18,7 +19,8 @@ namespace Vulkandemo {
         Config config;
         FileSystem* fileSystem;
         Window* window;
-        Vulkan* vulkanContext;
+        Vulkan* vulkan;
+        VulkanPhysicalDevice* vulkanPhysicalDevice;
 
     public:
         explicit App(Config config);

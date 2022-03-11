@@ -30,26 +30,23 @@ namespace VulkandemoCLI {
         };
         command.Action = [](const CLI::Context& context) -> void {
             const char* binDirName = "bin";
-            const char* buildType = context.hasOption("release") ? "Release" : "Debug";
             const char* buildTypeDirName = context.hasOption("release") ? "release" : "debug";
 
+            std::stringstream ss;
             if (context.hasOption("build")) {
-                std::stringstream ss;
-                ss << "./" << context.App->Name << " build --buildType=" << buildType;
+                ss << "./" << context.App->Name << " build";
+                if (context.hasOption("release")) {
+                    ss << " --release";
+                }
                 if (context.hasOption("glfw")) {
                     ss << " --glfw";
                 }
-                std::string buildCommand = ss.str();
-                std::system(buildCommand.c_str());
+                ss << " && ";
             }
-
-            std::stringstream ss;
-            ss << binDirName << "/" << buildTypeDirName;
-            std::string path = ss.str();
-
-            std::stringstream ss1;
-            ss1 << "cd " << path << " && " << "./vulkandemo";
-            std::string command = ss1.str();
+            ss << "cd " << binDirName << "/" << buildTypeDirName;
+            ss << " && ";
+            ss << "./vulkandemo";
+            std::string command = ss.str();
 
 #ifdef VDC_DEBUG
             printf("%s\n", command.c_str());
