@@ -24,8 +24,8 @@ add_executable(
         ${SRC_DIR}/FileSystem.h
         ${SRC_DIR}/Log.cpp
         ${SRC_DIR}/Log.h
-        ${SRC_DIR}/VulkanContext.cpp
-        ${SRC_DIR}/VulkanContext.h
+        ${SRC_DIR}/Vulkan.cpp
+        ${SRC_DIR}/Vulkan.h
         ${SRC_DIR}/Window.cpp
         ${SRC_DIR}/Window.h
 )

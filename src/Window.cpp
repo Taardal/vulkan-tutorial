@@ -1,18 +1,14 @@
 #include "Window.h"
 #include "Log.h"
 
-namespace Vulkandemo
-{
-    Window::Window(const Config& config)
-        : config(config)
-    {
+namespace Vulkandemo {
+
+    Window::Window(const Config& config) : config(config), glfwWindow(nullptr) {
     }
 
-    bool Window::Initialize()
-    {
+    bool Window::initialize() {
         bool glfwInitialized = glfwInit();
-        if (!glfwInitialized)
-        {
+        if (!glfwInitialized) {
             VD_LOG_CRITICAL("Could not initialize GLFW");
             return false;
         }
@@ -24,8 +20,7 @@ namespace Vulkandemo
         GLFWmonitor* fullscreenMonitor = nullptr;
         GLFWwindow* sharedWindow = nullptr;
         glfwWindow = glfwCreateWindow((int32_t) config.Width, (int32_t) config.Height, config.Title.c_str(), fullscreenMonitor, sharedWindow);
-        if (!glfwWindow)
-        {
+        if (!glfwWindow) {
             VD_LOG_CRITICAL("Could not create GLFW window");
             return false;
         }
@@ -33,21 +28,18 @@ namespace Vulkandemo
         return true;
     }
 
-    void Window::Terminate()
-    {
+    void Window::terminate() {
         glfwDestroyWindow(glfwWindow);
         VD_LOG_INFO("Destroyed GLFW window");
         glfwTerminate();
         VD_LOG_INFO("Terminated GLFW");
     }
 
-    bool Window::ShouldClose() const
-    {
+    bool Window::shouldClose() const {
         return glfwWindowShouldClose(glfwWindow);
     }
 
-    void Window::PollEvents() const
-    {
+    void Window::pollEvents() const {
         glfwPollEvents();
     }
 }
