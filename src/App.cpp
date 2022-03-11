@@ -48,7 +48,7 @@ namespace Vulkandemo {
             return false;
         }
         if (!vulkanPhysicalDevice->initialize()) {
-            VD_LOG_ERROR("Could not initialize Vulkan Physical Device");
+            VD_LOG_ERROR("Could not initialize Vulkan physical device");
             return false;
         }
 
@@ -68,7 +68,6 @@ namespace Vulkandemo {
 
     void App::terminate() {
         VD_LOG_DEBUG("Terminating...");
-        vulkanPhysicalDevice->terminate();
         vulkan->terminate();
         window->terminate();
     }

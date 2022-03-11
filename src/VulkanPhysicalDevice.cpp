@@ -23,42 +23,59 @@ namespace Vulkandemo {
 
         std::multimap<int, VkPhysicalDevice> candidates;
         for (VkPhysicalDevice device : devices) {
-            int score = rateDeviceSuitability(device);
-            candidates.insert(std::make_pair(score, device));
+            int rating = getRating(device);
+            candidates.insert(std::make_pair(rating, device));
         }
-        if (candidates.rbegin()->first > 0) {
+        int highestRating = candidates.rbegin()->first;
+        if (highestRating > 0) {
             physicalDevice = candidates.rbegin()->second;
         } else {
             VD_LOG_ERROR("Could not get physical device");
             return false;
         }
-
         return true;
     }
 
-    void VulkanPhysicalDevice::terminate() {
+    VulkanPhysicalDevice::QueueFamilyIndices VulkanPhysicalDevice::findQueueFamilies(VkPhysicalDevice device) const {
+        QueueFamilyIndices indices;
 
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+        for (int i = 0; i < queueFamilies.size(); i++) {
+            const VkQueueFamilyProperties& queueFamily = queueFamilies[i];
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                indices.GraphicsFamily = i;
+                break;
+            }
+        }
+        return indices;
     }
 
-#define TO_STRING(value) #value
-
-    int VulkanPhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) const {
+    int VulkanPhysicalDevice::getRating(VkPhysicalDevice device) const {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        //VD_LOG_DEBUG("{0}, {1}", deviceProperties.deviceName, deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ? "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU" : deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU ? "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU" : "UNKNOWN");
 
         VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-        int score = 0;
+        int rating = 0;
 
         // Discrete GPUs have a significant performance advantage
         if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-            score += 1000;
+            rating += 1000;
         }
 
         // Maximum possible size of textures affects graphics quality
-        score += (int) deviceProperties.limits.maxImageDimension2D;
+        rating += (int) deviceProperties.limits.maxImageDimension2D;
+
+        QueueFamilyIndices indices = findQueueFamilies(device);
+        if (!indices.GraphicsFamily.has_value()) {
+            rating = 0;
+        }
 
         const char* deviceType;
         if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_OTHER) {
@@ -74,20 +91,9 @@ namespace Vulkandemo {
         } else {
             deviceType = "UNKNOWN";
         }
-        VD_LOG_DEBUG("{0} {1}: {2}", deviceProperties.deviceName, deviceType, score);
-        return score;
-    }
 
-    bool VulkanPhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) const {
-        VkPhysicalDeviceProperties deviceProperties;
-        vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        VD_LOG_DEBUG("{0}, {1}", deviceProperties.deviceName, deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ? "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU" : deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU ? "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU" : "UNKNOWN");
-
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-        //return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
-        return true;
+        VD_LOG_DEBUG("{0} [{1}]: {2}", deviceProperties.deviceName, deviceType, rating);
+        return rating;
     }
 
 }

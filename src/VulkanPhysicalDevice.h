@@ -1,11 +1,24 @@
 #pragma once
 
 #include "Vulkan.h"
+
 #include <vulkan/vulkan.h>
+#include <optional>
 
 namespace Vulkandemo {
 
     class VulkanPhysicalDevice {
+    private:
+        struct Info {
+            VkPhysicalDevice Device;
+            VkPhysicalDeviceProperties DeviceProperties;
+            VkPhysicalDeviceFeatures DeviceFeatures;
+        };
+
+        struct QueueFamilyIndices {
+            std::optional<uint32_t> GraphicsFamily;
+        };
+
     private:
         Vulkan* vulkan = nullptr;
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -15,12 +28,10 @@ namespace Vulkandemo {
 
         bool initialize();
 
-        void terminate();
-
     private:
-        int rateDeviceSuitability(VkPhysicalDevice device) const;
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
 
-        bool isDeviceSuitable(VkPhysicalDevice device) const;
+        int getRating(VkPhysicalDevice device) const;
     };
 
 }
