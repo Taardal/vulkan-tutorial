@@ -8,8 +8,8 @@
 #include <glm/mat4x4.hpp>
 
 namespace Vulkandemo {
-    App::App(const Config& config)
-            : config(config),
+    App::App(Config config)
+            : config(std::move(config)),
               fileSystem(new FileSystem),
               window(new Window(config.Window)),
               vulkanContext(new Vulkan(config.Vulkan)) {
