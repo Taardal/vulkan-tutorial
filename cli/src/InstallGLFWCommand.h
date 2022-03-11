@@ -4,5 +4,5 @@
 
 namespace VulkandemoCLI
 {
-    CLI::Command CreateInstallGLFWCommand();
+    CLI::Command createInstallGLFWCommand();
 }

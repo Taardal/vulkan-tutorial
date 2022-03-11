@@ -4,5 +4,5 @@
 
 namespace VulkandemoCLI
 {
-    CLI::Command CreateRunProjectCommand();
+    CLI::Command createRunProjectCommand();
 }

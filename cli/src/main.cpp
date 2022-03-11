@@ -19,11 +19,11 @@ int main(int argc, char* argv[]) {
     app.Name = appName;
     app.Usage = "Vulkandemo CLI";
     app.Commands = {
-        VulkandemoCLI::CreateBuildProjectCommand(),
-        VulkandemoCLI::CreateCompileShadersCommand(),
-        VulkandemoCLI::CreateInstallDependenciesCommand(fileSystem),
-        VulkandemoCLI::CreateInstallGLFWCommand(),
-        VulkandemoCLI::CreateRunProjectCommand()
+            VulkandemoCLI::createBuildProjectCommand(),
+            VulkandemoCLI::createCompileShadersCommand(),
+            VulkandemoCLI::createInstallDependenciesCommand(fileSystem),
+            VulkandemoCLI::createInstallGLFWCommand(),
+            VulkandemoCLI::createRunProjectCommand()
     };
 
     app.Run(argc, argv);

@@ -14,6 +14,6 @@ int main()
 #endif
 
     auto* app = new Vulkandemo::App(config);
-    app->Run();
+    app->run();
     delete app;
 }

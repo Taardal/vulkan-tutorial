@@ -5,10 +5,9 @@
 #include <sstream>
 #include <algorithm>
 
-namespace VulkandemoCLI
-{
-    CLI::Command CreateBuildProjectCommand()
-    {
+namespace VulkandemoCLI {
+
+    CLI::Command createBuildProjectCommand() {
         CLI::Option buildDirectoryOption;
         buildDirectoryOption.Name = "buildDir";
         buildDirectoryOption.Usage = "Where to store build files generated with CMake";
@@ -40,37 +39,30 @@ namespace VulkandemoCLI
                 glfwOption,
                 releaseOption
         };
-        command.Action = [](const CLI::Context& context) -> void
-        {
-            const char* buildType = context.HasOption("release") ? "Release" : "Debug";
+        command.Action = [](const CLI::Context& context) -> void {
+            const char* buildType = context.hasOption("release") ? "Release" : "Debug";
 
-            const CLI::Option* buildDirectoryOption = context.GetOption("buildDir");
+            const CLI::Option* buildDirectoryOption = context.getOption("buildDir");
             std::string buildDirectory;
-            if (buildDirectoryOption != nullptr && buildDirectoryOption->Value.length() > 0)
-            {
+            if (buildDirectoryOption != nullptr && buildDirectoryOption->Value.length() > 0) {
                 buildDirectory = buildDirectoryOption->Value;
-            }
-            else
-            {
+            } else {
                 std::string buildTypeCopy(buildType);
                 std::transform(buildTypeCopy.begin(), buildTypeCopy.end(), buildTypeCopy.begin(), ::tolower);
-                buildDirectory =  "cmake-build-" + buildTypeCopy;
+                buildDirectory = "cmake-build-" + buildTypeCopy;
             }
 
-            const CLI::Option* cmakeSourceDirectoryOption = context.GetOption("cmakeDir");
+            const CLI::Option* cmakeSourceDirectoryOption = context.getOption("cmakeDir");
             std::string_view cmakeSourceDirectory;
-            if (cmakeSourceDirectoryOption != nullptr)
-            {
-                cmakeSourceDirectory = cmakeSourceDirectoryOption->GetValue();
-            } else
-            {
-                cmakeSourceDirectory = context.Command->GetOption("cmakeDir")->DefaultValue;
+            if (cmakeSourceDirectoryOption != nullptr) {
+                cmakeSourceDirectory = cmakeSourceDirectoryOption->getValue();
+            } else {
+                cmakeSourceDirectory = context.Command->getOption("cmakeDir")->DefaultValue;
             }
 
             std::stringstream ss;
             ss << "cmake -DCMAKE_BUILD_TYPE=" << buildType;
-            if (context.HasOption("glfw"))
-            {
+            if (context.hasOption("glfw")) {
                 ss << " -DBUILD_GLFW_SRC=ON";
             }
             ss << " -B " << buildDirectory;

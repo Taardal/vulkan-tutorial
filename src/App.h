@@ -2,34 +2,35 @@
 
 #include "FileSystem.h"
 #include "Window.h"
-#include "VulkanContext.h"
+#include "Vulkan.h"
 
-namespace Vulkandemo
-{
-    class App
-    {
+namespace Vulkandemo {
+
+    class App {
     public:
-        struct Config
-        {
+        struct Config {
             std::string Name;
             Window::Config Window;
-            VulkanContext::Config Vulkan;
+            Vulkan::Config Vulkan;
         };
 
-        explicit App(const Config& config);
-
-        ~App();
-
-        void Run();
-
     private:
-        bool Initialize() const;
-
-        void Terminate();
-
         Config config;
         FileSystem* fileSystem;
         Window* window;
-        VulkanContext* vulkanContext;
+        Vulkan* vulkanContext;
+
+    public:
+        explicit App(Config config);
+
+        ~App();
+
+        void run();
+
+    private:
+        bool initialize() const;
+
+        void terminate();
     };
+
 }
