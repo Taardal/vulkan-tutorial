@@ -20,7 +20,7 @@ namespace VulkandemoCLI {
             const char* shaderDirectoryName = "shaders";
 
             const char* binDirectoryName = "bin";
-            const char* buildTypeDirName = context.HasOption("release") ? "release" : "debug";
+            const char* buildTypeDirName = context.hasOption("release") ? "release" : "debug";
 
             const char* cmakeScriptsDirectoryName = "cmake";
             const char* cmakeScriptName = "compile_shaders.cmake";

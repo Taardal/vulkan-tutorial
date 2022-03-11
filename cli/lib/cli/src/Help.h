@@ -5,7 +5,7 @@
 
 namespace CLI
 {
-    Option CreateHelpOption();
+    Option createHelpOption();
 
-    Command CreateHelpCommand();
+    Command createHelpCommand();
 }

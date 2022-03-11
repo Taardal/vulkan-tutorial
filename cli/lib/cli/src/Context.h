@@ -5,6 +5,7 @@
 
 namespace CLI
 {
+
     class App;
     class Command;
     class Option;
@@ -16,12 +17,8 @@ namespace CLI
         std::vector<Option> Options;
         std::vector<std::string_view> Arguments;
 
-        bool HasOption(std::string_view name) const;
+        bool hasOption(std::string_view name) const;
 
-        const Option* GetOption(std::string_view name) const;
-
-        const Option* GetOptionOrDefault(std::string_view name) const;
-
-        std::string ToString() const;
+        const Option* getOption(std::string_view name) const;
     };
 }
