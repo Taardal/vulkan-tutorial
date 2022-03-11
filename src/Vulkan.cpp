@@ -2,27 +2,18 @@
 #include "Log.h"
 
 #include <GLFW/glfw3.h>
-#include <unordered_set>
 #include <utility>
 
-namespace Vulkandemo
-{
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) 
-    {
-        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-        {
+namespace Vulkandemo {
+    static VKAPI_ATTR VkBool32 VKAPI_CALL
+    debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
             VD_LOG_ERROR(pCallbackData->pMessage);
-        }
-        else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) 
-        {
+        } else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
             VD_LOG_WARN(pCallbackData->pMessage);
-        }
-        else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
-        {
+        } else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
             VD_LOG_INFO(pCallbackData->pMessage);
-        }
-        else
-        {
+        } else {
             VD_LOG_TRACE(pCallbackData->pMessage);
         }
         return VK_FALSE;
@@ -33,7 +24,7 @@ namespace Vulkandemo {
 
     const VkAllocationCallbacks* Vulkan::ALLOCATOR = VK_NULL_HANDLE;
 
-    Vulkan::Vulkan(Config config) : config(std::move(config)), vkInstance(VK_NULL_HANDLE), debugMessenger(VK_NULL_HANDLE) {
+    Vulkan::Vulkan(Config config) : config(std::move(config)) {
     }
 
     bool Vulkan::initialize() {
@@ -59,6 +50,10 @@ namespace Vulkandemo {
             destroyDebugMessenger();
         }
         destroyVkInstance();
+    }
+
+    VkInstance Vulkan::getVkInstance() const {
+        return vkInstance;
     }
 
     bool Vulkan::createVkInstance() {
