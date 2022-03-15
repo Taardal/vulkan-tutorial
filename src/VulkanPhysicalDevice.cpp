@@ -18,29 +18,29 @@ namespace Vulkandemo {
     }
 
     bool VulkanPhysicalDevice::initialize() {
-        std::vector<VulkanPhysicalDevice::Info> availableDevices = getAvailableDevices();
+        std::vector<VulkanPhysicalDevice::DeviceInfo> availableDevices = getAvailableDevices();
         if (availableDevices.empty()) {
             VD_LOG_ERROR("Could not get any available physical devices");
             return false;
         }
-        VulkanPhysicalDevice::Info mostEligibleDevice = getMostEligibleDevice(availableDevices);
-        if (mostEligibleDevice.Device == nullptr) {
+        VulkanPhysicalDevice::DeviceInfo mostEligibleDevice = getMostEligibleDevice(availableDevices);
+        if (mostEligibleDevice.VkDevice == nullptr) {
             VD_LOG_ERROR("Could not get any eligible physical device");
             return false;
         }
-        vkPhysicalDevice = mostEligibleDevice.Device;
+        vkPhysicalDevice = mostEligibleDevice.VkDevice;
         queueFamilies = mostEligibleDevice.QueueFamilyIndices;
         return true;
     }
 
-    std::vector<VulkanPhysicalDevice::Info> VulkanPhysicalDevice::getAvailableDevices() const {
+    std::vector<VulkanPhysicalDevice::DeviceInfo> VulkanPhysicalDevice::getAvailableDevices() const {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(vulkan->getVkInstance(), &deviceCount, nullptr);
 
         std::vector<VkPhysicalDevice> vkPhysicalDevices(deviceCount);
         vkEnumeratePhysicalDevices(vulkan->getVkInstance(), &deviceCount, vkPhysicalDevices.data());
 
-        std::vector<Info> devices;
+        std::vector<DeviceInfo> devices;
         for (VkPhysicalDevice vkPhysicalDevice : vkPhysicalDevices) {
 
             VkPhysicalDeviceProperties deviceProperties;
@@ -49,17 +49,17 @@ namespace Vulkandemo {
             VkPhysicalDeviceFeatures deviceFeatures;
             vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &deviceFeatures);
 
-            Info device{};
-            device.Device = vkPhysicalDevice;
-            device.DeviceProperties = deviceProperties;
-            device.DeviceFeatures = deviceFeatures;
+            DeviceInfo device{};
+            device.VkDevice = vkPhysicalDevice;
+            device.VkDeviceProperties = deviceProperties;
+            device.VkDeviceFeatures = deviceFeatures;
             device.QueueFamilyIndices = getQueueFamilyIndices(vkPhysicalDevice);
 
             devices.push_back(device);
         }
         VD_LOG_DEBUG("Available physical devices [{0}]", deviceCount);
-        for (const Info& device : devices) {
-            VD_LOG_DEBUG("{0} --> {1}", device.DeviceProperties.deviceName, getDeviceTypeAsString(device.DeviceProperties.deviceType));
+        for (const DeviceInfo& device : devices) {
+            VD_LOG_DEBUG("{0} --> {1}", device.VkDeviceProperties.deviceName, getDeviceTypeAsString(device.VkDeviceProperties.deviceType));
         }
         return devices;
     }
@@ -82,12 +82,12 @@ namespace Vulkandemo {
         return indices;
     }
 
-    VulkanPhysicalDevice::Info VulkanPhysicalDevice::getMostEligibleDevice(const std::vector<VulkanPhysicalDevice::Info>& availableDevices) const {
-        std::multimap<int, VulkanPhysicalDevice::Info> devicesByRating;
+    VulkanPhysicalDevice::DeviceInfo VulkanPhysicalDevice::getMostEligibleDevice(const std::vector<VulkanPhysicalDevice::DeviceInfo>& availableDevices) const {
+        std::multimap<int, VulkanPhysicalDevice::DeviceInfo> devicesByRating;
         VD_LOG_DEBUG("Device ratings");
-        for (const VulkanPhysicalDevice::Info& device : availableDevices) {
+        for (const VulkanPhysicalDevice::DeviceInfo& device : availableDevices) {
             int rating = getRating(device);
-            VD_LOG_DEBUG("{0} --> {1}", device.DeviceProperties.deviceName, rating);
+            VD_LOG_DEBUG("{0} --> {1}", device.VkDeviceProperties.deviceName, rating);
             devicesByRating.insert(std::make_pair(rating, device));
         }
         int highestRating = devicesByRating.rbegin()->first;
@@ -95,17 +95,17 @@ namespace Vulkandemo {
             return {};
         }
         VD_LOG_DEBUG("Most eligible device");
-        const Info& device = devicesByRating.rbegin()->second;
-        VD_LOG_DEBUG("{0}", device.DeviceProperties.deviceName);
+        const DeviceInfo& device = devicesByRating.rbegin()->second;
+        VD_LOG_DEBUG("{0}", device.VkDeviceProperties.deviceName);
         return device;
     }
 
-    int VulkanPhysicalDevice::getRating(const VulkanPhysicalDevice::Info& deviceInfo) const {
+    int VulkanPhysicalDevice::getRating(const VulkanPhysicalDevice::DeviceInfo& deviceInfo) const {
         if (!deviceInfo.QueueFamilyIndices.GraphicsFamily.has_value()) {
             return 0;
         }
-        int rating = (int) deviceInfo.DeviceProperties.limits.maxImageDimension2D;
-        if (deviceInfo.DeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+        int rating = (int) deviceInfo.VkDeviceProperties.limits.maxImageDimension2D;
+        if (deviceInfo.VkDeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             rating += 1000;
         }
         return rating;

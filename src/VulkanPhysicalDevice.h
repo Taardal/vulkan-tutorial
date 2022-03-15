@@ -18,10 +18,10 @@ namespace Vulkandemo {
 
     class VulkanPhysicalDevice {
     private:
-        struct Info {
-            VkPhysicalDevice Device = nullptr;
-            VkPhysicalDeviceProperties DeviceProperties{};
-            VkPhysicalDeviceFeatures DeviceFeatures{};
+        struct DeviceInfo {
+            VkPhysicalDevice VkDevice = nullptr;
+            VkPhysicalDeviceProperties VkDeviceProperties{};
+            VkPhysicalDeviceFeatures VkDeviceFeatures{};
             QueueFamilyIndices QueueFamilyIndices;
         };
 
@@ -40,15 +40,15 @@ namespace Vulkandemo {
         bool initialize();
 
     private:
-        std::vector<Info> getAvailableDevices() const;
+        std::vector<DeviceInfo> getAvailableDevices() const;
 
         std::string getDeviceTypeAsString(VkPhysicalDeviceType deviceType) const;
 
-        Info getMostEligibleDevice(const std::vector<Info>& availableDevices) const;
+        DeviceInfo getMostEligibleDevice(const std::vector<DeviceInfo>& availableDevices) const;
 
         QueueFamilyIndices getQueueFamilyIndices(VkPhysicalDevice device) const;
 
-        int getRating(const Info& deviceInfo) const;
+        int getRating(const DeviceInfo& deviceInfo) const;
     };
 
 }
