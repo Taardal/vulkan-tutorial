@@ -21,8 +21,8 @@ namespace Vulkandemo {
 
     private:
         Config config;
-        VkInstance vkInstance = VK_NULL_HANDLE;
-        VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
+        VkInstance vkInstance;
+        VkDebugUtilsMessengerEXT debugMessenger;
 
     public:
         explicit Vulkan(Config config);
@@ -30,8 +30,6 @@ namespace Vulkandemo {
         bool initialize();
 
         void terminate();
-
-        VkInstance getVkInstance() const;
 
     private:
         bool createVkInstance();

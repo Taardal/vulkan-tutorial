@@ -26,8 +26,6 @@ add_executable(
         ${SRC_DIR}/Log.h
         ${SRC_DIR}/Vulkan.cpp
         ${SRC_DIR}/Vulkan.h
-        ${SRC_DIR}/VulkanPhysicalDevice.cpp
-        ${SRC_DIR}/VulkanPhysicalDevice.h
         ${SRC_DIR}/Window.cpp
         ${SRC_DIR}/Window.h
 )

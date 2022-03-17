@@ -12,13 +12,11 @@ namespace Vulkandemo {
             : config(std::move(config)),
               fileSystem(new FileSystem),
               window(new Window(config.Window)),
-              vulkan(new Vulkan(config.Vulkan)),
-              vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)) {
+              vulkanContext(new Vulkan(config.Vulkan)) {
     }
 
     App::~App() {
-        delete vulkanPhysicalDevice;
-        delete vulkan;
+        delete vulkanContext;
         delete window;
         delete fileSystem;
     }
@@ -43,12 +41,8 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize window");
             return false;
         }
-        if (!vulkan->initialize()) {
+        if (!vulkanContext->initialize()) {
             VD_LOG_ERROR("Could not initialize Vulkan");
-            return false;
-        }
-        if (!vulkanPhysicalDevice->initialize()) {
-            VD_LOG_ERROR("Could not initialize Vulkan physical device");
             return false;
         }
 
@@ -68,7 +62,7 @@ namespace Vulkandemo {
 
     void App::terminate() {
         VD_LOG_DEBUG("Terminating...");
-        vulkan->terminate();
+        vulkanContext->terminate();
         window->terminate();
     }
 
