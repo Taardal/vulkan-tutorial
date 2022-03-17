@@ -13,7 +13,7 @@ namespace Vulkandemo {
         return vkPhysicalDevice;
     }
 
-    const QueueFamilyIndices& VulkanPhysicalDevice::getQueueFamilies() const {
+    const QueueFamilyIndices& VulkanPhysicalDevice::getQueueFamilyIndices() const {
         return queueFamilies;
     }
 
@@ -22,12 +22,12 @@ namespace Vulkandemo {
     }
 
     bool VulkanPhysicalDevice::initialize() {
-        std::vector<VulkanPhysicalDevice::DeviceInfo> availableDevices = getAvailableDevices();
+        std::vector<VulkanPhysicalDevice::DeviceInfo> availableDevices = findAvailableDevices();
         if (availableDevices.empty()) {
             VD_LOG_ERROR("Could not get any available physical devices");
             return false;
         }
-        VulkanPhysicalDevice::DeviceInfo mostEligibleDevice = getMostEligibleDevice(availableDevices);
+        VulkanPhysicalDevice::DeviceInfo mostEligibleDevice = findMostEligibleDevice(availableDevices);
         if (mostEligibleDevice.VkDevice == nullptr) {
             VD_LOG_ERROR("Could not get any eligible physical device");
             return false;
@@ -38,7 +38,7 @@ namespace Vulkandemo {
         return true;
     }
 
-    std::vector<VulkanPhysicalDevice::DeviceInfo> VulkanPhysicalDevice::getAvailableDevices() const {
+    std::vector<VulkanPhysicalDevice::DeviceInfo> VulkanPhysicalDevice::findAvailableDevices() const {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(vulkan->getVkInstance(), &deviceCount, nullptr);
 
@@ -58,7 +58,7 @@ namespace Vulkandemo {
             device.VkDevice = vkPhysicalDevice;
             device.VkDeviceProperties = deviceProperties;
             device.VkDeviceFeatures = deviceFeatures;
-            device.QueueFamilyIndices = getQueueFamilyIndices(vkPhysicalDevice);
+            device.QueueFamilyIndices = findQueueFamilyIndices(vkPhysicalDevice);
 
             devices.push_back(device);
         }
@@ -69,7 +69,7 @@ namespace Vulkandemo {
         return devices;
     }
 
-    QueueFamilyIndices VulkanPhysicalDevice::getQueueFamilyIndices(VkPhysicalDevice device) const {
+    QueueFamilyIndices VulkanPhysicalDevice::findQueueFamilyIndices(VkPhysicalDevice device) const {
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
@@ -81,13 +81,20 @@ namespace Vulkandemo {
             const VkQueueFamilyProperties& queueFamily = queueFamilies[i];
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 indices.GraphicsFamily = i;
+            }
+            VkBool32 presentationSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, vulkan->getVkSurface(), &presentationSupport);
+            if (presentationSupport) {
+                indices.PresentationFamily = i;
+            }
+            if (indices.GraphicsFamily.has_value() && indices.PresentationFamily.has_value()) {
                 break;
             }
         }
         return indices;
     }
 
-    VulkanPhysicalDevice::DeviceInfo VulkanPhysicalDevice::getMostEligibleDevice(const std::vector<VulkanPhysicalDevice::DeviceInfo>& availableDevices) const {
+    VulkanPhysicalDevice::DeviceInfo VulkanPhysicalDevice::findMostEligibleDevice(const std::vector<VulkanPhysicalDevice::DeviceInfo>& availableDevices) const {
         std::multimap<int, VulkanPhysicalDevice::DeviceInfo> devicesByRating;
         VD_LOG_DEBUG("Device ratings");
         for (const VulkanPhysicalDevice::DeviceInfo& device : availableDevices) {

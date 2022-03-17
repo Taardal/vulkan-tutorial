@@ -1,6 +1,8 @@
 #include "VulkanDevice.h"
 #include "Log.h"
 
+#include <set>
+
 namespace Vulkandemo {
 
     const VkAllocationCallbacks* VulkanDevice::ALLOCATOR = VK_NULL_HANDLE;
@@ -9,23 +11,32 @@ namespace Vulkandemo {
     }
 
     bool VulkanDevice::initialize() const {
-        uint32_t graphicsQueueFamilyIndex = vulkanPhysicalDevice->getQueueFamilies().GraphicsFamily.value();
-        constexpr float graphicsQueuePriority = 1.0f;
+        constexpr float queuePriority = 1.0f;
+        const QueueFamilyIndices& indices = vulkanPhysicalDevice->getQueueFamilyIndices();
 
-        VkDeviceQueueCreateInfo queueCreateInfo{};
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = graphicsQueueFamilyIndex;
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &graphicsQueuePriority;
+        std::set<uint32_t> queueFamilies = {
+                indices.GraphicsFamily.value(),
+                indices.PresentationFamily.value()
+        };
+
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        for (uint32_t queueFamily : queueFamilies) {
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        createInfo.pQueueCreateInfos = &queueCreateInfo;
-        createInfo.queueCreateInfoCount = 1;
+        createInfo.queueCreateInfoCount = queueCreateInfos.size();
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.pEnabledFeatures = &vulkanPhysicalDevice->getVkDeviceFeatures();
         createInfo.enabledExtensionCount = 0;
 
-        if (vulkan->isValidationLayersEnabled()) {
+        if (vulkan->areValidationLayersEnabled()) {
             createInfo.enabledLayerCount = vulkan->getValidationLayers().size();
             createInfo.ppEnabledLayerNames = vulkan->getValidationLayers().data();
         } else {
@@ -37,10 +48,15 @@ namespace Vulkandemo {
             return false;
         }
 
-        constexpr int graphicsQueueIndex = 0;
-        vkGetDeviceQueue(vkDevice, graphicsQueueFamilyIndex, graphicsQueueIndex, (VkQueue*) &graphicsQueue);
-        if (graphicsQueue == VK_NULL_HANDLE) {
-            VD_LOG_ERROR("Could not get graphics queue handle");
+        constexpr int queueIndex = 0;
+        vkGetDeviceQueue(vkDevice, indices.GraphicsFamily.value(), queueIndex, (VkQueue*) &graphicsVkQueue);
+        if (graphicsVkQueue == VK_NULL_HANDLE) {
+            VD_LOG_ERROR("Could not get graphics Vulkan queue handle");
+            return false;
+        }
+        vkGetDeviceQueue(vkDevice, indices.PresentationFamily.value(), queueIndex, (VkQueue*) &presentationVkQueue);
+        if (presentationVkQueue == VK_NULL_HANDLE) {
+            VD_LOG_ERROR("Could not get presentation Vulkan queue handle");
             return false;
         }
 

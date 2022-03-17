@@ -22,6 +22,8 @@ namespace Vulkandemo {
     public:
         explicit Window(Config config);
 
+        GLFWwindow* getGlfwWindow() const;
+
         bool initialize();
 
         void terminate();

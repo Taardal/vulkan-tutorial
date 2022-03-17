@@ -13,7 +13,7 @@ namespace Vulkandemo {
             : config(std::move(config)),
               fileSystem(new FileSystem),
               window(new Window(config.Window)),
-              vulkan(new Vulkan(config.Vulkan)),
+              vulkan(new Vulkan(config.Vulkan, window)),
               vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)),
               vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)){
     }

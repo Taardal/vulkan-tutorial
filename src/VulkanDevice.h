@@ -14,7 +14,8 @@ namespace Vulkandemo {
         Vulkan* vulkan;
         VulkanPhysicalDevice* vulkanPhysicalDevice;
         VkDevice vkDevice = VK_NULL_HANDLE;
-        VkQueue graphicsQueue = VK_NULL_HANDLE;
+        VkQueue graphicsVkQueue = VK_NULL_HANDLE;
+        VkQueue presentationVkQueue = VK_NULL_HANDLE;
 
     public:
         VulkanDevice(Vulkan* vulkan, VulkanPhysicalDevice* vulkanPhysicalDevice);
