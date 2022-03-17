@@ -21,17 +21,22 @@ namespace Vulkandemo {
 
     private:
         Config config;
+        std::vector<const char*> validationLayers{};
         VkInstance vkInstance = VK_NULL_HANDLE;
         VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
 
     public:
         explicit Vulkan(Config config);
 
+        VkInstance getVkInstance() const;
+
+        const std::vector<const char*>& getValidationLayers() const;
+
+        bool isValidationLayersEnabled() const;
+
         bool initialize();
 
         void terminate();
-
-        VkInstance getVkInstance() const;
 
     private:
         bool createVkInstance();
@@ -42,17 +47,17 @@ namespace Vulkandemo {
 
         void destroyDebugMessenger();
 
-        std::vector<const char*> getExtensions() const;
+        std::vector<const char*> findExtensions() const;
 
-        std::vector<const char*> getRequiredExtensions() const;
+        std::vector<const char*> findRequiredExtensions() const;
 
-        std::vector<VkExtensionProperties> getAvailableExtensions() const;
+        std::vector<VkExtensionProperties> findAvailableExtensions() const;
 
         bool hasExtensions(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions) const;
 
-        std::vector<const char*> getValidationLayers() const;
+        std::vector<const char*> findValidationLayers() const;
 
-        std::vector<VkLayerProperties> getAvailableValidationLayers() const;
+        std::vector<VkLayerProperties> findAvailableValidationLayers() const;
 
         bool hasValidationLayers(const std::vector<const char*>& validationLayers, const std::vector<VkLayerProperties>& availableValidationLayers) const;
 

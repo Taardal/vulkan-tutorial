@@ -29,11 +29,14 @@ namespace Vulkandemo {
         Vulkan* vulkan;
         VkPhysicalDevice vkPhysicalDevice = VK_NULL_HANDLE;
         QueueFamilyIndices queueFamilies{};
+        DeviceInfo deviceInfo{};
 
     public:
         explicit VulkanPhysicalDevice(Vulkan* vulkan);
 
         VkPhysicalDevice getVkPhysicalDevice() const;
+
+        const VkPhysicalDeviceFeatures& getVkDeviceFeatures() const;
 
         const QueueFamilyIndices& getQueueFamilies() const;
 

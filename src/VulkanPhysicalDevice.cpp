@@ -17,6 +17,10 @@ namespace Vulkandemo {
         return queueFamilies;
     }
 
+    const VkPhysicalDeviceFeatures& VulkanPhysicalDevice::getVkDeviceFeatures() const {
+        return deviceInfo.VkDeviceFeatures;
+    }
+
     bool VulkanPhysicalDevice::initialize() {
         std::vector<VulkanPhysicalDevice::DeviceInfo> availableDevices = getAvailableDevices();
         if (availableDevices.empty()) {
@@ -28,6 +32,7 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not get any eligible physical device");
             return false;
         }
+        deviceInfo = mostEligibleDevice;
         vkPhysicalDevice = mostEligibleDevice.VkDevice;
         queueFamilies = mostEligibleDevice.QueueFamilyIndices;
         return true;

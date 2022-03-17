@@ -8,15 +8,18 @@
 #include <glm/mat4x4.hpp>
 
 namespace Vulkandemo {
+
     App::App(Config config)
             : config(std::move(config)),
               fileSystem(new FileSystem),
               window(new Window(config.Window)),
               vulkan(new Vulkan(config.Vulkan)),
-              vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)) {
+              vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)),
+              vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)){
     }
 
     App::~App() {
+        delete vulkanDevice;
         delete vulkanPhysicalDevice;
         delete vulkan;
         delete window;
@@ -51,6 +54,10 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize Vulkan physical device");
             return false;
         }
+        if (!vulkanDevice->initialize()) {
+            VD_LOG_ERROR("Could not initialize Vulkan device");
+            return false;
+        }
 
         glm::mat4 matrix;
         glm::vec4 vec;
@@ -68,6 +75,7 @@ namespace Vulkandemo {
 
     void App::terminate() {
         VD_LOG_DEBUG("Terminating...");
+        vulkanDevice->terminate();
         vulkan->terminate();
         window->terminate();
     }
