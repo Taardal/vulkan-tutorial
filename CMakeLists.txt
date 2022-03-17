@@ -10,8 +10,8 @@ set(CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake)
 set(ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
-        set(CMAKE_BUILD_TYPE Debug)
-endif()
+    set(CMAKE_BUILD_TYPE Debug)
+endif ()
 
 add_executable(
         ${PROJECT_NAME}
@@ -24,8 +24,8 @@ add_executable(
         ${SRC_DIR}/FileSystem.h
         ${SRC_DIR}/Log.cpp
         ${SRC_DIR}/Log.h
-        ${SRC_DIR}/VulkanContext.cpp
-        ${SRC_DIR}/VulkanContext.h
+        ${SRC_DIR}/Vulkan.cpp
+        ${SRC_DIR}/Vulkan.h
         ${SRC_DIR}/Window.cpp
         ${SRC_DIR}/Window.h
 )
@@ -68,19 +68,19 @@ option(
         OFF
 )
 if (${BUILD_GLFW_SRC})
-        set(GLFW_DIR ${LIB_DIR}/glfw)
-        set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-        set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-        set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-        add_subdirectory(${GLFW_DIR})
-        target_compile_definitions(${PROJECT_NAME} PUBLIC GLFW_INCLUDE_NONE)
-        target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_DIR}/include)
-        target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES})
-else()
-        set(GLFW_DIR $ENV{GLFW_HOME})
-        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${GLFW_DIR})
-        find_package(glfw3 REQUIRED)
-        target_link_libraries(${PROJECT_NAME} glfw)
+    set(GLFW_DIR ${LIB_DIR}/glfw)
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${GLFW_DIR})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC GLFW_INCLUDE_NONE)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_DIR}/include)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES})
+else ()
+    set(GLFW_DIR $ENV{GLFW_HOME})
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${GLFW_DIR})
+    find_package(glfw3 REQUIRED)
+    target_link_libraries(${PROJECT_NAME} glfw)
 endif ()
 
 set(GLM_DIR ${LIB_DIR}/glm)

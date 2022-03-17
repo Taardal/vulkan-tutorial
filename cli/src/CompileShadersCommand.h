@@ -4,5 +4,5 @@
 
 namespace VulkandemoCLI
 {
-    CLI::Command CreateCompileShadersCommand();
+    CLI::Command createCompileShadersCommand();
 }

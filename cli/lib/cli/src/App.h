@@ -6,24 +6,9 @@
 #include <vector>
 #include <functional>
 
-namespace CLI
-{
-    struct App
-    {
-    public:
-        App();
+namespace CLI {
 
-        void Run(int argc, char* argv[]);
-
-    private:
-        void Initialize();
-
-        Option GetOption(std::string_view segment, const Command* command) const;
-
-        const Option* FindOption(std::string_view name, const std::vector<Option>& flags) const;
-
-        const Command* FindCommand(std::string_view segment) const;
-
+    struct App {
     public:
         std::string_view Name;
         std::string_view Usage;
@@ -34,5 +19,19 @@ namespace CLI
     private:
         Command helpCommand;
         Option helpOption;
+
+    public:
+        App();
+
+        void Run(int argc, char* argv[]);
+
+    private:
+        void initialize();
+
+        Option getOption(std::string_view segment, const Command* command) const;
+
+        const Option* findOption(std::string_view name, const std::vector<Option>& flags) const;
+
+        const Command* findCommand(std::string_view segment) const;
     };
 }

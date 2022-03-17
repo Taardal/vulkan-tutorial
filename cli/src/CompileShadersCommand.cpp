@@ -1,10 +1,9 @@
 #include "CompileShadersCommand.h"
 #include <sstream>
 
-namespace VulkandemoCLI
-{
-    CLI::Command CreateCompileShadersCommand()
-    {
+namespace VulkandemoCLI {
+
+    CLI::Command createCompileShadersCommand() {
         CLI::Option releaseOption;
         releaseOption.Name = "release";
         releaseOption.Usage = "Use Release mode";
@@ -16,13 +15,12 @@ namespace VulkandemoCLI
         command.Options = {
                 releaseOption
         };
-        command.Action = [](const CLI::Context& context) -> void
-        {
+        command.Action = [](const CLI::Context& context) -> void {
             const char* assetsDirectoryName = "assets";
             const char* shaderDirectoryName = "shaders";
 
             const char* binDirectoryName = "bin";
-            const char* buildTypeDirName = context.HasOption("release") ? "release" : "debug";
+            const char* buildTypeDirName = context.hasOption("release") ? "release" : "debug";
 
             const char* cmakeScriptsDirectoryName = "cmake";
             const char* cmakeScriptName = "compile_shaders.cmake";

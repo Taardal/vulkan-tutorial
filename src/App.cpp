@@ -3,53 +3,45 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
-namespace Vulkandemo
-{
-    App::App(const Config &config)
-        : config(config),
-          fileSystem(new FileSystem),
-          window(new Window(config.Window)),
-          vulkanContext(new VulkanContext(config.Vulkan))
-    {
+namespace Vulkandemo {
+    App::App(Config config)
+            : config(std::move(config)),
+              fileSystem(new FileSystem),
+              window(new Window(config.Window)),
+              vulkanContext(new Vulkan(config.Vulkan)) {
     }
 
-    App::~App()
-    {
+    App::~App() {
         delete vulkanContext;
         delete window;
         delete fileSystem;
     }
 
-    void App::Run()
-    {
-        if (!Initialize())
-        {
+    void App::run() {
+        if (!initialize()) {
             VD_LOG_CRITICAL("Could not initialize app");
             return;
         }
         VD_LOG_DEBUG("Running...");
-        while (!window->ShouldClose())
-        {
-            window->PollEvents();
+        while (!window->shouldClose()) {
+            window->pollEvents();
         }
-        Terminate();
+        terminate();
     }
 
 
-    bool App::Initialize() const
-    {
-        Log::Initialize(config.Name);
+    bool App::initialize() const {
+        Log::initialize(config.Name);
         VD_LOG_DEBUG("Initializing...");
-        if (!window->Initialize())
-        {
+        if (!window->initialize()) {
             VD_LOG_ERROR("Could not initialize window");
             return false;
         }
-        if (!vulkanContext->Initialize())
-        {
+        if (!vulkanContext->initialize()) {
             VD_LOG_ERROR("Could not initialize Vulkan");
             return false;
         }
@@ -59,20 +51,19 @@ namespace Vulkandemo
         auto test = matrix * vec;
 
         const char* path = "shaders/simple_shader.vert.spv";
-        std::vector<char> vertexShaderByteCode = fileSystem->ReadBinaryFile(path);
+        std::vector<char> vertexShaderByteCode = fileSystem->readBinaryFile(path);
         VD_LOG_INFO("Vertex Shader Code Size: [{0}]", vertexShaderByteCode.size());
 
-        std::vector<char> fragmentShaderByteCode = fileSystem->ReadBinaryFile("shaders/simple_shader.frag.spv");
+        std::vector<char> fragmentShaderByteCode = fileSystem->readBinaryFile("shaders/simple_shader.frag.spv");
         VD_LOG_INFO("Fragment Shader Code Size: [{0}]", fragmentShaderByteCode.size());
 
         return true;
     }
 
-    void App::Terminate()
-    {
+    void App::terminate() {
         VD_LOG_DEBUG("Terminating...");
-        vulkanContext->Terminate();
-        window->Terminate();
+        vulkanContext->terminate();
+        window->terminate();
     }
 
 }

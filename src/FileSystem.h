@@ -2,11 +2,10 @@
 
 #include <vector>
 
-namespace Vulkandemo
-{
-    class FileSystem
-    {
+namespace Vulkandemo {
+
+    class FileSystem {
     public:
-        std::vector<char> ReadBinaryFile(const char* path) const;
+        std::vector<char> readBinaryFile(const char* path) const;
     };
 }
