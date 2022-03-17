@@ -8,15 +8,20 @@
 #include <glm/mat4x4.hpp>
 
 namespace Vulkandemo {
+
     App::App(Config config)
             : config(std::move(config)),
               fileSystem(new FileSystem),
               window(new Window(config.Window)),
-              vulkanContext(new Vulkan(config.Vulkan)) {
+              vulkan(new Vulkan(config.Vulkan)),
+              vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)),
+              vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)){
     }
 
     App::~App() {
-        delete vulkanContext;
+        delete vulkanDevice;
+        delete vulkanPhysicalDevice;
+        delete vulkan;
         delete window;
         delete fileSystem;
     }
@@ -41,8 +46,16 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize window");
             return false;
         }
-        if (!vulkanContext->initialize()) {
+        if (!vulkan->initialize()) {
             VD_LOG_ERROR("Could not initialize Vulkan");
+            return false;
+        }
+        if (!vulkanPhysicalDevice->initialize()) {
+            VD_LOG_ERROR("Could not initialize Vulkan physical device");
+            return false;
+        }
+        if (!vulkanDevice->initialize()) {
+            VD_LOG_ERROR("Could not initialize Vulkan device");
             return false;
         }
 
@@ -62,7 +75,8 @@ namespace Vulkandemo {
 
     void App::terminate() {
         VD_LOG_DEBUG("Terminating...");
-        vulkanContext->terminate();
+        vulkanDevice->terminate();
+        vulkan->terminate();
         window->terminate();
     }
 

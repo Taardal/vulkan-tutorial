@@ -2,27 +2,18 @@
 #include "Log.h"
 
 #include <GLFW/glfw3.h>
-#include <unordered_set>
 #include <utility>
 
-namespace Vulkandemo
-{
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) 
-    {
-        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-        {
+namespace Vulkandemo {
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
             VD_LOG_ERROR(pCallbackData->pMessage);
-        }
-        else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) 
-        {
+        } else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
             VD_LOG_WARN(pCallbackData->pMessage);
-        }
-        else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
-        {
+        } else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
             VD_LOG_INFO(pCallbackData->pMessage);
-        }
-        else
-        {
+        } else {
             VD_LOG_TRACE(pCallbackData->pMessage);
         }
         return VK_FALSE;
@@ -33,10 +24,29 @@ namespace Vulkandemo {
 
     const VkAllocationCallbacks* Vulkan::ALLOCATOR = VK_NULL_HANDLE;
 
-    Vulkan::Vulkan(Config config) : config(std::move(config)), vkInstance(VK_NULL_HANDLE), debugMessenger(VK_NULL_HANDLE) {
+    Vulkan::Vulkan(Config config) : config(std::move(config)) {
+    }
+
+    VkInstance Vulkan::getVkInstance() const {
+        return vkInstance;
+    }
+
+    const std::vector<const char*>& Vulkan::getValidationLayers() const {
+        return validationLayers;
+    }
+
+    bool Vulkan::isValidationLayersEnabled() const {
+        return config.ValidationLayersEnabled;
     }
 
     bool Vulkan::initialize() {
+        if (config.ValidationLayersEnabled) {
+            validationLayers = findValidationLayers();
+            if (validationLayers.empty()) {
+                VD_LOG_ERROR("Could not get validation layers");
+                return false;
+            }
+        }
         bool vkInstanceCreated = createVkInstance();
         if (!vkInstanceCreated) {
             VD_LOG_ERROR("Could not create Vulkan instance");
@@ -62,19 +72,10 @@ namespace Vulkandemo {
     }
 
     bool Vulkan::createVkInstance() {
-        const std::vector<const char*>& extensions = getExtensions();
+        const std::vector<const char*>& extensions = findExtensions();
         if (extensions.empty()) {
             VD_LOG_ERROR("Could not get extensions");
             return false;
-        }
-
-        std::vector<const char*> validationLayers;
-        if (config.ValidationLayersEnabled) {
-            validationLayers = getValidationLayers();
-            if (validationLayers.empty()) {
-                VD_LOG_ERROR("Could not get validation layers");
-                return false;
-            }
         }
 
         VkApplicationInfo appInfo{};
@@ -93,7 +94,7 @@ namespace Vulkandemo {
         if (config.ValidationLayersEnabled) {
             createInfo.enabledLayerCount = validationLayers.size();
             createInfo.ppEnabledLayerNames = validationLayers.data();
-            const VkDebugUtilsMessengerCreateInfoEXT& debugMessengerCreateInfo = getDebugMessengerCreateInfo();
+            VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = getDebugMessengerCreateInfo();
             createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugMessengerCreateInfo;
         } else {
             createInfo.enabledLayerCount = 0;
@@ -109,7 +110,7 @@ namespace Vulkandemo {
     }
 
     bool Vulkan::createDebugMessenger() {
-        const VkDebugUtilsMessengerCreateInfoEXT& createInfo = getDebugMessengerCreateInfo();
+        VkDebugUtilsMessengerCreateInfoEXT createInfo = getDebugMessengerCreateInfo();
         const char* functionName = "vkCreateDebugUtilsMessengerEXT";
         auto function = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(vkInstance, functionName);
         if (function == nullptr) {
@@ -130,13 +131,13 @@ namespace Vulkandemo {
         VD_LOG_INFO("Destroyed Vulkan debug messenger");
     }
 
-    std::vector<const char*> Vulkan::getExtensions() const {
-        const std::vector<const char*>& requiredExtensions = getRequiredExtensions();
+    std::vector<const char*> Vulkan::findExtensions() const {
+        std::vector<const char*> requiredExtensions = findRequiredExtensions();
         VD_LOG_DEBUG("Required extensions [{0}]", requiredExtensions.size());
         for (const char* extension: requiredExtensions) {
             VD_LOG_DEBUG(extension);
         }
-        const std::vector<VkExtensionProperties>& availableExtensions = getAvailableExtensions();
+        const std::vector<VkExtensionProperties>& availableExtensions = findAvailableExtensions();
         VD_LOG_DEBUG("Available extensions [{0}]", availableExtensions.size());
         for (const VkExtensionProperties& extensionProperties: availableExtensions) {
             VD_LOG_DEBUG(extensionProperties.extensionName);
@@ -148,7 +149,7 @@ namespace Vulkandemo {
         return requiredExtensions;
     }
 
-    std::vector<const char*> Vulkan::getRequiredExtensions() const {
+    std::vector<const char*> Vulkan::findRequiredExtensions() const {
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -159,7 +160,7 @@ namespace Vulkandemo {
         return extensions;
     }
 
-    std::vector<VkExtensionProperties> Vulkan::getAvailableExtensions() const {
+    std::vector<VkExtensionProperties> Vulkan::findAvailableExtensions() const {
         uint32_t extensionCount = 0;
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
         std::vector<VkExtensionProperties> extensions(extensionCount);
@@ -184,15 +185,15 @@ namespace Vulkandemo {
         return true;
     }
 
-    std::vector<const char*> Vulkan::getValidationLayers() const {
-        const std::vector<const char*>& validationLayers = {
+    std::vector<const char*> Vulkan::findValidationLayers() const {
+        std::vector<const char*> validationLayers = {
                 "VK_LAYER_KHRONOS_validation"
         };
         VD_LOG_DEBUG("Requested validation layers [{0}]", validationLayers.size());
         for (const char* validationLayer: validationLayers) {
             VD_LOG_DEBUG(validationLayer);
         }
-        const std::vector<VkLayerProperties>& availableValidationLayers = getAvailableValidationLayers();
+        const std::vector<VkLayerProperties>& availableValidationLayers = findAvailableValidationLayers();
         VD_LOG_DEBUG("Available validation layers [{0}]", availableValidationLayers.size());
         for (const VkLayerProperties& layerProperties: availableValidationLayers) {
             VD_LOG_DEBUG(layerProperties.layerName);
@@ -204,7 +205,7 @@ namespace Vulkandemo {
         return validationLayers;
     }
 
-    std::vector<VkLayerProperties> Vulkan::getAvailableValidationLayers() const {
+    std::vector<VkLayerProperties> Vulkan::findAvailableValidationLayers() const {
         uint32_t validationLayerCount;
         vkEnumerateInstanceLayerProperties(&validationLayerCount, nullptr);
         std::vector<VkLayerProperties> validationLayers(validationLayerCount);
