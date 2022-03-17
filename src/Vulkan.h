@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Window.h"
+
 #include <vulkan/vulkan.h>
 #include <string>
 #include <vector>
@@ -21,31 +23,39 @@ namespace Vulkandemo {
 
     private:
         Config config;
+        Window* window;
         std::vector<const char*> validationLayers{};
         VkInstance vkInstance = VK_NULL_HANDLE;
-        VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
+        VkDebugUtilsMessengerEXT vkDebugMessenger = VK_NULL_HANDLE;
+        VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
 
     public:
-        explicit Vulkan(Config config);
+        Vulkan(Config config, Window* window);
 
         VkInstance getVkInstance() const;
 
+        VkSurfaceKHR getVkSurface() const;
+
         const std::vector<const char*>& getValidationLayers() const;
 
-        bool isValidationLayersEnabled() const;
+        bool areValidationLayersEnabled() const;
 
         bool initialize();
 
         void terminate();
 
     private:
-        bool createVkInstance();
+        bool createInstance();
 
-        void destroyVkInstance();
+        void destroyInstance();
 
         bool createDebugMessenger();
 
         void destroyDebugMessenger();
+
+        bool createSurface() const;
+
+        void destroySurface() const;
 
         std::vector<const char*> findExtensions() const;
 

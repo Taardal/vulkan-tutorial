@@ -24,18 +24,22 @@ namespace Vulkandemo {
 
     const VkAllocationCallbacks* Vulkan::ALLOCATOR = VK_NULL_HANDLE;
 
-    Vulkan::Vulkan(Config config) : config(std::move(config)) {
+    Vulkan::Vulkan(Config config, Window* window) : config(std::move(config)), window(window) {
     }
 
     VkInstance Vulkan::getVkInstance() const {
         return vkInstance;
     }
 
+    VkSurfaceKHR Vulkan::getVkSurface() const {
+        return vkSurface;
+    }
+
     const std::vector<const char*>& Vulkan::getValidationLayers() const {
         return validationLayers;
     }
 
-    bool Vulkan::isValidationLayersEnabled() const {
+    bool Vulkan::areValidationLayersEnabled() const {
         return config.ValidationLayersEnabled;
     }
 
@@ -47,31 +51,34 @@ namespace Vulkandemo {
                 return false;
             }
         }
-        bool vkInstanceCreated = createVkInstance();
-        if (!vkInstanceCreated) {
+        if (!createInstance()) {
             VD_LOG_ERROR("Could not create Vulkan instance");
             return false;
         }
         VD_LOG_INFO("Created Vulkan instance");
         if (config.ValidationLayersEnabled) {
-            bool debugMessengerCreated = createDebugMessenger();
-            if (!debugMessengerCreated) {
+            if (!createDebugMessenger()) {
                 VD_LOG_ERROR("Could not create debug messenger");
                 return false;
             }
             VD_LOG_INFO("Created Vulkan debug messenger");
         }
+        if (!createSurface()) {
+            VD_LOG_ERROR("Could not create Vulka window surface");
+            return false;
+        }
         return true;
     }
 
     void Vulkan::terminate() {
+        destroySurface();
         if (config.ValidationLayersEnabled) {
             destroyDebugMessenger();
         }
-        destroyVkInstance();
+        destroyInstance();
     }
 
-    bool Vulkan::createVkInstance() {
+    bool Vulkan::createInstance() {
         const std::vector<const char*>& extensions = findExtensions();
         if (extensions.empty()) {
             VD_LOG_ERROR("Could not get extensions");
@@ -104,7 +111,7 @@ namespace Vulkandemo {
         return vkCreateInstance(&createInfo, ALLOCATOR, &vkInstance) == VK_SUCCESS;
     }
 
-    void Vulkan::destroyVkInstance() {
+    void Vulkan::destroyInstance() {
         vkDestroyInstance(vkInstance, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan instance");
     }
@@ -117,7 +124,7 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not look up address of extension function [{0}]", functionName);
             return false;
         }
-        return function(vkInstance, &createInfo, ALLOCATOR, &debugMessenger) == VK_SUCCESS;
+        return function(vkInstance, &createInfo, ALLOCATOR, &vkDebugMessenger) == VK_SUCCESS;
     }
 
     void Vulkan::destroyDebugMessenger() {
@@ -127,8 +134,17 @@ namespace Vulkandemo {
             VD_LOG_WARN("Could not look up address of extension function [{0}]", functionName);
             return;
         }
-        function(vkInstance, debugMessenger, ALLOCATOR);
+        function(vkInstance, vkDebugMessenger, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan debug messenger");
+    }
+
+    bool Vulkan::createSurface() const {
+        return glfwCreateWindowSurface(vkInstance, window->getGlfwWindow(), ALLOCATOR, (VkSurfaceKHR*) &vkSurface) == VK_SUCCESS;
+    }
+
+    void Vulkan::destroySurface() const {
+        vkDestroySurfaceKHR(vkInstance, vkSurface, ALLOCATOR);
+        VD_LOG_INFO("Destroyed Vulkan window surface");
     }
 
     std::vector<const char*> Vulkan::findExtensions() const {

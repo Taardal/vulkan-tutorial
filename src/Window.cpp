@@ -8,6 +8,10 @@ namespace Vulkandemo {
     Window::Window(Config config) : config(std::move(config)), glfwWindow(nullptr) {
     }
 
+    GLFWwindow* Window::getGlfwWindow() const {
+        return glfwWindow;
+    }
+
     bool Window::initialize() {
         bool glfwInitialized = glfwInit();
         if (!glfwInitialized) {

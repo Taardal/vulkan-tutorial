@@ -10,6 +10,7 @@ namespace Vulkandemo {
 
     struct QueueFamilyIndices {
         std::optional<uint32_t> GraphicsFamily;
+        std::optional<uint32_t> PresentationFamily;
     };
 
 }
@@ -38,18 +39,18 @@ namespace Vulkandemo {
 
         const VkPhysicalDeviceFeatures& getVkDeviceFeatures() const;
 
-        const QueueFamilyIndices& getQueueFamilies() const;
+        const QueueFamilyIndices& getQueueFamilyIndices() const;
 
         bool initialize();
 
     private:
-        std::vector<DeviceInfo> getAvailableDevices() const;
+        std::vector<DeviceInfo> findAvailableDevices() const;
 
         std::string getDeviceTypeAsString(VkPhysicalDeviceType deviceType) const;
 
-        DeviceInfo getMostEligibleDevice(const std::vector<DeviceInfo>& availableDevices) const;
+        DeviceInfo findMostEligibleDevice(const std::vector<DeviceInfo>& availableDevices) const;
 
-        QueueFamilyIndices getQueueFamilyIndices(VkPhysicalDevice device) const;
+        QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device) const;
 
         int getRating(const DeviceInfo& deviceInfo) const;
     };
