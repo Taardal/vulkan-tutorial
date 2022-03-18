@@ -38,7 +38,7 @@ namespace Vulkandemo {
 
         const std::vector<const char*>& getValidationLayers() const;
 
-        bool areValidationLayersEnabled() const;
+        bool isValidationLayersEnabled() const;
 
         bool initialize();
 

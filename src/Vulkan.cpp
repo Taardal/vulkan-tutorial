@@ -39,7 +39,7 @@ namespace Vulkandemo {
         return validationLayers;
     }
 
-    bool Vulkan::areValidationLayersEnabled() const {
+    bool Vulkan::isValidationLayersEnabled() const {
         return config.ValidationLayersEnabled;
     }
 
@@ -67,6 +67,7 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not create Vulka window surface");
             return false;
         }
+        VD_LOG_INFO("Initialized Vulkan");
         return true;
     }
 

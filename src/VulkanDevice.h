@@ -20,7 +20,9 @@ namespace Vulkandemo {
     public:
         VulkanDevice(Vulkan* vulkan, VulkanPhysicalDevice* vulkanPhysicalDevice);
 
-        bool initialize() const;
+        VkDevice getVkDevice() const;
+
+        bool initialize();
 
         void terminate() const;
     };

@@ -15,7 +15,8 @@ namespace Vulkandemo {
               window(new Window(config.Window)),
               vulkan(new Vulkan(config.Vulkan, window)),
               vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)),
-              vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)){
+              vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)),
+              vulkanSwapChain(new VulkanSwapChain(vulkanDevice, vulkanPhysicalDevice, vulkan, window)) {
     }
 
     App::~App() {
@@ -58,6 +59,10 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize Vulkan device");
             return false;
         }
+        if (!vulkanSwapChain->initialize()) {
+            VD_LOG_ERROR("Could not initialize Vulkan swap chain");
+            return false;
+        }
 
         glm::mat4 matrix;
         glm::vec4 vec;
@@ -75,6 +80,7 @@ namespace Vulkandemo {
 
     void App::terminate() {
         VD_LOG_DEBUG("Terminating...");
+        vulkanSwapChain->terminate();
         vulkanDevice->terminate();
         vulkan->terminate();
         window->terminate();
