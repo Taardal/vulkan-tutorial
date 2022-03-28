@@ -13,6 +13,12 @@ namespace Vulkandemo {
         std::optional<uint32_t> PresentationFamily;
     };
 
+    struct SwapChainInfo {
+        VkSurfaceCapabilitiesKHR SurfaceCapabilities{};
+        std::vector<VkSurfaceFormatKHR> SurfaceFormats;
+        std::vector<VkPresentModeKHR> PresentModes;
+    };
+
 }
 
 namespace Vulkandemo {
@@ -20,26 +26,30 @@ namespace Vulkandemo {
     class VulkanPhysicalDevice {
     private:
         struct DeviceInfo {
-            VkPhysicalDevice VkDevice = nullptr;
-            VkPhysicalDeviceProperties VkDeviceProperties{};
-            VkPhysicalDeviceFeatures VkDeviceFeatures{};
-            QueueFamilyIndices QueueFamilyIndices;
+            VkPhysicalDevice PhysicalDevice = nullptr;
+            VkPhysicalDeviceProperties Properties{};
+            VkPhysicalDeviceFeatures Features{};
+            std::vector<VkExtensionProperties> Extensions{};
+            QueueFamilyIndices QueueFamilyIndices{};
+            SwapChainInfo SwapChainInfo{};
         };
 
     private:
         Vulkan* vulkan;
-        VkPhysicalDevice vkPhysicalDevice = VK_NULL_HANDLE;
-        QueueFamilyIndices queueFamilies{};
         DeviceInfo deviceInfo{};
 
     public:
         explicit VulkanPhysicalDevice(Vulkan* vulkan);
 
-        VkPhysicalDevice getVkPhysicalDevice() const;
+        VkPhysicalDevice getPhysicalDevice() const;
 
-        const VkPhysicalDeviceFeatures& getVkDeviceFeatures() const;
+        const VkPhysicalDeviceFeatures& getFeatures() const;
 
         const QueueFamilyIndices& getQueueFamilyIndices() const;
+
+        const SwapChainInfo& getSwapChainInfo() const;
+
+        const std::vector<const char*>& getExtensions() const;
 
         bool initialize();
 
@@ -48,11 +58,21 @@ namespace Vulkandemo {
 
         std::string getDeviceTypeAsString(VkPhysicalDeviceType deviceType) const;
 
-        DeviceInfo findMostEligibleDevice(const std::vector<DeviceInfo>& availableDevices) const;
+        DeviceInfo findMostSuitableDevice(const std::vector<DeviceInfo>& availableDevices) const;
+
+        std::vector<VkExtensionProperties> findDeviceExtensions(VkPhysicalDevice device) const;
 
         QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device) const;
 
-        int getRating(const DeviceInfo& deviceInfo) const;
+        SwapChainInfo findSwapChainInfo(VkPhysicalDevice device) const;
+
+        bool hasRequiredDeviceExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const;
+
+        bool hasRequiredSwapChainSupport(const SwapChainInfo& swapChainInfo) const;
+
+        bool hasRequiredQueueFamilyIndices(const QueueFamilyIndices& queueFamilyIndices) const;
+
+        int getSuitabilityRating(const DeviceInfo& deviceInfo) const;
     };
 
 }

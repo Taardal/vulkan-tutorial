@@ -7,6 +7,15 @@
 
 namespace Vulkandemo {
 
+    struct Size {
+        int Width;
+        int Height;
+    };
+
+}
+
+namespace Vulkandemo {
+
     class Window {
     public:
         struct Config {
@@ -23,6 +32,10 @@ namespace Vulkandemo {
         explicit Window(Config config);
 
         GLFWwindow* getGlfwWindow() const;
+
+        Size getSizeInPixels() const;
+
+        Size getSizeInScreenCoordinates() const;
 
         bool initialize();
 

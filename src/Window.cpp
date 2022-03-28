@@ -12,6 +12,20 @@ namespace Vulkandemo {
         return glfwWindow;
     }
 
+    Size Window::getSizeInPixels() const {
+        int width;
+        int height;
+        glfwGetFramebufferSize(glfwWindow, &width, &height);
+        return { width, height };
+    }
+
+    Size Window::getSizeInScreenCoordinates() const {
+        int width;
+        int height;
+        glfwGetWindowSize(glfwWindow, &width, &height);
+        return { width, height };
+    }
+
     bool Window::initialize() {
         bool glfwInitialized = glfwInit();
         if (!glfwInitialized) {

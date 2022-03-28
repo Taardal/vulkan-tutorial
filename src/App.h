@@ -5,6 +5,7 @@
 #include "Vulkan.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
 
 namespace Vulkandemo {
 
@@ -23,6 +24,7 @@ namespace Vulkandemo {
         Vulkan* vulkan;
         VulkanPhysicalDevice* vulkanPhysicalDevice;
         VulkanDevice* vulkanDevice;
+        VulkanSwapChain* vulkanSwapChain;
 
     public:
         explicit App(Config config);

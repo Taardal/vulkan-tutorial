@@ -30,6 +30,8 @@ add_executable(
         ${SRC_DIR}/VulkanDevice.h
         ${SRC_DIR}/VulkanPhysicalDevice.cpp
         ${SRC_DIR}/VulkanPhysicalDevice.h
+        ${SRC_DIR}/VulkanSwapChain.cpp
+        ${SRC_DIR}/VulkanSwapChain.h
         ${SRC_DIR}/Window.cpp
         ${SRC_DIR}/Window.h
 )

@@ -25,20 +25,20 @@ namespace Vulkandemo {
         Config config;
         Window* window;
         std::vector<const char*> validationLayers{};
-        VkInstance vkInstance = VK_NULL_HANDLE;
-        VkDebugUtilsMessengerEXT vkDebugMessenger = VK_NULL_HANDLE;
-        VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
+        VkInstance vulkanInstance = VK_NULL_HANDLE;
+        VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
 
     public:
         Vulkan(Config config, Window* window);
 
-        VkInstance getVkInstance() const;
+        VkInstance getVulkanInstance() const;
 
-        VkSurfaceKHR getVkSurface() const;
+        VkSurfaceKHR getSurface() const;
 
         const std::vector<const char*>& getValidationLayers() const;
 
-        bool areValidationLayersEnabled() const;
+        bool isValidationLayersEnabled() const;
 
         bool initialize();
 
