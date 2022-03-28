@@ -1,10 +1,12 @@
 #include "App.h"
 #include "Environment.h"
+#include "Log.h"
 
 int main()
 {
     Vulkandemo::App::Config config{};
     config.Name = "Vulkan Demo";
+    config.LogLevel = Vulkandemo::Log::Level::Debug;
     config.Window.Title = config.Name;
     config.Window.Width = 800;
     config.Window.Height = 600;

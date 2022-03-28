@@ -41,7 +41,7 @@ namespace Vulkandemo {
 
 
     bool App::initialize() const {
-        Log::initialize(config.Name);
+        Log::initialize(config.Name, config.LogLevel);
         VD_LOG_DEBUG("Initializing...");
         if (!window->initialize()) {
             VD_LOG_ERROR("Could not initialize window");

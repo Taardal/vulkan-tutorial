@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Log.h"
 #include "FileSystem.h"
 #include "Window.h"
 #include "Vulkan.h"
@@ -13,6 +14,7 @@ namespace Vulkandemo {
     public:
         struct Config {
             std::string Name;
+            Log::Level LogLevel;
             Window::Config Window;
             Vulkan::Config Vulkan;
         };
