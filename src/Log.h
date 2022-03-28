@@ -26,13 +26,27 @@ namespace Vulkandemo {
 
     class Log {
     public:
-        static void initialize(const std::string& name);
+        enum class Level {
+            None = 0,
+            Trace,
+            Debug,
+            Info,
+            Warn,
+            Error,
+            Critical
+        };
 
+    private:
+        static std::shared_ptr<spdlog::logger> logger;
+
+    public:
         static const std::shared_ptr<spdlog::logger>& getLogger();
+
+        static void initialize(const std::string& name, Level level);
 
         static std::string formatMessage(const char* filename, const char* functionName, uint32_t lineNumber, std::string_view message);
 
     private:
-        static std::shared_ptr<spdlog::logger> logger;
+        static spdlog::level::level_enum getSpdLogLevel(Level level);
     };
 }
