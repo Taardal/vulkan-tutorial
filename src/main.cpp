@@ -5,7 +5,7 @@
 int main()
 {
     Vulkandemo::App::Config config{};
-    config.Name = "Vulkan Demo";
+    config.Name = "Vulkandemo";
     config.LogLevel = Vulkandemo::Log::Level::Debug;
     config.Window.Title = config.Name;
     config.Window.Width = 800;

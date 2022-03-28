@@ -1,12 +1,6 @@
 #include "App.h"
 #include "Log.h"
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-
 namespace Vulkandemo {
 
     App::App(Config config)
@@ -16,10 +10,19 @@ namespace Vulkandemo {
               vulkan(new Vulkan(config.Vulkan, window)),
               vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)),
               vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)),
-              vulkanSwapChain(new VulkanSwapChain(vulkanDevice, vulkanPhysicalDevice, vulkan, window)) {
+              vulkanSwapChain(new VulkanSwapChain(vulkanDevice, vulkanPhysicalDevice, vulkan, window)),
+              vertexShader(new VulkanShader(vulkanDevice)),
+              fragmentShader(new VulkanShader(vulkanDevice)),
+              vulkanRenderPass(new VulkanRenderPass(vulkanSwapChain, vulkanDevice)),
+              vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice)) {
     }
 
     App::~App() {
+        delete vulkanGraphicsPipeline;
+        delete vulkanRenderPass;
+        delete fragmentShader;
+        delete vertexShader;
+        delete vulkanSwapChain;
         delete vulkanDevice;
         delete vulkanPhysicalDevice;
         delete vulkan;
@@ -64,22 +67,37 @@ namespace Vulkandemo {
             return false;
         }
 
-        glm::mat4 matrix;
-        glm::vec4 vec;
-        auto test = matrix * vec;
+        std::vector<char> vertexShaderBytes = fileSystem->readBytes("shaders/simple_shader.vert.spv");
+        VD_LOG_INFO("Vertex shader byte size: [{0}]", vertexShaderBytes.size());
+        if (!vertexShader->initialize(vertexShaderBytes)) {
+            VD_LOG_ERROR("Could not initialize vertex shader");
+            return false;
+        }
+        std::vector<char> fragmentShaderBytes = fileSystem->readBytes("shaders/simple_shader.frag.spv");
+        VD_LOG_INFO("Fragment shader byte size: [{0}]", fragmentShaderBytes.size());
+        if (!fragmentShader->initialize(fragmentShaderBytes)) {
+            VD_LOG_ERROR("Could not initialize fragment shader");
+            return false;
+        }
 
-        const char* path = "shaders/simple_shader.vert.spv";
-        std::vector<char> vertexShaderByteCode = fileSystem->readBinaryFile(path);
-        VD_LOG_INFO("Vertex Shader Code Size: [{0}]", vertexShaderByteCode.size());
-
-        std::vector<char> fragmentShaderByteCode = fileSystem->readBinaryFile("shaders/simple_shader.frag.spv");
-        VD_LOG_INFO("Fragment Shader Code Size: [{0}]", fragmentShaderByteCode.size());
+        if (!vulkanRenderPass->initialize()) {
+            VD_LOG_ERROR("Could not initialize Vulkan render pass");
+            return false;
+        }
+        if (!vulkanGraphicsPipeline->initialize(*vertexShader, *fragmentShader)) {
+            VD_LOG_ERROR("Could not initialize Vulkan graphics pipeline");
+            return false;
+        }
 
         return true;
     }
 
     void App::terminate() {
         VD_LOG_DEBUG("Terminating...");
+        vulkanGraphicsPipeline->terminate();
+        vulkanRenderPass->terminate();
+        fragmentShader->terminate();
+        vertexShader->terminate();
         vulkanSwapChain->terminate();
         vulkanDevice->terminate();
         vulkan->terminate();

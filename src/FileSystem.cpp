@@ -4,7 +4,7 @@
 
 namespace Vulkandemo {
 
-    std::vector<char> FileSystem::readBinaryFile(const char* path) const {
+    std::vector<char> FileSystem::readBytes(const char* path) const {
         std::ifstream file{path, std::ios::ate | std::ios::binary};
         if (!file.is_open()) {
             VD_LOG_ERROR("Could not open file with path [{0}]", path);

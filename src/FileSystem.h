@@ -6,6 +6,6 @@ namespace Vulkandemo {
 
     class FileSystem {
     public:
-        std::vector<char> readBinaryFile(const char* path) const;
+        std::vector<char> readBytes(const char* path) const;
     };
 }
