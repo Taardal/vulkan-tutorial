@@ -9,12 +9,12 @@ namespace Vulkandemo {
     VulkanPhysicalDevice::VulkanPhysicalDevice(Vulkan* vulkan) : vulkan(vulkan) {
     }
 
-    VkPhysicalDevice VulkanPhysicalDevice::getVkPhysicalDevice() const {
-        return deviceInfo.VkPhysicalDevice;
+    VkPhysicalDevice VulkanPhysicalDevice::getPhysicalDevice() const {
+        return deviceInfo.PhysicalDevice;
     }
 
-    const VkPhysicalDeviceFeatures& VulkanPhysicalDevice::getVkPhysicalDeviceFeatures() const {
-        return deviceInfo.VkPhysicalDeviceFeatures;
+    const VkPhysicalDeviceFeatures& VulkanPhysicalDevice::getFeatures() const {
+        return deviceInfo.Features;
     }
 
     const QueueFamilyIndices& VulkanPhysicalDevice::getQueueFamilyIndices() const {
@@ -39,7 +39,7 @@ namespace Vulkandemo {
             return false;
         }
         this->deviceInfo = findMostSuitableDevice(availableDevices);
-        if (this->deviceInfo.VkPhysicalDevice == nullptr) {
+        if (this->deviceInfo.PhysicalDevice == nullptr) {
             VD_LOG_ERROR("Could not get any suitable device");
             return false;
         }
@@ -49,10 +49,10 @@ namespace Vulkandemo {
 
     std::vector<VulkanPhysicalDevice::DeviceInfo> VulkanPhysicalDevice::findAvailableDevices() const {
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(vulkan->getVkInstance(), &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(vulkan->getVulkanInstance(), &deviceCount, nullptr);
 
         std::vector<VkPhysicalDevice> vkPhysicalDevices(deviceCount);
-        vkEnumeratePhysicalDevices(vulkan->getVkInstance(), &deviceCount, vkPhysicalDevices.data());
+        vkEnumeratePhysicalDevices(vulkan->getVulkanInstance(), &deviceCount, vkPhysicalDevices.data());
 
         std::vector<DeviceInfo> devices;
         for (VkPhysicalDevice vkPhysicalDevice : vkPhysicalDevices) {
@@ -64,10 +64,10 @@ namespace Vulkandemo {
             vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
 
             DeviceInfo device{};
-            device.VkPhysicalDevice = vkPhysicalDevice;
-            device.VkPhysicalDeviceProperties = vkPhysicalDeviceProperties;
-            device.VkPhysicalDeviceFeatures = vkPhysicalDeviceFeatures;
-            device.VkExtensionPropertiesList = findDeviceExtensions(vkPhysicalDevice);
+            device.PhysicalDevice = vkPhysicalDevice;
+            device.Properties = vkPhysicalDeviceProperties;
+            device.Features = vkPhysicalDeviceFeatures;
+            device.Extensions = findDeviceExtensions(vkPhysicalDevice);
             device.QueueFamilyIndices = findQueueFamilyIndices(vkPhysicalDevice);
             device.SwapChainInfo = findSwapChainInfo(vkPhysicalDevice);
 
@@ -75,7 +75,7 @@ namespace Vulkandemo {
         }
         VD_LOG_DEBUG("Available physical devices [{0}]", deviceCount);
         for (const DeviceInfo& device : devices) {
-            VD_LOG_DEBUG("{0} --> {1}", device.VkPhysicalDeviceProperties.deviceName, getDeviceTypeAsString(device.VkPhysicalDeviceProperties.deviceType));
+            VD_LOG_DEBUG("{0} --> {1}", device.Properties.deviceName, getDeviceTypeAsString(device.Properties.deviceType));
         }
         return devices;
     }
@@ -110,7 +110,7 @@ namespace Vulkandemo {
                 indices.GraphicsFamily = i;
             }
             VkBool32 presentationSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, vulkan->getVkSurface(), &presentationSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, vulkan->getSurface(), &presentationSupport);
             if (presentationSupport) {
                 indices.PresentationFamily = i;
             }
@@ -124,17 +124,17 @@ namespace Vulkandemo {
     SwapChainInfo VulkanPhysicalDevice::findSwapChainInfo(VkPhysicalDevice device) const {
         SwapChainInfo swapChainInfo;
 
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, vulkan->getVkSurface(), &swapChainInfo.VkSurfaceCapabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, vulkan->getSurface(), &swapChainInfo.SurfaceCapabilities);
 
         uint32_t formatCount = 0;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, vulkan->getVkSurface(), &formatCount, nullptr);
-        swapChainInfo.VkSurfaceFormats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, vulkan->getVkSurface(), &formatCount, swapChainInfo.VkSurfaceFormats.data());
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, vulkan->getSurface(), &formatCount, nullptr);
+        swapChainInfo.SurfaceFormats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, vulkan->getSurface(), &formatCount, swapChainInfo.SurfaceFormats.data());
 
         uint32_t presentationModeCount = 0;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, vulkan->getVkSurface(), &presentationModeCount, nullptr);
-        swapChainInfo.VkPresentationModes.resize(presentationModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, vulkan->getVkSurface(), &presentationModeCount, swapChainInfo.VkPresentationModes.data());
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, vulkan->getSurface(), &presentationModeCount, nullptr);
+        swapChainInfo.PresentModes.resize(presentationModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, vulkan->getSurface(), &presentationModeCount, swapChainInfo.PresentModes.data());
 
         return swapChainInfo;
     }
@@ -144,7 +144,7 @@ namespace Vulkandemo {
         VD_LOG_DEBUG("Device suitability ratings");
         for (const VulkanPhysicalDevice::DeviceInfo& device : availableDevices) {
             int suitabilityRating = getSuitabilityRating(device);
-            VD_LOG_DEBUG("{0} --> {1}", device.VkPhysicalDeviceProperties.deviceName, suitabilityRating);
+            VD_LOG_DEBUG("{0} --> {1}", device.Properties.deviceName, suitabilityRating);
             devicesByRating.insert(std::make_pair(suitabilityRating, device));
         }
         int highestRating = devicesByRating.rbegin()->first;
@@ -153,25 +153,25 @@ namespace Vulkandemo {
         }
         VD_LOG_DEBUG("Most suitable device");
         const DeviceInfo& device = devicesByRating.rbegin()->second;
-        VD_LOG_DEBUG("{0}", device.VkPhysicalDeviceProperties.deviceName);
+        VD_LOG_DEBUG("{0}", device.Properties.deviceName);
         return device;
     }
 
     int VulkanPhysicalDevice::getSuitabilityRating(const VulkanPhysicalDevice::DeviceInfo& deviceInfo) const {
-        if (!hasRequiredDeviceExtensions(deviceInfo.VkExtensionPropertiesList)) {
-            VD_LOG_DEBUG("{0} does not have required device extensions", deviceInfo.VkPhysicalDeviceProperties.deviceName);
+        if (!hasRequiredDeviceExtensions(deviceInfo.Extensions)) {
+            VD_LOG_DEBUG("{0} does not have required device extensions", deviceInfo.Properties.deviceName);
             return 0;
         }
         if (!hasRequiredSwapChainSupport(deviceInfo.SwapChainInfo)) {
-            VD_LOG_DEBUG("{0} does not have required swap chain info", deviceInfo.VkPhysicalDeviceProperties.deviceName);
+            VD_LOG_DEBUG("{0} does not have required swap chain info", deviceInfo.Properties.deviceName);
             return 0;
         }
         if (!hasRequiredQueueFamilyIndices(deviceInfo.QueueFamilyIndices)) {
-            VD_LOG_DEBUG("{0} does not have required queue family indices", deviceInfo.VkPhysicalDeviceProperties.deviceName);
+            VD_LOG_DEBUG("{0} does not have required queue family indices", deviceInfo.Properties.deviceName);
             return 0;
         }
-        int rating = (int) deviceInfo.VkPhysicalDeviceProperties.limits.maxImageDimension2D;
-        if (deviceInfo.VkPhysicalDeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+        int rating = (int) deviceInfo.Properties.limits.maxImageDimension2D;
+        if (deviceInfo.Properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             rating += 1000;
         }
         return rating;
@@ -195,7 +195,7 @@ namespace Vulkandemo {
     }
 
     bool VulkanPhysicalDevice::hasRequiredSwapChainSupport(const SwapChainInfo& swapChainInfo) const {
-        return !swapChainInfo.VkSurfaceFormats.empty() && !swapChainInfo.VkPresentationModes.empty();
+        return !swapChainInfo.SurfaceFormats.empty() && !swapChainInfo.PresentModes.empty();
     }
 
     bool VulkanPhysicalDevice::hasRequiredQueueFamilyIndices(const QueueFamilyIndices& queueFamilyIndices) const {

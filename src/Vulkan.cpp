@@ -27,12 +27,12 @@ namespace Vulkandemo {
     Vulkan::Vulkan(Config config, Window* window) : config(std::move(config)), window(window) {
     }
 
-    VkInstance Vulkan::getVkInstance() const {
-        return vkInstance;
+    VkInstance Vulkan::getVulkanInstance() const {
+        return vulkanInstance;
     }
 
-    VkSurfaceKHR Vulkan::getVkSurface() const {
-        return vkSurface;
+    VkSurfaceKHR Vulkan::getSurface() const {
+        return surface;
     }
 
     const std::vector<const char*>& Vulkan::getValidationLayers() const {
@@ -109,42 +109,42 @@ namespace Vulkandemo {
             createInfo.pNext = nullptr;
         }
 
-        return vkCreateInstance(&createInfo, ALLOCATOR, &vkInstance) == VK_SUCCESS;
+        return vkCreateInstance(&createInfo, ALLOCATOR, &vulkanInstance) == VK_SUCCESS;
     }
 
     void Vulkan::destroyInstance() {
-        vkDestroyInstance(vkInstance, ALLOCATOR);
+        vkDestroyInstance(vulkanInstance, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan instance");
     }
 
     bool Vulkan::createDebugMessenger() {
         VkDebugUtilsMessengerCreateInfoEXT createInfo = getDebugMessengerCreateInfo();
         const char* functionName = "vkCreateDebugUtilsMessengerEXT";
-        auto function = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(vkInstance, functionName);
+        auto function = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(vulkanInstance, functionName);
         if (function == nullptr) {
             VD_LOG_ERROR("Could not look up address of extension function [{0}]", functionName);
             return false;
         }
-        return function(vkInstance, &createInfo, ALLOCATOR, &vkDebugMessenger) == VK_SUCCESS;
+        return function(vulkanInstance, &createInfo, ALLOCATOR, &debugMessenger) == VK_SUCCESS;
     }
 
     void Vulkan::destroyDebugMessenger() {
         const char* functionName = "vkDestroyDebugUtilsMessengerEXT";
-        auto function = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(vkInstance, functionName);
+        auto function = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(vulkanInstance, functionName);
         if (function == nullptr) {
             VD_LOG_WARN("Could not look up address of extension function [{0}]", functionName);
             return;
         }
-        function(vkInstance, vkDebugMessenger, ALLOCATOR);
+        function(vulkanInstance, debugMessenger, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan debug messenger");
     }
 
     bool Vulkan::createSurface() const {
-        return glfwCreateWindowSurface(vkInstance, window->getGlfwWindow(), ALLOCATOR, (VkSurfaceKHR*) &vkSurface) == VK_SUCCESS;
+        return glfwCreateWindowSurface(vulkanInstance, window->getGlfwWindow(), ALLOCATOR, (VkSurfaceKHR*) &surface) == VK_SUCCESS;
     }
 
     void Vulkan::destroySurface() const {
-        vkDestroySurfaceKHR(vkInstance, vkSurface, ALLOCATOR);
+        vkDestroySurfaceKHR(vulkanInstance, surface, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan window surface");
     }
 

@@ -14,9 +14,9 @@ namespace Vulkandemo {
     };
 
     struct SwapChainInfo {
-        VkSurfaceCapabilitiesKHR VkSurfaceCapabilities{};
-        std::vector<VkSurfaceFormatKHR> VkSurfaceFormats;
-        std::vector<VkPresentModeKHR> VkPresentationModes;
+        VkSurfaceCapabilitiesKHR SurfaceCapabilities{};
+        std::vector<VkSurfaceFormatKHR> SurfaceFormats;
+        std::vector<VkPresentModeKHR> PresentModes;
     };
 
 }
@@ -26,10 +26,10 @@ namespace Vulkandemo {
     class VulkanPhysicalDevice {
     private:
         struct DeviceInfo {
-            VkPhysicalDevice VkPhysicalDevice = nullptr;
-            VkPhysicalDeviceProperties VkPhysicalDeviceProperties{};
-            VkPhysicalDeviceFeatures VkPhysicalDeviceFeatures{};
-            std::vector<VkExtensionProperties> VkExtensionPropertiesList{};
+            VkPhysicalDevice PhysicalDevice = nullptr;
+            VkPhysicalDeviceProperties Properties{};
+            VkPhysicalDeviceFeatures Features{};
+            std::vector<VkExtensionProperties> Extensions{};
             QueueFamilyIndices QueueFamilyIndices{};
             SwapChainInfo SwapChainInfo{};
         };
@@ -41,9 +41,9 @@ namespace Vulkandemo {
     public:
         explicit VulkanPhysicalDevice(Vulkan* vulkan);
 
-        VkPhysicalDevice getVkPhysicalDevice() const;
+        VkPhysicalDevice getPhysicalDevice() const;
 
-        const VkPhysicalDeviceFeatures& getVkPhysicalDeviceFeatures() const;
+        const VkPhysicalDeviceFeatures& getFeatures() const;
 
         const QueueFamilyIndices& getQueueFamilyIndices() const;
 

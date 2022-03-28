@@ -13,18 +13,27 @@ namespace Vulkandemo {
     private:
         Vulkan* vulkan;
         VulkanPhysicalDevice* vulkanPhysicalDevice;
-        VkDevice vkDevice = VK_NULL_HANDLE;
-        VkQueue graphicsVkQueue = VK_NULL_HANDLE;
-        VkQueue presentationVkQueue = VK_NULL_HANDLE;
+        VkDevice device = VK_NULL_HANDLE;
+        VkQueue graphicsQueue = VK_NULL_HANDLE;
+        VkQueue presentQueue = VK_NULL_HANDLE;
 
     public:
         VulkanDevice(Vulkan* vulkan, VulkanPhysicalDevice* vulkanPhysicalDevice);
 
-        VkDevice getVkDevice() const;
+        VkDevice getDevice() const;
 
         bool initialize();
 
         void terminate() const;
+
+    private:
+        std::vector<VkDeviceQueueCreateInfo> getDeviceQueueCreateInfos(const QueueFamilyIndices& queueFamilyIndices) const;
+
+        bool createDevice(const std::vector<VkDeviceQueueCreateInfo>& deviceQueueCreateInfos);
+
+        bool findDeviceQueues(const QueueFamilyIndices& queueFamilyIndices);
+
+        VkQueue findDeviceQueue(uint32_t queueFamilyIndex) const;
     };
 
 }
