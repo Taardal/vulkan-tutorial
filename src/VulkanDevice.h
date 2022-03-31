@@ -20,11 +20,17 @@ namespace Vulkandemo {
     public:
         VulkanDevice(Vulkan* vulkan, VulkanPhysicalDevice* vulkanPhysicalDevice);
 
-        VkDevice getDevice() const;
+        const VkDevice getDevice() const;
+
+        const VkQueue getGraphicsQueue() const;
+
+        const VkQueue getPresentQueue() const;
 
         bool initialize();
 
         void terminate() const;
+
+        void waitUntilIdle() const;
 
     private:
         std::vector<VkDeviceQueueCreateInfo> getDeviceQueueCreateInfos(const QueueFamilyIndices& queueFamilyIndices) const;

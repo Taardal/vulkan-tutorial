@@ -151,4 +151,8 @@ namespace Vulkandemo {
         vkDestroyPipelineLayout(vulkanDevice->getDevice(), pipelineLayout, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan graphics pipeline layout");
     }
+
+    void VulkanGraphicsPipeline::bind(VulkanCommandBuffer* vulkanCommandBuffer) const {
+        vkCmdBindPipeline(vulkanCommandBuffer->getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+    }
 }
