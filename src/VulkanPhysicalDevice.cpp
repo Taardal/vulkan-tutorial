@@ -26,10 +26,7 @@ namespace Vulkandemo {
     }
 
     const std::vector<const char*>& VulkanPhysicalDevice::getExtensions() const {
-        static const std::vector<const char*> extensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME
-        };
-        return extensions;
+        return getRequiredExtensions();
     }
 
     bool VulkanPhysicalDevice::initialize() {
@@ -67,7 +64,7 @@ namespace Vulkandemo {
             device.PhysicalDevice = vkPhysicalDevice;
             device.Properties = vkPhysicalDeviceProperties;
             device.Features = vkPhysicalDeviceFeatures;
-            device.Extensions = findDeviceExtensions(vkPhysicalDevice);
+            device.Extensions = findExtensions(vkPhysicalDevice);
             device.QueueFamilyIndices = findQueueFamilyIndices(vkPhysicalDevice);
             device.SwapChainInfo = findSwapChainInfo(vkPhysicalDevice);
 
@@ -80,7 +77,21 @@ namespace Vulkandemo {
         return devices;
     }
 
-    std::vector<VkExtensionProperties> VulkanPhysicalDevice::findDeviceExtensions(VkPhysicalDevice device) const {
+    std::vector<const char*>& VulkanPhysicalDevice::getRequiredExtensions() const {
+        static std::vector<const char*> extensions = {
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
+        return extensions;
+    }
+
+    const std::vector<const char*>& VulkanPhysicalDevice::getOptionalExtensions() const {
+        static std::vector<const char*> extensions = {
+                "VK_KHR_portability_subset"
+        };
+        return extensions;
+    }
+
+    std::vector<VkExtensionProperties> VulkanPhysicalDevice::findExtensions(VkPhysicalDevice device) const {
         const char* layerName = nullptr;
 
         uint32_t extensionCount = 0;
@@ -90,8 +101,13 @@ namespace Vulkandemo {
         vkEnumerateDeviceExtensionProperties(device, layerName, &extensionCount, extensions.data());
 
         VD_LOG_DEBUG("Available device extensions [{0}]", extensions.size());
-        for (const VkExtensionProperties& extensionProperties: extensions) {
+        for (const VkExtensionProperties& extensionProperties : extensions) {
             VD_LOG_DEBUG(extensionProperties.extensionName);
+            for (const char* optionalExtension : getOptionalExtensions()) {
+                if (strcmp(extensionProperties.extensionName, optionalExtension) == 0) {
+                    getRequiredExtensions().push_back(optionalExtension);
+                }
+            }
         }
         return extensions;
     }
@@ -158,7 +174,7 @@ namespace Vulkandemo {
     }
 
     int VulkanPhysicalDevice::getSuitabilityRating(const VulkanPhysicalDevice::DeviceInfo& deviceInfo) const {
-        if (!hasRequiredDeviceExtensions(deviceInfo.Extensions)) {
+        if (!hasRequiredExtensions(deviceInfo.Extensions)) {
             VD_LOG_DEBUG("{0} does not have required device extensions", deviceInfo.Properties.deviceName);
             return 0;
         }
@@ -177,8 +193,8 @@ namespace Vulkandemo {
         return rating;
     }
 
-    bool VulkanPhysicalDevice::hasRequiredDeviceExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const {
-        for (const char* requiredExtension : this->getExtensions()) {
+    bool VulkanPhysicalDevice::hasRequiredExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const {
+        for (const char* requiredExtension : this->getRequiredExtensions()) {
             bool requiredExtensionFound = false;
             for (const VkExtensionProperties& availableExtension : availableDeviceExtensions) {
                 if (strcmp(requiredExtension, availableExtension.extensionName) == 0) {

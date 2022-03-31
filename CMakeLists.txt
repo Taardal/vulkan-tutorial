@@ -28,8 +28,14 @@ add_executable(
         ${SRC_DIR}/Vulkan.h
         ${SRC_DIR}/VulkanDevice.cpp
         ${SRC_DIR}/VulkanDevice.h
+        ${SRC_DIR}/VulkanGraphicsPipeline.cpp
+        ${SRC_DIR}/VulkanGraphicsPipeline.h
         ${SRC_DIR}/VulkanPhysicalDevice.cpp
         ${SRC_DIR}/VulkanPhysicalDevice.h
+        ${SRC_DIR}/VulkanRenderPass.cpp
+        ${SRC_DIR}/VulkanRenderPass.h
+        ${SRC_DIR}/VulkanShader.cpp
+        ${SRC_DIR}/VulkanShader.h
         ${SRC_DIR}/VulkanSwapChain.cpp
         ${SRC_DIR}/VulkanSwapChain.h
         ${SRC_DIR}/Window.cpp

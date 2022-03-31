@@ -7,6 +7,8 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include "VulkanRenderPass.h"
+#include "VulkanGraphicsPipeline.h"
 
 namespace Vulkandemo {
 
@@ -27,6 +29,10 @@ namespace Vulkandemo {
         VulkanPhysicalDevice* vulkanPhysicalDevice;
         VulkanDevice* vulkanDevice;
         VulkanSwapChain* vulkanSwapChain;
+        VulkanShader* vertexShader;
+        VulkanShader* fragmentShader;
+        VulkanRenderPass* vulkanRenderPass;
+        VulkanGraphicsPipeline* vulkanGraphicsPipeline;
 
     public:
         explicit App(Config config);

@@ -29,6 +29,12 @@ namespace Vulkandemo {
     public:
         VulkanSwapChain(VulkanDevice* vulkanDevice, VulkanPhysicalDevice* vulkanPhysicalDevice, Vulkan* vulkan, Window* window);
 
+        const VkSurfaceFormatKHR& getSurfaceFormat() const;
+
+        const VkExtent2D& getExtent() const;
+
+        const std::vector<VkImageView>& getImageViews() const;
+
         bool initialize();
 
         void terminate() const;

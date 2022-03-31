@@ -60,13 +60,17 @@ namespace Vulkandemo {
 
         DeviceInfo findMostSuitableDevice(const std::vector<DeviceInfo>& availableDevices) const;
 
-        std::vector<VkExtensionProperties> findDeviceExtensions(VkPhysicalDevice device) const;
+        std::vector<const char*>& getRequiredExtensions() const;
+
+        const std::vector<const char*>& getOptionalExtensions() const;
+
+        std::vector<VkExtensionProperties> findExtensions(VkPhysicalDevice device) const;
 
         QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device) const;
 
         SwapChainInfo findSwapChainInfo(VkPhysicalDevice device) const;
 
-        bool hasRequiredDeviceExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const;
+        bool hasRequiredExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const;
 
         bool hasRequiredSwapChainSupport(const SwapChainInfo& swapChainInfo) const;
 
