@@ -10,8 +10,16 @@ namespace Vulkandemo {
     VulkanDevice::VulkanDevice(Vulkan* vulkan, VulkanPhysicalDevice* vulkanPhysicalDevice) : vulkan(vulkan), vulkanPhysicalDevice(vulkanPhysicalDevice) {
     }
 
-    VkDevice VulkanDevice::getDevice() const {
+    const VkDevice VulkanDevice::getDevice() const {
         return device;
+    }
+
+    const VkQueue VulkanDevice::getGraphicsQueue() const {
+        return graphicsQueue;
+    }
+
+    const VkQueue VulkanDevice::getPresentQueue() const {
+        return presentQueue;
     }
 
     bool VulkanDevice::initialize() {
@@ -38,6 +46,10 @@ namespace Vulkandemo {
     void VulkanDevice::terminate() const {
         vkDestroyDevice(device, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan device");
+    }
+
+    void VulkanDevice::waitUntilIdle() const {
+        vkDeviceWaitIdle(device);
     }
 
     std::vector<VkDeviceQueueCreateInfo> VulkanDevice::getDeviceQueueCreateInfos(const QueueFamilyIndices& queueFamilyIndices) const {

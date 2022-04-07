@@ -9,6 +9,13 @@
 #include "VulkanSwapChain.h"
 #include "VulkanRenderPass.h"
 #include "VulkanGraphicsPipeline.h"
+#include "VulkanFramebuffer.h"
+#include "VulkanCommandPool.h"
+#include "VulkanCommandBuffer.h"
+
+#include <vulkan/vulkan.h>
+
+#include <vector>
 
 namespace Vulkandemo {
 
@@ -33,6 +40,12 @@ namespace Vulkandemo {
         VulkanShader* fragmentShader;
         VulkanRenderPass* vulkanRenderPass;
         VulkanGraphicsPipeline* vulkanGraphicsPipeline;
+        std::vector<VulkanFramebuffer> framebuffers;
+        VulkanCommandPool* vulkanCommandPool;
+        VulkanCommandBuffer* vulkanCommandBuffer;
+        VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+        VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
+        VkFence inFlightFence = VK_NULL_HANDLE;
 
     public:
         explicit App(Config config);
@@ -42,9 +55,11 @@ namespace Vulkandemo {
         void run();
 
     private:
-        bool initialize() const;
+        bool initialize();
 
         void terminate();
+
+        void drawFrame();
     };
 
 }

@@ -3,10 +3,13 @@
 #include "VulkanShader.h"
 #include "VulkanSwapChain.h"
 #include "VulkanDevice.h"
+#include "VulkanCommandBuffer.h"
 
 #include <vulkan/vulkan.h>
 
 namespace Vulkandemo {
+
+    class VulkanFramebuffer;
 
     class VulkanRenderPass {
     private:
@@ -25,6 +28,10 @@ namespace Vulkandemo {
         bool initialize();
 
         void terminate();
+
+        void begin(VulkanCommandBuffer* vulkanCommandBuffer, const VulkanFramebuffer& vulkanFramebuffer) const;
+
+        void end(VulkanCommandBuffer* vulkanCommandBuffer) const;
     };
 
 }

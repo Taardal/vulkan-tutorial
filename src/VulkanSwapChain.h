@@ -29,6 +29,8 @@ namespace Vulkandemo {
     public:
         VulkanSwapChain(VulkanDevice* vulkanDevice, VulkanPhysicalDevice* vulkanPhysicalDevice, Vulkan* vulkan, Window* window);
 
+        const VkSwapchainKHR getSwapChain() const;
+
         const VkSurfaceFormatKHR& getSurfaceFormat() const;
 
         const VkExtent2D& getExtent() const;

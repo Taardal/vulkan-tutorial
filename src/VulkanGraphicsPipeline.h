@@ -26,6 +26,8 @@ namespace Vulkandemo {
         bool initialize(const VulkanShader& vertexShader, const VulkanShader& fragmentShader);
 
         void terminate();
+
+        void bind(VulkanCommandBuffer* vulkanCommandBuffer) const;
     };
 
 }

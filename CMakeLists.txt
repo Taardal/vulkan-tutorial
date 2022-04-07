@@ -26,8 +26,14 @@ add_executable(
         ${SRC_DIR}/Log.h
         ${SRC_DIR}/Vulkan.cpp
         ${SRC_DIR}/Vulkan.h
+        ${SRC_DIR}/VulkanCommandPool.cpp
+        ${SRC_DIR}/VulkanCommandPool.h
+        ${SRC_DIR}/VulkanCommandBuffer.cpp
+        ${SRC_DIR}/VulkanCommandBuffer.h
         ${SRC_DIR}/VulkanDevice.cpp
         ${SRC_DIR}/VulkanDevice.h
+        ${SRC_DIR}/VulkanFramebuffer.cpp
+        ${SRC_DIR}/VulkanFramebuffer.h
         ${SRC_DIR}/VulkanGraphicsPipeline.cpp
         ${SRC_DIR}/VulkanGraphicsPipeline.h
         ${SRC_DIR}/VulkanPhysicalDevice.cpp

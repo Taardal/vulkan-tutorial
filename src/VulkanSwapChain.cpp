@@ -9,6 +9,10 @@ namespace Vulkandemo {
             : vulkanDevice(vulkanDevice), vulkanPhysicalDevice(vulkanPhysicalDevice), vulkan(vulkan), window(window) {
     }
 
+    const VkSwapchainKHR VulkanSwapChain::getSwapChain() const {
+        return swapChain;
+    }
+
     const VkSurfaceFormatKHR& VulkanSwapChain::getSurfaceFormat() const {
         return surfaceFormat;
     }
