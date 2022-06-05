@@ -53,10 +53,18 @@ namespace Vulkandemo {
     bool App::initialize() {
         Log::initialize(config.Name, config.LogLevel);
         VD_LOG_DEBUG("Initializing...");
+
         if (!window->initialize()) {
             VD_LOG_ERROR("Could not initialize window");
             return false;
         }
+        window->setOnResize([this](int width, int height) {
+            this->windowResized = true;
+        });
+        window->setOnMinimize([this](bool minimized) {
+            this->windowResized = true;
+        });
+
         if (!vulkan->initialize()) {
             VD_LOG_ERROR("Could not initialize Vulkan");
             return false;
@@ -67,10 +75,6 @@ namespace Vulkandemo {
         }
         if (!vulkanDevice->initialize()) {
             VD_LOG_ERROR("Could not initialize Vulkan device");
-            return false;
-        }
-        if (!vulkanSwapChain->initialize()) {
-            VD_LOG_ERROR("Could not initialize Vulkan swap chain");
             return false;
         }
 
@@ -87,6 +91,30 @@ namespace Vulkandemo {
             return false;
         }
 
+        if (!initializeSwapChain()) {
+            VD_LOG_ERROR("Could not initialize Vulkan swap chain");
+            return false;
+        }
+        if (!vulkanCommandPool->initialize()) {
+            VD_LOG_ERROR("Could not initialize Vulkan command pool");
+            return false;
+        }
+        if (!initializeCommandBuffers()) {
+            VD_LOG_ERROR("Could not create Vulkan command buffers");
+            return false;
+        }
+        if (!initializeSyncObjects()) {
+            VD_LOG_ERROR("Could not create Vulkan sync objects (semaphores & fences)");
+            return false;
+        }
+        return true;
+    }
+
+    bool App::initializeSwapChain() {
+        if (!vulkanSwapChain->initialize()) {
+            VD_LOG_ERROR("Could not initialize Vulkan swap chain");
+            return false;
+        }
         if (!vulkanRenderPass->initialize()) {
             VD_LOG_ERROR("Could not initialize Vulkan render pass");
             return false;
@@ -106,53 +134,10 @@ namespace Vulkandemo {
             framebuffers.push_back(framebuffer);
         }
         VD_LOG_INFO("Created [{}] Vulkan framebuffers", framebuffers.size());
-
-        if (!vulkanCommandPool->initialize()) {
-            VD_LOG_ERROR("Could not initialize Vulkan command pool");
-            return false;
-        }
-        if (!createCommandBuffers()) {
-            VD_LOG_ERROR("Could not create Vulkan command buffers");
-            return false;
-        }
-        if (!createSyncObjects()) {
-            VD_LOG_ERROR("Could not create Vulkan sync objects (semaphores & fences)");
-            return false;
-        }
-
         return true;
     }
 
-    void App::terminate() {
-        VD_LOG_DEBUG("Terminating...");
-
-        VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(vulkanDevice->getDevice(), renderFinishedSemaphores[i], allocationCallbacks);
-            vkDestroySemaphore(vulkanDevice->getDevice(), imageAvailableSemaphores[i], allocationCallbacks);
-            vkDestroyFence(vulkanDevice->getDevice(), inFlightFences[i], allocationCallbacks);
-        }
-        VD_LOG_INFO("Destroyed Vulkan sync objects (semaphores & fences)");
-
-        vulkanCommandPool->terminate();
-
-        int framebufferCount = (int) framebuffers.size();
-        for (VulkanFramebuffer framebuffer : framebuffers) {
-            framebuffer.terminate();
-        }
-        VD_LOG_INFO("Destroyed [{}] Vulkan framebuffers", framebufferCount);
-
-        vulkanGraphicsPipeline->terminate();
-        vulkanRenderPass->terminate();
-        fragmentShader->terminate();
-        vertexShader->terminate();
-        vulkanSwapChain->terminate();
-        vulkanDevice->terminate();
-        vulkan->terminate();
-        window->terminate();
-    }
-
-    bool App::createCommandBuffers() {
+    bool App::initializeCommandBuffers() {
         std::vector<VkCommandBuffer> vkCommandBuffers;
         vkCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -173,7 +158,7 @@ namespace Vulkandemo {
         return true;
     }
 
-    bool App::createSyncObjects() {
+    bool App::initializeSyncObjects() {
         imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -203,19 +188,72 @@ namespace Vulkandemo {
         return true;
     }
 
+    void App::terminate() {
+        VD_LOG_DEBUG("Terminating...");
+        terminateSyncObjects();
+        vulkanCommandPool->terminate();
+        terminateSwapChain();
+        fragmentShader->terminate();
+        vertexShader->terminate();
+        vulkanDevice->terminate();
+        vulkan->terminate();
+        window->terminate();
+    }
+
+    void App::terminateSyncObjects() {
+        VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            vkDestroySemaphore(vulkanDevice->getDevice(), renderFinishedSemaphores[i], allocationCallbacks);
+            vkDestroySemaphore(vulkanDevice->getDevice(), imageAvailableSemaphores[i], allocationCallbacks);
+            vkDestroyFence(vulkanDevice->getDevice(), inFlightFences[i], allocationCallbacks);
+        }
+        VD_LOG_INFO("Destroyed Vulkan sync objects (semaphores & fences)");
+    }
+
+    void App::terminateSwapChain() {
+        int framebufferCount = (int) framebuffers.size();
+        for (VulkanFramebuffer framebuffer : framebuffers) {
+            framebuffer.terminate();
+        }
+        framebuffers.clear();
+        VD_LOG_INFO("Destroyed [{}] Vulkan framebuffers", framebufferCount);
+
+        vulkanGraphicsPipeline->terminate();
+        vulkanRenderPass->terminate();
+        vulkanSwapChain->terminate();
+    }
+
+    bool App::recreateSwapChain() {
+        window->waitUntilNotMinimized();
+        vulkanDevice->waitUntilIdle();
+        terminateSwapChain();
+        vulkanPhysicalDevice->updateSwapChainInfo();
+        return initializeSwapChain();
+    }
+
     void App::drawFrame() {
         constexpr uint32_t fenceCount = 1;
         constexpr VkBool32 waitForAllFences = VK_TRUE;
         constexpr uint64_t waitForFenceTimeout = UINT64_MAX;
         VkFence inFlightFence = inFlightFences[currentFrame];
         vkWaitForFences(vulkanDevice->getDevice(), fenceCount, &inFlightFence, waitForAllFences, waitForFenceTimeout);
-        vkResetFences(vulkanDevice->getDevice(), fenceCount, &inFlightFence);
 
         uint32_t swapChainImageIndex;
         VkFence acquireNextImageFence = VK_NULL_HANDLE;
         constexpr uint64_t acquireNextImageTimeout = UINT64_MAX;
         VkSemaphore imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
-        vkAcquireNextImageKHR(vulkanDevice->getDevice(), vulkanSwapChain->getSwapChain(), acquireNextImageTimeout, imageAvailableSemaphore, acquireNextImageFence, &swapChainImageIndex);
+
+        VkResult acquireNextImageResult = vkAcquireNextImageKHR(vulkanDevice->getDevice(), vulkanSwapChain->getSwapChain(), acquireNextImageTimeout, imageAvailableSemaphore, acquireNextImageFence, &swapChainImageIndex);
+        if (acquireNextImageResult == VK_ERROR_OUT_OF_DATE_KHR) {
+            recreateSwapChain();
+            return;
+        }
+        if (acquireNextImageResult != VK_SUCCESS && acquireNextImageResult != VK_SUBOPTIMAL_KHR) {
+            VD_LOG_CRITICAL("Could not acquire swap chain image");
+            throw std::runtime_error("Could not acquire swap chain image");
+        }
+
+        vkResetFences(vulkanDevice->getDevice(), fenceCount, &inFlightFence);
 
         VulkanCommandBuffer* vulkanCommandBuffer = vulkanCommandBuffers[currentFrame];
         vulkanCommandBuffer->reset();
@@ -269,7 +307,14 @@ namespace Vulkandemo {
         presentInfo.pSwapchains = swapChains;
         presentInfo.pImageIndices = &swapChainImageIndex;
 
-        vkQueuePresentKHR(vulkanDevice->getPresentQueue(), &presentInfo);
+        VkResult presentResult = vkQueuePresentKHR(vulkanDevice->getPresentQueue(), &presentInfo);
+        if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR || windowResized) {
+            windowResized = false;
+            recreateSwapChain();
+        } else if (presentResult != VK_SUCCESS) {
+            VD_LOG_CRITICAL("Could not present swap chain image");
+            throw std::runtime_error("Could not present swap chain image");
+        }
 
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }

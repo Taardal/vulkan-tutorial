@@ -47,6 +47,7 @@ namespace Vulkandemo {
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
         uint32_t currentFrame = 0;
+        bool windowResized = false;
 
     public:
         explicit App(Config config);
@@ -58,11 +59,19 @@ namespace Vulkandemo {
     private:
         bool initialize();
 
+        bool initializeSwapChain();
+
+        bool initializeCommandBuffers();
+
+        bool initializeSyncObjects();
+
         void terminate();
 
-        bool createCommandBuffers();
+        void terminateSyncObjects();
 
-        bool createSyncObjects();
+        void terminateSwapChain();
+
+        bool recreateSwapChain();
 
         void drawFrame();
     };

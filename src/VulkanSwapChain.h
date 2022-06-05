@@ -39,7 +39,7 @@ namespace Vulkandemo {
 
         bool initialize();
 
-        void terminate() const;
+        void terminate();
 
     private:
         VkSurfaceFormatKHR chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
