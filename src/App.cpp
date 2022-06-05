@@ -5,6 +5,8 @@
 
 namespace Vulkandemo {
 
+    const int MAX_FRAMES_IN_FLIGHT = 2;
+
     App::App(Config config)
             : config(std::move(config)),
               fileSystem(new FileSystem),
@@ -17,12 +19,10 @@ namespace Vulkandemo {
               fragmentShader(new VulkanShader(vulkanDevice)),
               vulkanRenderPass(new VulkanRenderPass(vulkanSwapChain, vulkanDevice)),
               vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice)),
-              vulkanCommandPool(new VulkanCommandPool(vulkanPhysicalDevice, vulkanDevice)),
-              vulkanCommandBuffer(new VulkanCommandBuffer(vulkanCommandPool, vulkanDevice)) {
+              vulkanCommandPool(new VulkanCommandPool(vulkanPhysicalDevice, vulkanDevice)) {
     }
 
     App::~App() {
-        delete vulkanCommandBuffer;
         delete vulkanCommandPool;
         delete vulkanGraphicsPipeline;
         delete vulkanRenderPass;
@@ -111,30 +111,12 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize Vulkan command pool");
             return false;
         }
-        if (!vulkanCommandBuffer->initialize()) {
-            VD_LOG_ERROR("Could not initialize Vulkan command buffer");
+        if (!createCommandBuffers()) {
+            VD_LOG_ERROR("Could not create Vulkan command buffers");
             return false;
         }
-
-        VkSemaphoreCreateInfo semaphoreInfo{};
-        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
-        if (vkCreateSemaphore(vulkanDevice->getDevice(), &semaphoreInfo, allocationCallbacks, &imageAvailableSemaphore) != VK_SUCCESS) {
-            VD_LOG_ERROR("Could not create 'image available' semaphore");
-            return false;
-        }
-        if (vkCreateSemaphore(vulkanDevice->getDevice(), &semaphoreInfo, allocationCallbacks, &renderFinishedSemaphore) != VK_SUCCESS) {
-            VD_LOG_ERROR("Could not create 'render finished' semaphore");
-            return false;
-        }
-
-        VkFenceCreateInfo fenceInfo{};
-        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-        if (vkCreateFence(vulkanDevice->getDevice(), &fenceInfo, allocationCallbacks, &inFlightFence) != VK_SUCCESS) {
-            VD_LOG_ERROR("Could not create 'in flight' fence");
+        if (!createSyncObjects()) {
+            VD_LOG_ERROR("Could not create Vulkan sync objects (semaphores & fences)");
             return false;
         }
 
@@ -145,12 +127,12 @@ namespace Vulkandemo {
         VD_LOG_DEBUG("Terminating...");
 
         VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
-        vkDestroyFence(vulkanDevice->getDevice(), inFlightFence, allocationCallbacks);
-        VD_LOG_INFO("Destroyed 'in flight' fence");
-        vkDestroySemaphore(vulkanDevice->getDevice(), renderFinishedSemaphore, allocationCallbacks);
-        VD_LOG_INFO("Destroyed 'render finished' semaphore");
-        vkDestroySemaphore(vulkanDevice->getDevice(), imageAvailableSemaphore, allocationCallbacks);
-        VD_LOG_INFO("Destroyed 'image available' semaphore");
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            vkDestroySemaphore(vulkanDevice->getDevice(), renderFinishedSemaphores[i], allocationCallbacks);
+            vkDestroySemaphore(vulkanDevice->getDevice(), imageAvailableSemaphores[i], allocationCallbacks);
+            vkDestroyFence(vulkanDevice->getDevice(), inFlightFences[i], allocationCallbacks);
+        }
+        VD_LOG_INFO("Destroyed Vulkan sync objects (semaphores & fences)");
 
         vulkanCommandPool->terminate();
 
@@ -170,18 +152,72 @@ namespace Vulkandemo {
         window->terminate();
     }
 
+    bool App::createCommandBuffers() {
+        std::vector<VkCommandBuffer> vkCommandBuffers;
+        vkCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+        VkCommandBufferAllocateInfo allocateInfo{};
+        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocateInfo.commandBufferCount = vkCommandBuffers.size();
+        allocateInfo.commandPool = vulkanCommandPool->getCommandPool();
+
+        if (vkAllocateCommandBuffers(vulkanDevice->getDevice(), &allocateInfo, vkCommandBuffers.data()) != VK_SUCCESS) {
+            VD_LOG_ERROR("Could not allocate [{}] Vulkan command buffers", vkCommandBuffers.size());
+            return false;
+        }
+        for (VkCommandBuffer vkCommandBuffer : vkCommandBuffers) {
+            vulkanCommandBuffers.push_back(new VulkanCommandBuffer(vkCommandBuffer));
+        }
+        VD_LOG_INFO("Allocated [{}] Vulkan command buffers", vulkanCommandBuffers.size());
+        return true;
+    }
+
+    bool App::createSyncObjects() {
+        imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            if (vkCreateSemaphore(vulkanDevice->getDevice(), &semaphoreInfo, allocationCallbacks, &imageAvailableSemaphores[i]) != VK_SUCCESS) {
+                VD_LOG_ERROR("Could not create 'image available' semaphore for frame [{}]", i);
+                return false;
+            }
+            if (vkCreateSemaphore(vulkanDevice->getDevice(), &semaphoreInfo, allocationCallbacks, &renderFinishedSemaphores[i]) != VK_SUCCESS) {
+                VD_LOG_ERROR("Could not create 'render finished' semaphore for frame [{}]", i);
+                return false;
+            }
+            if (vkCreateFence(vulkanDevice->getDevice(), &fenceInfo, allocationCallbacks, &inFlightFences[i]) != VK_SUCCESS) {
+                VD_LOG_ERROR("Could not create 'in flight' fence for frame [{}]", i);
+                return false;
+            }
+        }
+        return true;
+    }
+
     void App::drawFrame() {
         constexpr uint32_t fenceCount = 1;
         constexpr VkBool32 waitForAllFences = VK_TRUE;
         constexpr uint64_t waitForFenceTimeout = UINT64_MAX;
+        VkFence inFlightFence = inFlightFences[currentFrame];
         vkWaitForFences(vulkanDevice->getDevice(), fenceCount, &inFlightFence, waitForAllFences, waitForFenceTimeout);
         vkResetFences(vulkanDevice->getDevice(), fenceCount, &inFlightFence);
 
         uint32_t swapChainImageIndex;
         VkFence acquireNextImageFence = VK_NULL_HANDLE;
         constexpr uint64_t acquireNextImageTimeout = UINT64_MAX;
+        VkSemaphore imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
         vkAcquireNextImageKHR(vulkanDevice->getDevice(), vulkanSwapChain->getSwapChain(), acquireNextImageTimeout, imageAvailableSemaphore, acquireNextImageFence, &swapChainImageIndex);
 
+        VulkanCommandBuffer* vulkanCommandBuffer = vulkanCommandBuffers[currentFrame];
         vulkanCommandBuffer->reset();
         vulkanCommandBuffer->begin();
         vulkanRenderPass->begin(vulkanCommandBuffer, framebuffers.at(swapChainImageIndex));
@@ -212,6 +248,7 @@ namespace Vulkandemo {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
 
+        VkSemaphore renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
         VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
@@ -233,6 +270,8 @@ namespace Vulkandemo {
         presentInfo.pImageIndices = &swapChainImageIndex;
 
         vkQueuePresentKHR(vulkanDevice->getPresentQueue(), &presentInfo);
+
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
 }

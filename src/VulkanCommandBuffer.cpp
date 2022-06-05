@@ -5,26 +5,11 @@ namespace Vulkandemo {
 
     const VkAllocationCallbacks* VulkanCommandBuffer::ALLOCATOR = VK_NULL_HANDLE;
 
-    VulkanCommandBuffer::VulkanCommandBuffer(VulkanCommandPool* vulkanCommandPool, VulkanDevice* vulkanDevice) : vulkanCommandPool(vulkanCommandPool), vulkanDevice(vulkanDevice) {
+    VulkanCommandBuffer::VulkanCommandBuffer(VkCommandBuffer commandBuffer) : commandBuffer(commandBuffer) {
     }
 
     const VkCommandBuffer VulkanCommandBuffer::getCommandBuffer() const {
         return commandBuffer;
-    }
-
-    bool VulkanCommandBuffer::initialize() {
-        VkCommandBufferAllocateInfo allocateInfo{};
-        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocateInfo.commandBufferCount = 1;
-        allocateInfo.commandPool = vulkanCommandPool->getCommandPool();
-
-        if (vkAllocateCommandBuffers(vulkanDevice->getDevice(), &allocateInfo, &commandBuffer) != VK_SUCCESS) {
-            VD_LOG_ERROR("Could not allocate Vulkan command buffer");
-            return false;
-        }
-        VD_LOG_INFO("Allocated Vulkan command buffer");
-        return true;
     }
 
     bool VulkanCommandBuffer::begin() const {
