@@ -1,7 +1,5 @@
 #pragma once
 
-#include "VulkanCommandPool.h"
-
 #include <vulkan/vulkan.h>
 
 namespace Vulkandemo {
@@ -11,16 +9,12 @@ namespace Vulkandemo {
         static const VkAllocationCallbacks* ALLOCATOR;
 
     private:
-        VulkanCommandPool* vulkanCommandPool;
-        VulkanDevice* vulkanDevice;
         VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 
     public:
-        VulkanCommandBuffer(VulkanCommandPool* vulkanCommandPool, VulkanDevice* vulkanDevice);
+        explicit VulkanCommandBuffer(VkCommandBuffer commandBuffer);
 
         const VkCommandBuffer getCommandBuffer() const;
-
-        bool initialize();
 
         bool begin() const;
 

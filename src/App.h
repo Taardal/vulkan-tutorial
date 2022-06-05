@@ -42,10 +42,11 @@ namespace Vulkandemo {
         VulkanGraphicsPipeline* vulkanGraphicsPipeline;
         std::vector<VulkanFramebuffer> framebuffers;
         VulkanCommandPool* vulkanCommandPool;
-        VulkanCommandBuffer* vulkanCommandBuffer;
-        VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
-        VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
-        VkFence inFlightFence = VK_NULL_HANDLE;
+        std::vector<VulkanCommandBuffer*> vulkanCommandBuffers;
+        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::vector<VkSemaphore> renderFinishedSemaphores;
+        std::vector<VkFence> inFlightFences;
+        uint32_t currentFrame = 0;
 
     public:
         explicit App(Config config);
@@ -58,6 +59,10 @@ namespace Vulkandemo {
         bool initialize();
 
         void terminate();
+
+        bool createCommandBuffers();
+
+        bool createSyncObjects();
 
         void drawFrame();
     };
