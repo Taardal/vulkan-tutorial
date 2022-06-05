@@ -13,10 +13,14 @@ namespace Vulkandemo {
     }
 
     Size Window::getSizeInPixels() const {
-        int width;
-        int height;
+        int width = 0;
+        int height = 0;
         glfwGetFramebufferSize(glfwWindow, &width, &height);
         return { width, height };
+    }
+
+    void Window::getSizeInPixels(int* width, int* height) const {
+        glfwGetFramebufferSize(glfwWindow, width, height);
     }
 
     Size Window::getSizeInScreenCoordinates() const {
@@ -24,6 +28,14 @@ namespace Vulkandemo {
         int height;
         glfwGetWindowSize(glfwWindow, &width, &height);
         return { width, height };
+    }
+
+    void Window::setOnResize(const std::function<void(int, int)>& onResized) {
+        userPointer.OnResize = onResized;
+    }
+
+    void Window::setOnMinimize(const std::function<void(bool)>& onMinimize) {
+        userPointer.OnMinimize = onMinimize;
     }
 
     bool Window::initialize() {
@@ -35,7 +47,7 @@ namespace Vulkandemo {
         VD_LOG_INFO("Initialized GLFW");
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         GLFWmonitor* fullscreenMonitor = nullptr;
         GLFWwindow* sharedWindow = nullptr;
@@ -45,6 +57,11 @@ namespace Vulkandemo {
             return false;
         }
         VD_LOG_INFO("Created GLFW window");
+
+        glfwSetWindowUserPointer(glfwWindow, &userPointer);
+        glfwSetFramebufferSizeCallback(glfwWindow, onFramebufferSizeChange);
+        glfwSetWindowIconifyCallback(glfwWindow, onWindowIconifyChange);
+
         return true;
     }
 
@@ -62,4 +79,34 @@ namespace Vulkandemo {
     void Window::pollEvents() const {
         glfwPollEvents();
     }
+
+    void Window::waitUntilNotMinimized() const {
+        int width = 0;
+        int height = 0;
+        getSizeInPixels(&width, &height);
+
+        bool iconified = isIconified();
+
+        while (width == 0 || height == 0 || iconified) {
+            getSizeInPixels(&width, &height);
+            iconified = isIconified();
+            glfwWaitEvents();
+        }
+    }
+
+    bool Window::isIconified() const {
+        return glfwGetWindowAttrib(glfwWindow, GLFW_ICONIFIED) == 1;
+    }
+
+    void Window::onFramebufferSizeChange(GLFWwindow* glfWwindow, int width, int height) {
+        auto userPointer = (UserPointer*) glfwGetWindowUserPointer(glfWwindow);
+        userPointer->OnResize(width, height);
+    }
+
+    void Window::onWindowIconifyChange(GLFWwindow* glfWwindow, int iconified) {
+        auto userPointer = (UserPointer*) glfwGetWindowUserPointer(glfWwindow);
+        bool minimized = iconified == 1;
+        userPointer->OnMinimize(minimized);
+    }
+
 }

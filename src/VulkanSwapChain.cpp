@@ -55,10 +55,11 @@ namespace Vulkandemo {
         return true;
     }
 
-    void VulkanSwapChain::terminate() const {
+    void VulkanSwapChain::terminate() {
         for (VkImageView imageView : imageViews) {
             vkDestroyImageView(vulkanDevice->getDevice(), imageView, ALLOCATOR);
         }
+        imageViews.clear();
         VD_LOG_INFO("Destroyed Vulkan swap chain image views");
         vkDestroySwapchainKHR(vulkanDevice->getDevice(), swapChain, ALLOCATOR);
         VD_LOG_INFO("Destroyed Vulkan swap chain");

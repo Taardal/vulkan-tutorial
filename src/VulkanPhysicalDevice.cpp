@@ -25,6 +25,10 @@ namespace Vulkandemo {
         return deviceInfo.SwapChainInfo;
     }
 
+    void VulkanPhysicalDevice::updateSwapChainInfo() {
+        deviceInfo.SwapChainInfo = findSwapChainInfo(deviceInfo.PhysicalDevice);
+    }
+
     const std::vector<const char*>& VulkanPhysicalDevice::getExtensions() const {
         return getRequiredExtensions();
     }

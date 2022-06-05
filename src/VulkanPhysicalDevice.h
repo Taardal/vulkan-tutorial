@@ -49,6 +49,8 @@ namespace Vulkandemo {
 
         const SwapChainInfo& getSwapChainInfo() const;
 
+        void updateSwapChainInfo();
+
         const std::vector<const char*>& getExtensions() const;
 
         bool initialize();
