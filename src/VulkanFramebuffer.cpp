@@ -31,14 +31,11 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not create Vulkan framebuffer");
             return false;
         }
-        VD_LOG_INFO("Created Vulkan framebuffer");
-
         return true;
     }
 
     void VulkanFramebuffer::terminate() {
         vkDestroyFramebuffer(vulkanDevice->getDevice(), framebuffer, ALLOCATOR);
-        VD_LOG_INFO("Destroyed Vulkan framebuffer");
     }
 
 }

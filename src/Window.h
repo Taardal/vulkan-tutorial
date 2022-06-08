@@ -69,5 +69,7 @@ namespace Vulkandemo {
         static void onFramebufferSizeChange(GLFWwindow* glfWwindow, int width, int height);
 
         static void onWindowIconifyChange(GLFWwindow* glfWwindow, int iconified);
+
+        static void onKeyChange(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods);
     };
 }

@@ -61,6 +61,7 @@ namespace Vulkandemo {
         glfwSetWindowUserPointer(glfwWindow, &userPointer);
         glfwSetFramebufferSizeCallback(glfwWindow, onFramebufferSizeChange);
         glfwSetWindowIconifyCallback(glfwWindow, onWindowIconifyChange);
+        glfwSetKeyCallback(glfwWindow, onKeyChange);
 
         return true;
     }
@@ -107,6 +108,12 @@ namespace Vulkandemo {
         auto userPointer = (UserPointer*) glfwGetWindowUserPointer(glfWwindow);
         bool minimized = iconified == 1;
         userPointer->OnMinimize(minimized);
+    }
+
+    void Window::onKeyChange(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods) {
+        if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+            glfwSetWindowShouldClose(glfwWindow, true);
+        }
     }
 
 }
