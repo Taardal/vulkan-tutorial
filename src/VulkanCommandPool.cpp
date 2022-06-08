@@ -32,4 +32,28 @@ namespace Vulkandemo {
         VD_LOG_INFO("Destroyed Vulkan command pool");
     }
 
+    std::vector<VulkanCommandBuffer> VulkanCommandPool::allocateCommandBuffers(uint32_t count) const {
+        std::vector<VkCommandBuffer> vkCommandBuffers;
+        vkCommandBuffers.resize(count);
+
+        VkCommandBufferAllocateInfo allocateInfo{};
+        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocateInfo.commandBufferCount = vkCommandBuffers.size();
+        allocateInfo.commandPool = commandPool;
+
+        if (vkAllocateCommandBuffers(vulkanDevice->getDevice(), &allocateInfo, vkCommandBuffers.data()) != VK_SUCCESS) {
+            VD_LOG_ERROR("Could not allocate [{}] Vulkan command buffers", vkCommandBuffers.size());
+            return {};
+        }
+
+        std::vector<VulkanCommandBuffer> vulkanCommandBuffers;
+        for (VkCommandBuffer vkCommandBuffer : vkCommandBuffers) {
+            VulkanCommandBuffer vulkanCommandBuffer(vkCommandBuffer);
+            vulkanCommandBuffers.push_back(vulkanCommandBuffer);
+        }
+        VD_LOG_INFO("Allocated [{}] command buffers", vulkanCommandBuffers.size());
+        return vulkanCommandBuffers;
+    }
+
 }

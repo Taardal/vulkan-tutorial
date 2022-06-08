@@ -44,13 +44,13 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not find any Vulkan swap chain images");
             return false;
         }
-        VD_LOG_INFO("Initialized Vulkan swap chain images");
+        VD_LOG_INFO("Initialized [{}] Vulkan swap chain images", images.size());
 
         if (!createSwapChainImageViews()) {
             VD_LOG_ERROR("Could not create Vulkan swap chain image views");
             return false;
         }
-        VD_LOG_INFO("Created Vulkan swap chain image views");
+        VD_LOG_INFO("Created [{}] Vulkan swap chain image views", imageViews.size());
 
         return true;
     }
@@ -153,8 +153,7 @@ namespace Vulkandemo {
         vkGetSwapchainImagesKHR(vulkanDevice->getDevice(), swapChain, &imageCount, nullptr);
         images.resize(imageCount);
         vkGetSwapchainImagesKHR(vulkanDevice->getDevice(), swapChain, &imageCount, images.data());
-        VD_LOG_DEBUG("Found [{0}] swap chain images", images.size());
-        return images.size() > 0;
+        return !images.empty();
     }
 
     bool VulkanSwapChain::createSwapChainImageViews() {
@@ -178,8 +177,7 @@ namespace Vulkandemo {
                 return false;
             }
         }
-        VD_LOG_DEBUG("Created [{0}] swap chain image views", imageViews.size());
-        return imageViews.size() > 0;
+        return !imageViews.empty();
     }
 
     std::string VulkanSwapChain::getPresentationModeAsString(VkPresentModeKHR presentMode) const {

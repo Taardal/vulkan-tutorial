@@ -42,7 +42,7 @@ namespace Vulkandemo {
         VulkanGraphicsPipeline* vulkanGraphicsPipeline;
         std::vector<VulkanFramebuffer> framebuffers;
         VulkanCommandPool* vulkanCommandPool;
-        std::vector<VulkanCommandBuffer*> vulkanCommandBuffers;
+        std::vector<VulkanCommandBuffer> vulkanCommandBuffers;
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
@@ -59,19 +59,21 @@ namespace Vulkandemo {
     private:
         bool initialize();
 
-        bool initializeSwapChain();
+        bool initializeRenderingObjects();
 
-        bool initializeCommandBuffers();
+        bool initializeFramebuffers();
 
         bool initializeSyncObjects();
 
         void terminate();
 
-        void terminateSyncObjects();
+        void terminateSyncObjects() const;
 
-        void terminateSwapChain();
+        void terminateFramebuffers();
 
-        bool recreateSwapChain();
+        void terminateRenderingObjects();
+
+        bool recreateRenderingObjects();
 
         void drawFrame();
     };
