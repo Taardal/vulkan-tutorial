@@ -1,5 +1,6 @@
 #include "VulkanGraphicsPipeline.h"
 #include "Log.h"
+#include "Vertex.h"
 
 namespace Vulkandemo {
 
@@ -28,12 +29,15 @@ namespace Vulkandemo {
                 fragmentShaderStageInfo
         };
 
+        VkVertexInputBindingDescription bindingDescription = Vertex::getBindingDescription();
+        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = Vertex::getAttributeDescriptions();
+
         VkPipelineVertexInputStateCreateInfo vertexInputState{};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputState.pVertexBindingDescriptions = nullptr;
-        vertexInputState.vertexBindingDescriptionCount = 0;
-        vertexInputState.pVertexAttributeDescriptions = nullptr;
-        vertexInputState.vertexAttributeDescriptionCount = 0;
+        vertexInputState.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputState.vertexBindingDescriptionCount = 1;
+        vertexInputState.pVertexAttributeDescriptions = attributeDescriptions.data();
+        vertexInputState.vertexAttributeDescriptionCount = attributeDescriptions.size();
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyState{};
         inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

@@ -14,21 +14,21 @@ namespace Vulkandemo {
               vulkan(new Vulkan(config.Vulkan, window)),
               vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)),
               vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)),
-              vulkanSwapChain(new VulkanSwapChain(vulkanDevice, vulkanPhysicalDevice, vulkan, window)),
+              vulkanCommandPool(new VulkanCommandPool(vulkanPhysicalDevice, vulkanDevice)),
               vertexShader(new VulkanShader(vulkanDevice)),
               fragmentShader(new VulkanShader(vulkanDevice)),
+              vulkanSwapChain(new VulkanSwapChain(vulkanDevice, vulkanPhysicalDevice, vulkan, window)),
               vulkanRenderPass(new VulkanRenderPass(vulkanSwapChain, vulkanDevice)),
-              vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice)),
-              vulkanCommandPool(new VulkanCommandPool(vulkanPhysicalDevice, vulkanDevice)) {
+              vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice)) {
     }
 
     App::~App() {
-        delete vulkanCommandPool;
         delete vulkanGraphicsPipeline;
         delete vulkanRenderPass;
+        delete vulkanSwapChain;
         delete fragmentShader;
         delete vertexShader;
-        delete vulkanSwapChain;
+        delete vulkanCommandPool;
         delete vulkanDevice;
         delete vulkanPhysicalDevice;
         delete vulkan;
