@@ -45,7 +45,7 @@ namespace Vulkandemo {
         VulkanGraphicsPipeline* vulkanGraphicsPipeline;
         std::vector<VulkanFramebuffer> framebuffers;
         VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
+        VkDeviceMemory vertexBufferDeviceMemory;
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
@@ -70,7 +70,9 @@ namespace Vulkandemo {
 
         bool initializeVertexBuffer();
 
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags);
+        bool createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkBuffer& buffer, VkDeviceMemory& bufferDeviceMemory);
+
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags) const;
 
         void terminateVertexBuffer();
 
@@ -91,6 +93,8 @@ namespace Vulkandemo {
         bool recreateRenderingObjects();
 
         void drawFrame();
+
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     };
 
 }
