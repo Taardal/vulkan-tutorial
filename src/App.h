@@ -44,6 +44,8 @@ namespace Vulkandemo {
         VulkanRenderPass* vulkanRenderPass;
         VulkanGraphicsPipeline* vulkanGraphicsPipeline;
         std::vector<VulkanFramebuffer> framebuffers;
+        VkBuffer vertexBuffer;
+        VkDeviceMemory vertexBufferMemory;
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
@@ -65,6 +67,12 @@ namespace Vulkandemo {
 
     private:
         bool initialize();
+
+        bool initializeVertexBuffer();
+
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags);
+
+        void terminateVertexBuffer();
 
         bool initializeRenderingObjects();
 

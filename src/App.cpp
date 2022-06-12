@@ -95,7 +95,11 @@ namespace Vulkandemo {
             return false;
         }
         if (!initializeRenderingObjects()) {
-            VD_LOG_ERROR("Could not initialize Vulkan swap chain");
+            VD_LOG_ERROR("Could not initialize Vulkan rendering objects (swap chain & dependents)");
+            return false;
+        }
+        if (!initializeVertexBuffer()) {
+            VD_LOG_ERROR("Could not initialize Vulkan vertex buffer");
             return false;
         }
         if (!initializeSyncObjects()) {
@@ -103,6 +107,64 @@ namespace Vulkandemo {
             return false;
         }
         return true;
+    }
+
+    bool App::initializeVertexBuffer() {
+        VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
+
+        VkBufferCreateInfo bufferInfo{};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        if (vkCreateBuffer(vulkanDevice->getDevice(), &bufferInfo, allocator, &vertexBuffer) != VK_SUCCESS) {
+            VD_LOG_ERROR("Could not create Vulkan vertex buffer");
+            return false;
+        }
+
+        VkMemoryRequirements memoryRequirements;
+        vkGetBufferMemoryRequirements(vulkanDevice->getDevice(), vertexBuffer, &memoryRequirements);
+
+        VkMemoryAllocateInfo memoryAllocateInfo{};
+        memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        memoryAllocateInfo.allocationSize = memoryRequirements.size;
+        memoryAllocateInfo.memoryTypeIndex = findMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        if (vkAllocateMemory(vulkanDevice->getDevice(), &memoryAllocateInfo, allocator, &vertexBufferMemory) != VK_SUCCESS) {
+            VD_LOG_ERROR("Could not allocate Vulkan vertex buffer memory");
+            return false;
+        }
+
+        constexpr VkDeviceSize memoryOffset = 0;
+        vkBindBufferMemory(vulkanDevice->getDevice(), vertexBuffer, vertexBufferMemory, memoryOffset);
+
+        void* data;
+        constexpr VkMemoryMapFlags memoryMapFlags = 0;
+        vkMapMemory(vulkanDevice->getDevice(), vertexBufferMemory, memoryOffset, bufferInfo.size, memoryMapFlags, &data);
+        memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+        vkUnmapMemory(vulkanDevice->getDevice(), vertexBufferMemory);
+        
+        return true;
+    }
+
+    uint32_t App::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags) {
+        VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
+        vkGetPhysicalDeviceMemoryProperties(vulkanPhysicalDevice->getPhysicalDevice(), &physicalDeviceMemoryProperties);
+
+        for (uint32_t i = 0; i < physicalDeviceMemoryProperties.memoryTypeCount; i++) {
+            if ((typeFilter & (1 << i)) && (physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & propertyFlags) == propertyFlags) {
+                return i;
+            }
+        }
+        VD_LOG_ERROR("Could not find memory type [{}]", typeFilter);
+        return -1;
+    }
+
+    void App::terminateVertexBuffer() {
+        VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
+        vkDestroyBuffer(vulkanDevice->getDevice(), vertexBuffer, allocator);
+        vkFreeMemory(vulkanDevice->getDevice(), vertexBufferMemory, allocator);
     }
 
     bool App::initializeRenderingObjects() {
@@ -173,6 +235,7 @@ namespace Vulkandemo {
     void App::terminate() {
         VD_LOG_INFO("Terminating...");
         terminateSyncObjects();
+        terminateVertexBuffer();
         terminateRenderingObjects();
         fragmentShader->terminate();
         vertexShader->terminate();
@@ -259,18 +322,23 @@ namespace Vulkandemo {
          * Recording
          */
 
-        VulkanCommandBuffer vulkanCommandBuffer = vulkanCommandBuffers[currentFrame];
+        const VulkanCommandBuffer& vulkanCommandBuffer = vulkanCommandBuffers[currentFrame];
         vulkanCommandBuffer.reset();
         vulkanCommandBuffer.begin();
 
         vulkanRenderPass->begin(vulkanCommandBuffer, framebuffers.at(swapChainImageIndex));
         vulkanGraphicsPipeline->bind(vulkanCommandBuffer);
 
-        constexpr uint32_t vertexCount = 3;
+        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        constexpr uint32_t firstBinding = 0;
+        constexpr uint32_t bindingCount = 1;
+        vkCmdBindVertexBuffers(vulkanCommandBuffer.getCommandBuffer(), firstBinding, bindingCount, vertexBuffers, offsets);
+
         constexpr uint32_t instanceCount = 1;
         constexpr uint32_t firstVertex = 0;
         constexpr uint32_t firstInstance = 0;
-        vkCmdDraw(vulkanCommandBuffer.getCommandBuffer(), vertexCount, instanceCount, firstVertex, firstInstance);
+        vkCmdDraw(vulkanCommandBuffer.getCommandBuffer(), (uint32_t) vertices.size(), instanceCount, firstVertex, firstInstance);
 
         vulkanRenderPass->end(vulkanCommandBuffer);
 
