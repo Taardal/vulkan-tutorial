@@ -1,38 +1,35 @@
-#include "VulkanVertexBuffer.h"
+#include "VulkanIndexBuffer.h"
 #include "Log.h"
 
 namespace Vulkandemo {
 
-    VulkanVertexBuffer::VulkanVertexBuffer(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice, VulkanCommandPool* vulkanCommandPool)
+    VulkanIndexBuffer::VulkanIndexBuffer(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice, VulkanCommandPool* vulkanCommandPool)
             : vulkanPhysicalDevice(vulkanPhysicalDevice), vulkanDevice(vulkanDevice), vulkanCommandPool(vulkanCommandPool) {}
 
-    const VkBuffer VulkanVertexBuffer::getVkBuffer() const {
+    const VkBuffer VulkanIndexBuffer::getVkBuffer() const {
         return buffer;
     }
 
-    bool VulkanVertexBuffer::initialize(const std::vector<Vertex>& vertices) {
-        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    bool VulkanIndexBuffer::initialize(const std::vector<uint16_t>& indices) {
+        VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
         VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferDeviceMemory;
+        VkDeviceMemory stagingBufferMemory;
         constexpr VkBufferUsageFlags stagingBufferUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         constexpr VkMemoryPropertyFlags stagingBufferMemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-        if (!createBuffer(bufferSize, stagingBufferUsage, stagingBufferMemoryProperties, stagingBuffer, stagingBufferDeviceMemory)) {
-            VD_LOG_ERROR("Could not create staging vertex buffer");
-            return false;
-        }
+        createBuffer(bufferSize, stagingBufferUsage, stagingBufferMemoryProperties, stagingBuffer, stagingBufferMemory);
 
         void* memory;
         constexpr VkDeviceSize stagingBufferMemoryOffset = 0;
         constexpr VkMemoryMapFlags stagingBufferMemoryMapFlags = 0;
-        vkMapMemory(vulkanDevice->getDevice(), stagingBufferDeviceMemory, stagingBufferMemoryOffset, bufferSize, stagingBufferMemoryMapFlags, &memory);
-        memcpy(memory, vertices.data(), (size_t) bufferSize);
-        vkUnmapMemory(vulkanDevice->getDevice(), stagingBufferDeviceMemory);
+        vkMapMemory(vulkanDevice->getDevice(), stagingBufferMemory, stagingBufferMemoryOffset, bufferSize, stagingBufferMemoryMapFlags, &memory);
+        memcpy(memory, indices.data(), (size_t) bufferSize);
+        vkUnmapMemory(vulkanDevice->getDevice(), stagingBufferMemory);
 
-        constexpr VkBufferUsageFlags bufferUsage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        constexpr VkBufferUsageFlags bufferUsage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
         constexpr VkMemoryPropertyFlags bufferMemoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         if (!createBuffer(bufferSize, bufferUsage, bufferMemoryProperties, buffer, deviceMemory)) {
-            VD_LOG_ERROR("Could not create vertex buffer");
+            VD_LOG_ERROR("Could not create index buffer");
             return false;
         }
 
@@ -40,18 +37,18 @@ namespace Vulkandemo {
 
         VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
         vkDestroyBuffer(vulkanDevice->getDevice(), stagingBuffer, allocator);
-        vkFreeMemory(vulkanDevice->getDevice(), stagingBufferDeviceMemory, allocator);
+        vkFreeMemory(vulkanDevice->getDevice(), stagingBufferMemory, allocator);
 
         return true;
     }
 
-    void VulkanVertexBuffer::terminate() {
+    void VulkanIndexBuffer::terminate() {
         VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
         vkDestroyBuffer(vulkanDevice->getDevice(), buffer, allocator);
         vkFreeMemory(vulkanDevice->getDevice(), deviceMemory, allocator);
     }
 
-    bool VulkanVertexBuffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkBuffer& buffer, VkDeviceMemory& bufferDeviceMemory) const {
+    bool VulkanIndexBuffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkBuffer& buffer, VkDeviceMemory& bufferDeviceMemory) const {
         VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
 
         VkBufferCreateInfo bufferInfo{};
@@ -84,7 +81,7 @@ namespace Vulkandemo {
         return true;
     }
 
-    void VulkanVertexBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const {
+    void VulkanIndexBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const {
         VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
         commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -120,7 +117,7 @@ namespace Vulkandemo {
         vkFreeCommandBuffers(vulkanDevice->getDevice(), vulkanCommandPool->getCommandPool(), commandBufferCount, &commandBuffer);
     }
 
-    uint32_t VulkanVertexBuffer::findMemoryType(uint32_t suitableMemoryTypeBits, VkMemoryPropertyFlags propertyFlags) const {
+    uint32_t VulkanIndexBuffer::findMemoryType(uint32_t suitableMemoryTypeBits, VkMemoryPropertyFlags propertyFlags) const {
         VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
         vkGetPhysicalDeviceMemoryProperties(vulkanPhysicalDevice->getPhysicalDevice(), &physicalDeviceMemoryProperties);
         for (uint32_t memoryTypeIndex = 0; memoryTypeIndex < physicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
@@ -144,4 +141,5 @@ namespace Vulkandemo {
         VD_LOG_ERROR("Could not find memory type [{}]", suitableMemoryTypeBits);
         return -1;
     }
+
 }

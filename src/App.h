@@ -13,6 +13,7 @@
 #include "VulkanGraphicsPipeline.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanVertexBuffer.h"
+#include "VulkanIndexBuffer.h"
 #include "Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -52,8 +53,7 @@ namespace Vulkandemo {
         bool windowResized = false;
 
         VulkanVertexBuffer* vulkanVertexBuffer;
-        VkBuffer indexBuffer;
-        VkDeviceMemory indexBufferDeviceMemory;
+        VulkanIndexBuffer* vulkanIndexBuffer;
 
         const std::vector<Vertex> vertices = {
                 {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -76,14 +76,6 @@ namespace Vulkandemo {
     private:
         bool initialize();
 
-        bool initializeIndexBuffer();
-
-        bool createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkBuffer& buffer, VkDeviceMemory& bufferDeviceMemory);
-
-        uint32_t findMemoryType(uint32_t suitableMemoryTypeBits, VkMemoryPropertyFlags propertyFlags) const;
-
-        void terminateIndexBuffer();
-
         bool initializeRenderingObjects();
 
         bool initializeFramebuffers();
@@ -101,8 +93,6 @@ namespace Vulkandemo {
         bool recreateRenderingObjects();
 
         void drawFrame();
-
-        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     };
 
 }

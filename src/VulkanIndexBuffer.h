@@ -3,13 +3,12 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanCommandPool.h"
-#include "Vertex.h"
 
 #include <vulkan/vulkan.h>
 
 namespace Vulkandemo {
 
-    class VulkanVertexBuffer {
+    class VulkanIndexBuffer {
     private:
         VulkanDevice* vulkanDevice;
         VulkanPhysicalDevice* vulkanPhysicalDevice;
@@ -18,11 +17,11 @@ namespace Vulkandemo {
         VkDeviceMemory deviceMemory = VK_NULL_HANDLE;
 
     public:
-        VulkanVertexBuffer(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice, VulkanCommandPool* vulkanCommandPool);
+        VulkanIndexBuffer(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice, VulkanCommandPool* vulkanCommandPool);
 
         const VkBuffer getVkBuffer() const;
 
-        bool initialize(const std::vector<Vertex>& vertices);
+        bool initialize(const std::vector<uint16_t>& indices);
 
         void terminate();
 
