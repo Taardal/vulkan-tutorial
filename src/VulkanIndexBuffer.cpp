@@ -41,7 +41,8 @@ namespace Vulkandemo {
             return false;
         }
 
-        copyBuffer(stagingBuffer.getVkBuffer(), buffer.getVkBuffer(), bufferSize);
+        VulkanBuffer::copy(stagingBuffer, buffer, *vulkanCommandPool, *vulkanDevice);
+        VD_LOG_INFO("Copied staging buffer to buffer for index buffer");
 
         stagingBuffer.terminate();
         VD_LOG_INFO("Terminated staging buffer for index buffer");
@@ -53,41 +54,5 @@ namespace Vulkandemo {
     void VulkanIndexBuffer::terminate() {
         buffer.terminate();
         VD_LOG_INFO("Terminated Vulkan index buffer");
-    }
-
-    void VulkanIndexBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const {
-        VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
-        commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        commandBufferAllocateInfo.commandPool = vulkanCommandPool->getCommandPool();
-        commandBufferAllocateInfo.commandBufferCount = 1;
-
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(vulkanDevice->getDevice(), &commandBufferAllocateInfo, &commandBuffer);
-
-        VkCommandBufferBeginInfo commandBufferBeginInfo{};
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-
-        VkBufferCopy copyRegion{};
-        copyRegion.size = size;
-        constexpr uint32_t regionCount = 1;
-        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, regionCount, &copyRegion);
-
-        vkEndCommandBuffer(commandBuffer);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-
-        constexpr uint32_t submitCount = 1;
-        VkFence fence = VK_NULL_HANDLE;
-        vkQueueSubmit(vulkanDevice->getGraphicsQueue(), submitCount, &submitInfo, fence);
-        vkQueueWaitIdle(vulkanDevice->getGraphicsQueue());
-
-        constexpr uint32_t commandBufferCount = 1;
-        vkFreeCommandBuffers(vulkanDevice->getDevice(), vulkanCommandPool->getCommandPool(), commandBufferCount, &commandBuffer);
     }
 }

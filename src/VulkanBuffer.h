@@ -2,6 +2,7 @@
 
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
+#include "VulkanCommandPool.h"
 
 #include <vulkan/vulkan.h>
 
@@ -25,6 +26,8 @@ namespace Vulkandemo {
     public:
         VulkanBuffer(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice);
 
+        const Config& getConfig() const;
+
         const VkBuffer getVkBuffer() const;
 
         const VkDeviceMemory getVkDeviceMemory() const;
@@ -34,5 +37,7 @@ namespace Vulkandemo {
         void terminate();
 
         uint32_t findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const;
+
+        static void copy(const VulkanBuffer& sourceBuffer, const VulkanBuffer& destinationBuffer, const VulkanCommandPool& commandPool, const VulkanDevice& vulkanDevice);
     };
 }

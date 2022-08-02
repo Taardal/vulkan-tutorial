@@ -25,7 +25,5 @@ namespace Vulkandemo {
         bool initialize(const std::vector<Vertex>& vertices);
 
         void terminate();
-
-        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     };
 }

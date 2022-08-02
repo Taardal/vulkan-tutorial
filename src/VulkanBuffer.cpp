@@ -1,10 +1,15 @@
 #include "VulkanBuffer.h"
 #include "Log.h"
+#include "Assert.h"
 
 namespace Vulkandemo {
 
     Vulkandemo::VulkanBuffer::VulkanBuffer(Vulkandemo::VulkanPhysicalDevice* vulkanPhysicalDevice, Vulkandemo::VulkanDevice* vulkanDevice)
             : vulkanPhysicalDevice(vulkanPhysicalDevice), vulkanDevice(vulkanDevice) {}
+
+    const VulkanBuffer::Config& VulkanBuffer::getConfig() const {
+        return config;
+    }
 
     const VkBuffer VulkanBuffer::getVkBuffer() const {
         return vkBuffer;
@@ -82,6 +87,41 @@ namespace Vulkandemo {
         }
         VD_LOG_ERROR("Could not find memory type [{}]", memoryTypeBits);
         return -1;
+    }
+
+    void VulkanBuffer::copy(const VulkanBuffer& sourceBuffer, const VulkanBuffer& destinationBuffer, const VulkanCommandPool& commandPool, const VulkanDevice& vulkanDevice) {
+        VD_ASSERT(sourceBuffer.config.Size == destinationBuffer.config.Size);
+        
+        constexpr uint32_t commandBufferCount = 1;
+        const std::vector<VulkanCommandBuffer>& commandBuffers = commandPool.allocateCommandBuffers(commandBufferCount);
+        VD_ASSERT(commandBuffers.size() == commandBufferCount);
+
+        const VulkanCommandBuffer& commandBuffer = commandBuffers[0];
+        VkCommandBuffer vkCommandBuffer = commandBuffer.getCommandBuffer();
+        
+        VkCommandBufferBeginInfo commandBufferBeginInfo{};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        vkBeginCommandBuffer(vkCommandBuffer, &commandBufferBeginInfo);
+
+        VkBufferCopy copyRegion{};
+        copyRegion.size = sourceBuffer.config.Size;
+        constexpr uint32_t regionCount = 1;
+        vkCmdCopyBuffer(vkCommandBuffer, sourceBuffer.vkBuffer, destinationBuffer.vkBuffer, regionCount, &copyRegion);
+
+        vkEndCommandBuffer(vkCommandBuffer);
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &vkCommandBuffer;
+
+        constexpr uint32_t submitCount = 1;
+        VkFence fence = VK_NULL_HANDLE;
+        vkQueueSubmit(vulkanDevice.getGraphicsQueue(), submitCount, &submitInfo, fence);
+        vkQueueWaitIdle(vulkanDevice.getGraphicsQueue());
+
+        vkFreeCommandBuffers(vulkanDevice.getDevice(), commandPool.getCommandPool(), commandBufferCount, &vkCommandBuffer);
     }
 
 }
