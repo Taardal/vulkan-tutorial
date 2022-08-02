@@ -12,6 +12,7 @@
 #include "VulkanRenderPass.h"
 #include "VulkanGraphicsPipeline.h"
 #include "VulkanFramebuffer.h"
+#include "VulkanVertexBuffer.h"
 #include "Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -50,8 +51,7 @@ namespace Vulkandemo {
         uint32_t currentFrame = 0;
         bool windowResized = false;
 
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferDeviceMemory;
+        VulkanVertexBuffer* vulkanVertexBuffer;
         VkBuffer indexBuffer;
         VkDeviceMemory indexBufferDeviceMemory;
 
@@ -78,15 +78,11 @@ namespace Vulkandemo {
 
         bool initializeIndexBuffer();
 
-        bool initializeVertexBuffer();
-
         bool createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkBuffer& buffer, VkDeviceMemory& bufferDeviceMemory);
 
         uint32_t findMemoryType(uint32_t suitableMemoryTypeBits, VkMemoryPropertyFlags propertyFlags) const;
 
         void terminateIndexBuffer();
-
-        void terminateVertexBuffer();
 
         bool initializeRenderingObjects();
 

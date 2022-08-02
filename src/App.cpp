@@ -19,10 +19,12 @@ namespace Vulkandemo {
               fragmentShader(new VulkanShader(vulkanDevice)),
               vulkanSwapChain(new VulkanSwapChain(vulkanDevice, vulkanPhysicalDevice, vulkan, window)),
               vulkanRenderPass(new VulkanRenderPass(vulkanSwapChain, vulkanDevice)),
-              vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice)) {
+              vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice)),
+              vulkanVertexBuffer(new VulkanVertexBuffer(vulkanPhysicalDevice, vulkanDevice, vulkanCommandPool)) {
     }
 
     App::~App() {
+        delete vulkanVertexBuffer;
         delete vulkanGraphicsPipeline;
         delete vulkanRenderPass;
         delete vulkanSwapChain;
@@ -98,16 +100,16 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize Vulkan rendering objects (swap chain & dependents)");
             return false;
         }
-        if (!initializeVertexBuffer()) {
+        if (!initializeSyncObjects()) {
+            VD_LOG_ERROR("Could not create Vulkan sync objects (semaphores & fences)");
+            return false;
+        }
+        if (!vulkanVertexBuffer->initialize(vertices)) {
             VD_LOG_ERROR("Could not initialize Vulkan vertex buffer");
             return false;
         }
         if (!initializeIndexBuffer()) {
             VD_LOG_ERROR("Could not initialize Vulkan index buffer");
-            return false;
-        }
-        if (!initializeSyncObjects()) {
-            VD_LOG_ERROR("Could not create Vulkan sync objects (semaphores & fences)");
             return false;
         }
         return true;
@@ -141,41 +143,6 @@ namespace Vulkandemo {
         VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
         vkDestroyBuffer(vulkanDevice->getDevice(), stagingBuffer, allocator);
         vkFreeMemory(vulkanDevice->getDevice(), stagingBufferMemory, allocator);
-
-        return true;
-    }
-
-    bool App::initializeVertexBuffer() {
-        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferDeviceMemory;
-        constexpr VkBufferUsageFlags stagingBufferUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        constexpr VkMemoryPropertyFlags stagingBufferMemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-        if (!createBuffer(bufferSize, stagingBufferUsage, stagingBufferMemoryProperties, stagingBuffer, stagingBufferDeviceMemory)) {
-            VD_LOG_ERROR("Could not create staging vertex buffer");
-            return false;
-        }
-
-        void* memory;
-        constexpr VkDeviceSize stagingBufferMemoryOffset = 0;
-        constexpr VkMemoryMapFlags stagingBufferMemoryMapFlags = 0;
-        vkMapMemory(vulkanDevice->getDevice(), stagingBufferDeviceMemory, stagingBufferMemoryOffset, bufferSize, stagingBufferMemoryMapFlags, &memory);
-        memcpy(memory, vertices.data(), (size_t) bufferSize);
-        vkUnmapMemory(vulkanDevice->getDevice(), stagingBufferDeviceMemory);
-
-        constexpr VkBufferUsageFlags bufferUsage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        constexpr VkMemoryPropertyFlags bufferMemoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-        if (!createBuffer(bufferSize, bufferUsage, bufferMemoryProperties, vertexBuffer, vertexBufferDeviceMemory)) {
-            VD_LOG_ERROR("Could not create vertex buffer");
-            return false;
-        }
-
-        copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
-
-        VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
-        vkDestroyBuffer(vulkanDevice->getDevice(), stagingBuffer, allocator);
-        vkFreeMemory(vulkanDevice->getDevice(), stagingBufferDeviceMemory, allocator);
 
         return true;
     }
@@ -280,12 +247,6 @@ namespace Vulkandemo {
         vkFreeMemory(vulkanDevice->getDevice(), indexBufferDeviceMemory, allocator);
     }
 
-    void App::terminateVertexBuffer() {
-        VkAllocationCallbacks* allocator = VK_NULL_HANDLE;
-        vkDestroyBuffer(vulkanDevice->getDevice(), vertexBuffer, allocator);
-        vkFreeMemory(vulkanDevice->getDevice(), vertexBufferDeviceMemory, allocator);
-    }
-
     bool App::initializeRenderingObjects() {
         if (!vulkanSwapChain->initialize()) {
             VD_LOG_ERROR("Could not initialize Vulkan swap chain");
@@ -353,9 +314,9 @@ namespace Vulkandemo {
 
     void App::terminate() {
         VD_LOG_INFO("Terminating...");
-        terminateSyncObjects();
         terminateIndexBuffer();
-        terminateVertexBuffer();
+        vulkanVertexBuffer->terminate();
+        terminateSyncObjects();
         terminateRenderingObjects();
         fragmentShader->terminate();
         vertexShader->terminate();
@@ -449,7 +410,7 @@ namespace Vulkandemo {
         vulkanRenderPass->begin(vulkanCommandBuffer, framebuffers.at(swapChainImageIndex));
         vulkanGraphicsPipeline->bind(vulkanCommandBuffer);
 
-        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkBuffer vertexBuffers[] = {vulkanVertexBuffer->getVkBuffer()};
         VkDeviceSize vertexBufferOffsets[] = {0};
         constexpr uint32_t firstBinding = 0;
         constexpr uint32_t bindingCount = 1;
