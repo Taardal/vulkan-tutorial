@@ -280,7 +280,7 @@ namespace Vulkandemo {
         vulkanRenderPass->begin(vulkanCommandBuffer, framebuffers.at(swapChainImageIndex));
         vulkanGraphicsPipeline->bind(vulkanCommandBuffer);
 
-        VkBuffer vertexBuffers[] = {vulkanVertexBuffer->getVkBuffer()};
+        VkBuffer vertexBuffers[] = {vulkanVertexBuffer->getVulkanBuffer().getVkBuffer()};
         VkDeviceSize vertexBufferOffsets[] = {0};
         constexpr uint32_t firstBinding = 0;
         constexpr uint32_t bindingCount = 1;
@@ -288,7 +288,7 @@ namespace Vulkandemo {
 
         constexpr VkDeviceSize indexBufferOffset = 0;
         constexpr VkIndexType indexType = VK_INDEX_TYPE_UINT16;
-        vkCmdBindIndexBuffer(vulkanCommandBuffer.getCommandBuffer(), vulkanIndexBuffer->getVkBuffer(), indexBufferOffset, indexType);
+        vkCmdBindIndexBuffer(vulkanCommandBuffer.getCommandBuffer(), vulkanIndexBuffer->getVulkanBuffer().getVkBuffer(), indexBufferOffset, indexType);
 
         constexpr uint32_t instanceCount = 1;
         constexpr uint32_t firstVertex = 0;

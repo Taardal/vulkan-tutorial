@@ -22,8 +22,8 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not create Vulkan command pool");
             return false;
         }
-        VD_LOG_INFO("Created Vulkan command pool");
 
+        VD_LOG_INFO("Created Vulkan command pool");
         return true;
     }
 

@@ -28,6 +28,8 @@ add_executable(
         ${SRC_DIR}/Vertex.h
         ${SRC_DIR}/Vulkan.cpp
         ${SRC_DIR}/Vulkan.h
+        ${SRC_DIR}/VulkanBuffer.cpp
+        ${SRC_DIR}/VulkanBuffer.h
         ${SRC_DIR}/VulkanCommandPool.cpp
         ${SRC_DIR}/VulkanCommandPool.h
         ${SRC_DIR}/VulkanCommandBuffer.cpp
@@ -38,6 +40,8 @@ add_executable(
         ${SRC_DIR}/VulkanFramebuffer.h
         ${SRC_DIR}/VulkanGraphicsPipeline.cpp
         ${SRC_DIR}/VulkanGraphicsPipeline.h
+        ${SRC_DIR}/VulkanIndexBuffer.cpp
+        ${SRC_DIR}/VulkanIndexBuffer.h
         ${SRC_DIR}/VulkanPhysicalDevice.cpp
         ${SRC_DIR}/VulkanPhysicalDevice.h
         ${SRC_DIR}/VulkanRenderPass.cpp
@@ -48,8 +52,6 @@ add_executable(
         ${SRC_DIR}/VulkanSwapChain.h
         ${SRC_DIR}/VulkanVertexBuffer.cpp
         ${SRC_DIR}/VulkanVertexBuffer.h
-        ${SRC_DIR}/VulkanIndexBuffer.cpp
-        ${SRC_DIR}/VulkanIndexBuffer.h
         ${SRC_DIR}/Window.cpp
         ${SRC_DIR}/Window.h
 )
