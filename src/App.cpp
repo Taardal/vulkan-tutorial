@@ -249,16 +249,28 @@ namespace Vulkandemo {
         return true;
     }
 
-    uint32_t App::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags) const {
+    uint32_t App::findMemoryType(uint32_t suitableMemoryTypeBits, VkMemoryPropertyFlags propertyFlags) const {
         VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
         vkGetPhysicalDeviceMemoryProperties(vulkanPhysicalDevice->getPhysicalDevice(), &physicalDeviceMemoryProperties);
+        for (uint32_t memoryTypeIndex = 0; memoryTypeIndex < physicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
+            /*
+             * The suitableMemoryTypeBits parameter will be used to specify the bit field of memory types that are suitable. 
+             * That means that we can find the index of a suitable memory type by simply iterating over them and checking if the corresponding bit is set to 1. 
+             */
+            bool isSuitableType = (suitableMemoryTypeBits & (1 << memoryTypeIndex)) > 0;
 
-        for (uint32_t i = 0; i < physicalDeviceMemoryProperties.memoryTypeCount; i++) {
-            if ((typeFilter & (1 << i)) && (physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & propertyFlags) == propertyFlags) {
-                return i;
+            /*
+             * However, we're not just interested in a memory type that is suitable for the buffer. We also need to ensure that it has the necessary properties
+             * The memoryTypes array consists of VkMemoryType structs that specify the heap and properties of each type of memory.
+             */
+            VkMemoryType& memoryType = physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex];
+            bool hasNecessaryProperties = (memoryType.propertyFlags & propertyFlags) == propertyFlags;
+            
+            if (isSuitableType && hasNecessaryProperties) {
+                return memoryTypeIndex;
             }
         }
-        VD_LOG_ERROR("Could not find memory type [{}]", typeFilter);
+        VD_LOG_ERROR("Could not find memory type [{}]", suitableMemoryTypeBits);
         return -1;
     }
 

@@ -82,7 +82,7 @@ namespace Vulkandemo {
 
         bool createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkBuffer& buffer, VkDeviceMemory& bufferDeviceMemory);
 
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags) const;
+        uint32_t findMemoryType(uint32_t suitableMemoryTypeBits, VkMemoryPropertyFlags propertyFlags) const;
 
         void terminateIndexBuffer();
 
