@@ -24,25 +24,19 @@ namespace Vulkandemo {
             return false;
         }
 
-        void* memory;
-        constexpr VkDeviceSize stagingBufferMemoryOffset = 0;
-        constexpr VkMemoryMapFlags stagingBufferMemoryMapFlags = 0;
-        vkMapMemory(vulkanDevice->getDevice(), stagingBuffer.getVkDeviceMemory(), stagingBufferMemoryOffset, bufferSize, stagingBufferMemoryMapFlags, &memory);
-        memcpy(memory, vertices.data(), (size_t) bufferSize);
-        vkUnmapMemory(vulkanDevice->getDevice(), stagingBuffer.getVkDeviceMemory());
-
         VulkanBuffer::Config bufferConfig{};
         bufferConfig.Size = bufferSize;
         bufferConfig.Usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
         bufferConfig.MemoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         if (!buffer.initialize(bufferConfig)) {
-            VD_LOG_ERROR("Could not initialize index buffer");
+            VD_LOG_ERROR("Could not initialize vertex buffer");
             return false;
         }
 
+        stagingBuffer.setData((void*) vertices.data());
         VulkanBuffer::copy(stagingBuffer, buffer, *vulkanCommandPool, *vulkanDevice);
-        VD_LOG_INFO("Copied staging buffer to buffer for vertex buffer");
+        VD_LOG_INFO("Copied vertices to vertex buffer");
 
         stagingBuffer.terminate();
         VD_LOG_INFO("Terminated staging buffer for vertex buffer");

@@ -24,13 +24,6 @@ namespace Vulkandemo {
             return false;
         }
 
-        void* memory;
-        constexpr VkDeviceSize stagingBufferMemoryOffset = 0;
-        constexpr VkMemoryMapFlags stagingBufferMemoryMapFlags = 0;
-        vkMapMemory(vulkanDevice->getDevice(), stagingBuffer.getVkDeviceMemory(), stagingBufferMemoryOffset, bufferSize, stagingBufferMemoryMapFlags, &memory);
-        memcpy(memory, indices.data(), (size_t) bufferSize);
-        vkUnmapMemory(vulkanDevice->getDevice(), stagingBuffer.getVkDeviceMemory());
-
         VulkanBuffer::Config bufferConfig{};
         bufferConfig.Size = bufferSize;
         bufferConfig.Usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
@@ -41,8 +34,9 @@ namespace Vulkandemo {
             return false;
         }
 
+        stagingBuffer.setData((void*) indices.data());
         VulkanBuffer::copy(stagingBuffer, buffer, *vulkanCommandPool, *vulkanDevice);
-        VD_LOG_INFO("Copied staging buffer to buffer for index buffer");
+        VD_LOG_INFO("Copied indices to index buffer");
 
         stagingBuffer.terminate();
         VD_LOG_INFO("Terminated staging buffer for index buffer");

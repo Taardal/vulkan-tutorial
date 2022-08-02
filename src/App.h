@@ -49,11 +49,10 @@ namespace Vulkandemo {
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
-        uint32_t currentFrame = 0;
-        bool windowResized = false;
-
         VulkanVertexBuffer* vulkanVertexBuffer;
         VulkanIndexBuffer* vulkanIndexBuffer;
+        uint32_t currentFrame = 0;
+        bool windowResized = false;
 
         const std::vector<Vertex> vertices = {
                 {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},

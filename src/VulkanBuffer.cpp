@@ -64,6 +64,15 @@ namespace Vulkandemo {
         VD_LOG_INFO("Terminated Vulkan buffer");
     }
 
+    void VulkanBuffer::setData(void* data) const {
+        void* memory;
+        constexpr VkDeviceSize memoryOffset = 0;
+        constexpr VkMemoryMapFlags memoryMapFlags = 0;
+        vkMapMemory(vulkanDevice->getDevice(), vkDeviceMemory, memoryOffset, config.Size, memoryMapFlags, &memory);
+        memcpy(memory, data, config.Size);
+        vkUnmapMemory(vulkanDevice->getDevice(), vkDeviceMemory);
+    }
+
     uint32_t VulkanBuffer::findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const {
         VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
         vkGetPhysicalDeviceMemoryProperties(vulkanPhysicalDevice->getPhysicalDevice(), &physicalDeviceMemoryProperties);
@@ -91,14 +100,14 @@ namespace Vulkandemo {
 
     void VulkanBuffer::copy(const VulkanBuffer& sourceBuffer, const VulkanBuffer& destinationBuffer, const VulkanCommandPool& commandPool, const VulkanDevice& vulkanDevice) {
         VD_ASSERT(sourceBuffer.config.Size == destinationBuffer.config.Size);
-        
+
         constexpr uint32_t commandBufferCount = 1;
         const std::vector<VulkanCommandBuffer>& commandBuffers = commandPool.allocateCommandBuffers(commandBufferCount);
         VD_ASSERT(commandBuffers.size() == commandBufferCount);
 
         const VulkanCommandBuffer& commandBuffer = commandBuffers[0];
         VkCommandBuffer vkCommandBuffer = commandBuffer.getCommandBuffer();
-        
+
         VkCommandBufferBeginInfo commandBufferBeginInfo{};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
