@@ -52,6 +52,8 @@ add_executable(
         ${SRC_DIR}/VulkanSwapChain.h
         ${SRC_DIR}/VulkanVertexBuffer.cpp
         ${SRC_DIR}/VulkanVertexBuffer.h
+        ${SRC_DIR}/VulkanUniformBuffer.cpp
+        ${SRC_DIR}/VulkanUniformBuffer.h
         ${SRC_DIR}/Window.cpp
         ${SRC_DIR}/Window.h
 )

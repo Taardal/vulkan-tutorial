@@ -23,7 +23,11 @@ namespace Vulkandemo {
     public:
         VulkanGraphicsPipeline(VulkanRenderPass* vulkanRenderPass, VulkanSwapChain* vulkanSwapChain, VulkanDevice* vulkanDevice);
 
-        bool initialize(const VulkanShader& vertexShader, const VulkanShader& fragmentShader);
+        const VkPipelineLayout getPipelineLayout() const;
+
+        const VkPipeline getPipeline() const;
+
+        bool initialize(const VulkanShader& vertexShader, const VulkanShader& fragmentShader, VkDescriptorSetLayout descriptorSetLayout);
 
         void terminate();
 

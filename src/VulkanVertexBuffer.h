@@ -12,8 +12,8 @@ namespace Vulkandemo {
 
     class VulkanVertexBuffer {
     private:
-        VulkanDevice* vulkanDevice;
         VulkanPhysicalDevice* vulkanPhysicalDevice;
+        VulkanDevice* vulkanDevice;
         VulkanCommandPool* vulkanCommandPool;
         VulkanBuffer buffer;
 
