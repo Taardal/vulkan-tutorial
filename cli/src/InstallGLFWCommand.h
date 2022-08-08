@@ -2,7 +2,6 @@
 
 #include <cli.h>
 
-namespace VulkandemoCLI
-{
+namespace VulkandemoCLI {
     CLI::Command createInstallGLFWCommand();
 }

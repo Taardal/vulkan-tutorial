@@ -11,6 +11,8 @@ set(EXE_NAME vd)
 add_executable(
         ${PROJECT_NAME}
         ${SRC_DIR}/main.cpp
+        ${SRC_DIR}/AddLibraryCommand.cpp
+        ${SRC_DIR}/AddLibraryCommand.h
         ${SRC_DIR}/BuildProjectCommand.cpp
         ${SRC_DIR}/BuildProjectCommand.h
         ${SRC_DIR}/CompileShadersCommand.cpp

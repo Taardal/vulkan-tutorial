@@ -12,6 +12,6 @@ namespace CLI {
         std::string_view DefaultValue;
         std::vector<std::string_view> Aliases;
 
-        std::string_view getValue() const;
+        std::string_view getValueOrDefault() const;
     };
 }

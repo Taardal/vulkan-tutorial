@@ -22,4 +22,14 @@ namespace VulkandemoCLI {
         inputStream.close();
         return result;
     }
+
+    void FileSystem::appendTextToFile(std::string_view text, std::string_view filepath) const {
+        std::ofstream fileStream(filepath, std::ios_base::app | std::ios_base::out);
+        if (!fileStream) {
+            printf("Could not open file [%s]\n", filepath.data());
+            return;
+        }
+        fileStream << text;
+        fileStream.close();
+    }
 }
