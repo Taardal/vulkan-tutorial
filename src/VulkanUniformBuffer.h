@@ -6,16 +6,8 @@
 
 namespace Vulkandemo {
 
-    struct UniformBufferObject {
-        alignas(16) glm::mat4 model;
-        alignas(16) glm::mat4 view;
-        alignas(16) glm::mat4 proj;
-    };
-
     class VulkanUniformBuffer {
     private:
-        VulkanPhysicalDevice* vulkanPhysicalDevice;
-        VulkanDevice* vulkanDevice;
         VulkanBuffer buffer;
 
     public:
@@ -23,11 +15,11 @@ namespace Vulkandemo {
 
         const VulkanBuffer& getBuffer() const;
 
-        bool initialize();
+        bool initialize(uint32_t bufferSize);
 
         void terminate();
 
-        void setData(const UniformBufferObject& data) const;
+        void setData(void* data) const;
     };
 
 }

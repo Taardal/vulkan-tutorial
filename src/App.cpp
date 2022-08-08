@@ -54,7 +54,7 @@ namespace Vulkandemo {
         VD_LOG_INFO("Running...");
         while (!window->shouldClose()) {
             window->pollEvents();
-            updateUniformBuffer();
+            update();
             drawFrame();
         }
         vulkanDevice->waitUntilIdle();
@@ -143,7 +143,7 @@ namespace Vulkandemo {
     bool App::initializeUniformBuffers() {
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             VulkanUniformBuffer uniformBuffer(vulkanPhysicalDevice, vulkanDevice);
-            if (!uniformBuffer.initialize()) {
+            if (!uniformBuffer.initialize(sizeof(CameraUniform))) {
                 VD_LOG_ERROR("Could not initialize uniform buffer for frame [{}]", i);
                 return false;
             }
@@ -215,7 +215,7 @@ namespace Vulkandemo {
             VkDescriptorBufferInfo bufferInfo{};
             bufferInfo.buffer = uniformBuffer.getBuffer().getVkBuffer();
             bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
+            bufferInfo.range = sizeof(CameraUniform);
 
             VkWriteDescriptorSet descriptorWrite{};
             descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -228,7 +228,7 @@ namespace Vulkandemo {
 
             constexpr uint32_t descriptorWriteCount = 1;
             constexpr uint32_t descriptorCopyCount = 0;
-            VkCopyDescriptorSet* descriptorCopies = nullptr;
+            constexpr VkCopyDescriptorSet* descriptorCopies = nullptr;
             vkUpdateDescriptorSets(vulkanDevice->getDevice(), descriptorWriteCount, &descriptorWrite, descriptorCopyCount, descriptorCopies);
         }
         
@@ -306,11 +306,11 @@ namespace Vulkandemo {
         terminateSyncObjects();
         terminateRenderingObjects();
 
-        terminateUniformBuffers();
-
         VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
         vkDestroyDescriptorPool(vulkanDevice->getDevice(), descriptorPool, allocationCallbacks);
         vkDestroyDescriptorSetLayout(vulkanDevice->getDevice(), descriptorSetLayout, allocationCallbacks);
+
+        terminateUniformBuffers();
 
         vulkanIndexBuffer->terminate();
         vulkanVertexBuffer->terminate();
@@ -365,7 +365,7 @@ namespace Vulkandemo {
     void App::drawFrame() {
 
         /*
-         * Preparation
+         * Frame acquisition
          */
 
         // Wait until the previous frame has finished
@@ -403,7 +403,7 @@ namespace Vulkandemo {
         vkResetFences(vulkanDevice->getDevice(), fenceCount, &inFlightFence);
 
         /*
-         * Recording
+         * Command recording
          */
 
         const VulkanCommandBuffer& vulkanCommandBuffer = vulkanCommandBuffers[currentFrame];
@@ -446,7 +446,7 @@ namespace Vulkandemo {
         }
 
         /*
-         * Submission
+         * Command submission
          */
 
         VkSubmitInfo submitInfo{};
@@ -477,7 +477,7 @@ namespace Vulkandemo {
         }
 
         /*
-         * Presentation
+         * Frame presentation
          */
 
         VkPresentInfoKHR presentInfo{};
@@ -506,29 +506,29 @@ namespace Vulkandemo {
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
-    void App::updateUniformBuffer() {
+    void App::update() {
         static auto startTime = std::chrono::high_resolution_clock::now();
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-        UniformBufferObject ubo{};
+        CameraUniform cameraUniform{};
 
         const auto& modelTransform = glm::mat4(1.0f);
         float rotationAngle = time * glm::radians(90.0f);
         const auto& rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
-        ubo.model = glm::rotate(modelTransform, rotationAngle, rotationAxis);
+        cameraUniform.model = glm::rotate(modelTransform, rotationAngle, rotationAxis);
 
         const auto& eyeTransform = glm::vec3(2.0f, 2.0f, 2.0f);
         const auto& centerTransform = glm::vec3(0.0f, 0.0f, 0.0f);
         const auto& upAxis = glm::vec3(0.0f, 0.0f, 1.0f);
-        ubo.view = glm::lookAt(eyeTransform, centerTransform, upAxis);
+        cameraUniform.view = glm::lookAt(eyeTransform, centerTransform, upAxis);
 
         float fieldOfView = glm::radians(45.0f);
         float aspectRatio = (float) vulkanSwapChain->getExtent().width / (float) vulkanSwapChain->getExtent().height;
         float nearViewPlane = 0.1f;
         float farViewPlane = 10.0f;
-        ubo.proj = glm::perspective(fieldOfView, aspectRatio, nearViewPlane, farViewPlane);
+        cameraUniform.projection = glm::perspective(fieldOfView, aspectRatio, nearViewPlane, farViewPlane);
 
         /*
          * GLM was originally designed for OpenGL, where the Y coordinate of the clip coordinates is inverted.
@@ -537,16 +537,16 @@ namespace Vulkandemo {
          *
          * This change causes the vertices to be drawn in counter-clockwise order instead of clockwise order.
          * This causes backface culling to kick in and prevents any geometry from being drawn.
-         * To fix this the graphics pipeline's rasterization state should have a front-facing triangle orientation to be used for culling.
+         * To fix this the graphics pipeline's rasterization state should have a counter clockwise front-facing triangle orientation to be used for culling.
          *
          * VkPipelineRasterizationStateCreateInfo rasterizationState{};
          * rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
          * rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
          */
-        ubo.proj[1][1] *= -1;
+        cameraUniform.projection[1][1] *= -1;
 
         const VulkanUniformBuffer& uniformBuffer = uniformBuffers[currentFrame];
-        uniformBuffer.setData(ubo);
+        uniformBuffer.setData((void*) &cameraUniform);
     }
 
 }

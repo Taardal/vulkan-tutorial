@@ -23,6 +23,12 @@
 
 namespace Vulkandemo {
 
+    struct CameraUniform {
+        alignas(16) glm::mat4 model;
+        alignas(16) glm::mat4 view;
+        alignas(16) glm::mat4 projection;
+    };
+
     class App {
     public:
         struct Config {
@@ -109,7 +115,7 @@ namespace Vulkandemo {
 
         void drawFrame();
 
-        void updateUniformBuffer();
+        void update();
     };
 
 }

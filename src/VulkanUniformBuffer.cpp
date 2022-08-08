@@ -3,16 +3,13 @@
 
 namespace Vulkandemo {
 
-    VulkanUniformBuffer::VulkanUniformBuffer(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice)
-            : vulkanPhysicalDevice(vulkanPhysicalDevice), vulkanDevice(vulkanDevice), buffer(vulkanPhysicalDevice, vulkanDevice) {}
+    VulkanUniformBuffer::VulkanUniformBuffer(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice) : buffer(vulkanPhysicalDevice, vulkanDevice) {}
 
     const VulkanBuffer& VulkanUniformBuffer::getBuffer() const {
         return buffer;
     }
 
-    bool VulkanUniformBuffer::initialize() {
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
+    bool VulkanUniformBuffer::initialize(uint32_t bufferSize) {
         VulkanBuffer::Config bufferConfig{};
         bufferConfig.Size = bufferSize;
         bufferConfig.Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
@@ -31,8 +28,8 @@ namespace Vulkandemo {
         buffer.terminate();
     }
 
-    void VulkanUniformBuffer::setData(const UniformBufferObject& data) const {
-        buffer.setData((void*) &data);
+    void VulkanUniformBuffer::setData(void* data) const {
+        buffer.setData(data);
     }
 
 }
