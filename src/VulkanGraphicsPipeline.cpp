@@ -1,5 +1,6 @@
 #include "VulkanGraphicsPipeline.h"
 #include "Log.h"
+#include "Vertex.h"
 
 namespace Vulkandemo {
 
@@ -9,7 +10,15 @@ namespace Vulkandemo {
         : vulkanRenderPass(vulkanRenderPass), vulkanSwapChain(vulkanSwapChain), vulkanDevice(vulkanDevice) {
     }
 
-    bool VulkanGraphicsPipeline::initialize(const VulkanShader& vertexShader, const VulkanShader& fragmentShader) {
+    const VkPipeline VulkanGraphicsPipeline::getPipeline() const {
+        return pipeline;
+    }
+
+    const VkPipelineLayout VulkanGraphicsPipeline::getPipelineLayout() const {
+        return pipelineLayout;
+    }
+
+    bool VulkanGraphicsPipeline::initialize(const VulkanShader& vertexShader, const VulkanShader& fragmentShader, VkDescriptorSetLayout descriptorSetLayout) {
 
         VkPipelineShaderStageCreateInfo vertexShaderStageInfo{};
         vertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -28,12 +37,15 @@ namespace Vulkandemo {
                 fragmentShaderStageInfo
         };
 
+        VkVertexInputBindingDescription bindingDescription = Vertex::getBindingDescription();
+        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = Vertex::getAttributeDescriptions();
+
         VkPipelineVertexInputStateCreateInfo vertexInputState{};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputState.pVertexBindingDescriptions = nullptr;
-        vertexInputState.vertexBindingDescriptionCount = 0;
-        vertexInputState.pVertexAttributeDescriptions = nullptr;
-        vertexInputState.vertexAttributeDescriptionCount = 0;
+        vertexInputState.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputState.vertexBindingDescriptionCount = 1;
+        vertexInputState.pVertexAttributeDescriptions = attributeDescriptions.data();
+        vertexInputState.vertexAttributeDescriptionCount = attributeDescriptions.size();
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyState{};
         inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -66,7 +78,7 @@ namespace Vulkandemo {
         rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizationState.lineWidth = 1.0f;
         rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizationState.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizationState.depthBiasEnable = VK_FALSE;
         rasterizationState.depthBiasConstantFactor = 0.0f;
         rasterizationState.depthBiasClamp = 0.0f;
@@ -104,8 +116,8 @@ namespace Vulkandemo {
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0;
-        pipelineLayoutInfo.pSetLayouts = nullptr;
+        pipelineLayoutInfo.setLayoutCount = 1;
+        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
