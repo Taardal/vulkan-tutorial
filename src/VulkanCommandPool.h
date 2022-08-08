@@ -16,18 +16,20 @@ namespace Vulkandemo {
     private:
         VulkanPhysicalDevice* vulkanPhysicalDevice;
         VulkanDevice* vulkanDevice;
-        VkCommandPool commandPool = VK_NULL_HANDLE;
+        VkCommandPool vkCommandPool = VK_NULL_HANDLE;
 
     public:
         VulkanCommandPool(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice);
 
-        const VkCommandPool getCommandPool() const;
+        const VkCommandPool getVkCommandPool() const;
 
         bool initialize();
 
         void terminate();
 
         std::vector<VulkanCommandBuffer> allocateCommandBuffers(uint32_t count) const;
+
+        void free(const VulkanCommandBuffer& commandBuffer) const;
     };
 
 }

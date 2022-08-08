@@ -39,8 +39,5 @@ namespace Vulkandemo {
         void setData(void* data) const;
 
         static void copy(const VulkanBuffer& sourceBuffer, const VulkanBuffer& destinationBuffer, const VulkanCommandPool& commandPool, const VulkanDevice& vulkanDevice);
-
-    private:
-        uint32_t findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const;
     };
 }

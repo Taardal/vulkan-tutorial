@@ -239,4 +239,29 @@ namespace Vulkandemo {
         }
     }
 
+    uint32_t VulkanPhysicalDevice::findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const {
+        VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
+        vkGetPhysicalDeviceMemoryProperties(deviceInfo.PhysicalDevice, &physicalDeviceMemoryProperties);
+        for (uint32_t memoryTypeIndex = 0; memoryTypeIndex < physicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
+            /*
+             * The memoryTypeBits parameter will be used to specify the bit field of memory types that are suitable.
+             * That means that we can find the index of a suitable memory type by simply iterating over them and checking if the corresponding bit is set to 1.
+             */
+            bool isSuitableType = (memoryTypeBits & (1 << memoryTypeIndex)) > 0;
+
+            /*
+             * However, we're not just interested in a memory type that is suitable for the buffer. We also need to ensure that it has the necessary properties
+             * The memoryTypes array consists of VkMemoryType structs that specify the heap and properties of each type of memory.
+             */
+            VkMemoryType& memoryType = physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex];
+            bool hasNecessaryProperties = (memoryType.propertyFlags & memoryPropertyFlags) == memoryPropertyFlags;
+
+            if (isSuitableType && hasNecessaryProperties) {
+                return memoryTypeIndex;
+            }
+        }
+        VD_LOG_WARN("Could not find memory type [{}]", memoryTypeBits);
+        return -1;
+    }
+
 }

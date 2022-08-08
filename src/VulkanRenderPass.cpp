@@ -80,11 +80,11 @@ namespace Vulkandemo {
         renderPassInfo.pClearValues = &clearColor;
         renderPassInfo.clearValueCount = 1;
 
-        vkCmdBeginRenderPass(vulkanCommandBuffer.getCommandBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(vulkanCommandBuffer.getVkCommandBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     }
 
     void VulkanRenderPass::end(const VulkanCommandBuffer& vulkanCommandBuffer) const {
-        vkCmdEndRenderPass(vulkanCommandBuffer.getCommandBuffer());
+        vkCmdEndRenderPass(vulkanCommandBuffer.getVkCommandBuffer());
     }
 
 }

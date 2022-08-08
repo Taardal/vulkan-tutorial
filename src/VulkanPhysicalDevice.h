@@ -49,11 +49,13 @@ namespace Vulkandemo {
 
         const SwapChainInfo& getSwapChainInfo() const;
 
-        void updateSwapChainInfo();
-
         const std::vector<const char*>& getExtensions() const;
 
         bool initialize();
+
+        void updateSwapChainInfo();
+
+        uint32_t findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const;
 
     private:
         std::vector<DeviceInfo> findAvailableDevices() const;

@@ -165,6 +165,6 @@ namespace Vulkandemo {
     }
 
     void VulkanGraphicsPipeline::bind(const VulkanCommandBuffer& vulkanCommandBuffer) const {
-        vkCmdBindPipeline(vulkanCommandBuffer.getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        vkCmdBindPipeline(vulkanCommandBuffer.getVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 }

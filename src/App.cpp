@@ -7,6 +7,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <chrono>
 
 namespace Vulkandemo {
@@ -21,6 +24,7 @@ namespace Vulkandemo {
               vulkanPhysicalDevice(new VulkanPhysicalDevice(vulkan)),
               vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)),
               vulkanCommandPool(new VulkanCommandPool(vulkanPhysicalDevice, vulkanDevice)),
+              vulkanTextureImage(new VulkanImage(vulkanPhysicalDevice, vulkanDevice)),
               vertexShader(new VulkanShader(vulkanDevice)),
               fragmentShader(new VulkanShader(vulkanDevice)),
               vulkanVertexBuffer(new VulkanVertexBuffer(vulkanPhysicalDevice, vulkanDevice, vulkanCommandPool)),
@@ -38,6 +42,7 @@ namespace Vulkandemo {
         delete vulkanVertexBuffer;
         delete fragmentShader;
         delete vertexShader;
+        delete vulkanTextureImage;
         delete vulkanCommandPool;
         delete vulkanDevice;
         delete vulkanPhysicalDevice;
@@ -97,6 +102,10 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize Vulkan command buffers");
             return false;
         }
+        if (!initializeTextureImage()) {
+            VD_LOG_ERROR("Could not initialize texture image");
+            return false;
+        }
         if (!vertexShader->initialize(fileSystem->readBytes("shaders/simple_shader.vert.spv"))) {
             VD_LOG_ERROR("Could not initialize vertex shader");
             return false;
@@ -138,6 +147,208 @@ namespace Vulkandemo {
             return false;
         }
         return true;
+    }
+
+    bool App::initializeTextureImage() {
+
+        /*
+         * Load image texels
+         */
+
+        int width;
+        int height;
+        int channels;
+        int desiredChannels = STBI_rgb_alpha;
+        stbi_uc* pixels = stbi_load("textures/texture.jpeg", &width, &height, &channels, desiredChannels);
+
+        if (!pixels) {
+            VD_LOG_ERROR("Could not load texture image");
+            return false;
+        }
+
+        /*
+         * Copy image texels to staging stagingBuffer
+         */
+
+        VkDeviceSize imageSize = width * height * desiredChannels;
+        VulkanBuffer stagingBuffer(vulkanPhysicalDevice, vulkanDevice);
+
+        VulkanBuffer::Config stagingBufferConfig{};
+        stagingBufferConfig.Size = imageSize;
+        stagingBufferConfig.Usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        stagingBufferConfig.MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+        if (!stagingBuffer.initialize(stagingBufferConfig)) {
+            VD_LOG_ERROR("Could not initialize texture image stagingBuffer");
+            return false;
+        }
+
+        stagingBuffer.setData(pixels);
+        stbi_image_free(pixels);
+
+        /*
+         * Copy image texelse from staging stagingBuffer to image stagingBuffer
+         */
+
+        VulkanImage::Config textureImageConfig{};
+        textureImageConfig.Width = width;
+        textureImageConfig.Height = height;
+        textureImageConfig.Usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        textureImageConfig.Format = VK_FORMAT_R8G8B8A8_SRGB;
+        textureImageConfig.Tiling = VK_IMAGE_TILING_OPTIMAL;
+        textureImageConfig.MemoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        textureImageConfig.Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        if (!vulkanTextureImage->initialize(textureImageConfig)) {
+            VD_LOG_ERROR("Could not initialize texture image");
+            return false;
+        }
+
+        VkImage textureImage = vulkanTextureImage->getVkImage();
+        transitionImageLayout(textureImage, textureImageConfig.Format, textureImageConfig.Layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        copyBufferToImage(stagingBuffer.getVkBuffer(), textureImage, (uint32_t) width, (uint32_t) height);
+        transitionImageLayout(textureImage, textureImageConfig.Format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        stagingBuffer.terminate();
+
+        VD_LOG_INFO("Initialized texture image");
+        return true;
+    }
+
+    void App::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const {
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.oldLayout = oldLayout;
+        imageMemoryBarrier.newLayout = newLayout;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.image = image;
+        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+        imageMemoryBarrier.subresourceRange.levelCount = 1;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+        imageMemoryBarrier.subresourceRange.layerCount = 1;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = 0;
+
+        VkPipelineStageFlags sourceStage;
+        VkPipelineStageFlags destinationStage;
+
+        if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+            imageMemoryBarrier.srcAccessMask = 0;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+            imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        } else {
+            throw std::invalid_argument("Unsupported layout transition!");
+        }
+
+        constexpr VkDependencyFlags dependencyFlags = 0;
+        constexpr uint32_t memoryBarrierCount = 0;
+        constexpr VkMemoryBarrier* memoryBarriers = VK_NULL_HANDLE;
+        constexpr uint32_t bufferMemoryBarrierCount = 0;
+        constexpr VkBufferMemoryBarrier* bufferMemoryBarriers = VK_NULL_HANDLE;
+        constexpr uint32_t imageMemoryBarrierCount = 1;
+        vkCmdPipelineBarrier(
+                commandBuffer,
+                sourceStage,
+                destinationStage,
+                dependencyFlags,
+                memoryBarrierCount,
+                memoryBarriers,
+                bufferMemoryBarrierCount,
+                bufferMemoryBarriers,
+                imageMemoryBarrierCount,
+                &imageMemoryBarrier
+        );
+
+        endSingleTimeCommands(commandBuffer);
+    }
+
+    void App::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const {
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+        VkBufferImageCopy region{};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
+
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
+
+        region.imageOffset = {0, 0, 0};
+
+        constexpr uint32_t depth = 1;
+        region.imageExtent = { width, height, depth };
+
+        constexpr uint32_t regionCount = 1;
+        constexpr VkImageLayout imageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        vkCmdCopyBufferToImage(
+                commandBuffer,
+                buffer,
+                image,
+                imageLayout,
+                regionCount,
+                &region
+        );
+        
+        endSingleTimeCommands(commandBuffer);
+    }
+
+    /*
+     * TODO
+     *
+     * All of the helper functions that submit commands so far have been set up to execute synchronously by waiting for the queue to become idle.
+     *
+     * For practical applications it is recommended to combine these operations in a single command buffer and execute them asynchronously for higher throughput,
+     * especially the transitions and copy in the createTextureImage function.
+     *
+     * Try to experiment with this by creating a setupCommandBuffer that the helper functions record commands into,
+     * and add a flushSetupCommands to execute the commands that have been recorded so far.
+     *
+     * It's best to do this after the texture mapping works to check if the texture resources are still set up correctly.
+     */
+    VkCommandBuffer App::beginSingleTimeCommands() const {
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandPool = vulkanCommandPool->getVkCommandPool();
+        allocInfo.commandBufferCount = 1;
+
+        VkCommandBuffer commandBuffer;
+        vkAllocateCommandBuffers(vulkanDevice->getDevice(), &allocInfo, &commandBuffer);
+
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        return commandBuffer;
+    }
+
+    void App::endSingleTimeCommands(VkCommandBuffer commandBuffer) const {
+        vkEndCommandBuffer(commandBuffer);
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+
+        VkFence fence = VK_NULL_HANDLE;
+        constexpr uint32_t submitCount = 1;
+        vkQueueSubmit(vulkanDevice->getGraphicsQueue(), submitCount, &submitInfo, fence);
+        vkQueueWaitIdle(vulkanDevice->getGraphicsQueue());
+
+        vkFreeCommandBuffers(vulkanDevice->getDevice(), vulkanCommandPool->getVkCommandPool(), submitInfo.commandBufferCount, &commandBuffer);
     }
 
     bool App::initializeUniformBuffers() {
@@ -231,7 +442,7 @@ namespace Vulkandemo {
             constexpr VkCopyDescriptorSet* descriptorCopies = nullptr;
             vkUpdateDescriptorSets(vulkanDevice->getDevice(), descriptorWriteCount, &descriptorWrite, descriptorCopyCount, descriptorCopies);
         }
-        
+
         VD_LOG_INFO("Initialized descriptor sets");
         return true;
     }
@@ -316,6 +527,7 @@ namespace Vulkandemo {
         vulkanVertexBuffer->terminate();
         fragmentShader->terminate();
         vertexShader->terminate();
+        vulkanTextureImage->terminate();
         vulkanCommandPool->terminate();
         vulkanDevice->terminate();
         vulkan->terminate();
@@ -417,11 +629,11 @@ namespace Vulkandemo {
         VkDeviceSize vertexBufferOffsets[] = {0};
         constexpr uint32_t firstBinding = 0;
         constexpr uint32_t bindingCount = 1;
-        vkCmdBindVertexBuffers(vulkanCommandBuffer.getCommandBuffer(), firstBinding, bindingCount, vertexBuffers, vertexBufferOffsets);
+        vkCmdBindVertexBuffers(vulkanCommandBuffer.getVkCommandBuffer(), firstBinding, bindingCount, vertexBuffers, vertexBufferOffsets);
 
         constexpr VkDeviceSize indexBufferOffset = 0;
         constexpr VkIndexType indexType = VK_INDEX_TYPE_UINT16;
-        vkCmdBindIndexBuffer(vulkanCommandBuffer.getCommandBuffer(), vulkanIndexBuffer->getVulkanBuffer().getVkBuffer(), indexBufferOffset, indexType);
+        vkCmdBindIndexBuffer(vulkanCommandBuffer.getVkCommandBuffer(), vulkanIndexBuffer->getVulkanBuffer().getVkBuffer(), indexBufferOffset, indexType);
 
         VkDescriptorSet descriptorSet = descriptorSets[currentFrame];
         VkPipelineBindPoint pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -430,13 +642,13 @@ namespace Vulkandemo {
         constexpr uint32_t descriptorSetCount = 1;
         constexpr uint32_t dynamicOffsetCount = 0;
         constexpr uint32_t* dynamicOffsets = nullptr;
-        vkCmdBindDescriptorSets(vulkanCommandBuffer.getCommandBuffer(), pipelineBindPoint, pipelineLayout, firstSet, descriptorSetCount, &descriptorSet, dynamicOffsetCount, dynamicOffsets);
-        
+        vkCmdBindDescriptorSets(vulkanCommandBuffer.getVkCommandBuffer(), pipelineBindPoint, pipelineLayout, firstSet, descriptorSetCount, &descriptorSet, dynamicOffsetCount, dynamicOffsets);
+
         constexpr uint32_t instanceCount = 1;
         constexpr uint32_t firstVertex = 0;
         constexpr int32_t vertexOffset = 0;
         constexpr uint32_t firstInstance = 0;
-        vkCmdDrawIndexed(vulkanCommandBuffer.getCommandBuffer(), (uint32_t) indices.size(), instanceCount, firstVertex, vertexOffset, firstInstance);
+        vkCmdDrawIndexed(vulkanCommandBuffer.getVkCommandBuffer(), (uint32_t) indices.size(), instanceCount, firstVertex, vertexOffset, firstInstance);
 
         vulkanRenderPass->end(vulkanCommandBuffer);
 
@@ -452,7 +664,7 @@ namespace Vulkandemo {
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkCommandBuffer vkCommandBuffer = vulkanCommandBuffer.getCommandBuffer();
+        VkCommandBuffer vkCommandBuffer = vulkanCommandBuffer.getVkCommandBuffer();
         submitInfo.pCommandBuffers = &vkCommandBuffer;
         submitInfo.commandBufferCount = 1;
 

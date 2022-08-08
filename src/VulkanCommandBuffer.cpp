@@ -8,13 +8,14 @@ namespace Vulkandemo {
     VulkanCommandBuffer::VulkanCommandBuffer(VkCommandBuffer commandBuffer) : commandBuffer(commandBuffer) {
     }
 
-    const VkCommandBuffer VulkanCommandBuffer::getCommandBuffer() const {
+    const VkCommandBuffer VulkanCommandBuffer::getVkCommandBuffer() const {
         return commandBuffer;
     }
 
-    bool VulkanCommandBuffer::begin() const {
+    bool VulkanCommandBuffer::begin(VkCommandBufferUsageFlags usageFlags) const {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = usageFlags;
 
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
             VD_LOG_ERROR("Could not begin Vulkan command buffer");
