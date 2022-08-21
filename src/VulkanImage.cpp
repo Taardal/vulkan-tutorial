@@ -4,9 +4,9 @@
 namespace Vulkandemo {
 
     VulkanImage::VulkanImage(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice)
-            : vulkanPhysicalDevice(vulkanPhysicalDevice), vulkanDevice(vulkanDevice) {}
+            : vulkanPhysicalDevice(vulkanPhysicalDevice), vulkanDevice(vulkanDevice), config() {}
 
-    const VkImage VulkanImage::getVkImage() const {
+    VkImage VulkanImage::getVkImage() const {
         return vkImage;
     }
 
@@ -40,12 +40,12 @@ namespace Vulkandemo {
 
         uint32_t memoryTypeIndex = vulkanPhysicalDevice->findMemoryType(memoryRequirements.memoryTypeBits, config.MemoryProperties);
 
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memoryRequirements.size;
-        allocInfo.memoryTypeIndex = memoryTypeIndex;
+        VkMemoryAllocateInfo memoryAllocateInfo{};
+        memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        memoryAllocateInfo.allocationSize = memoryRequirements.size;
+        memoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
 
-        if (vkAllocateMemory(vulkanDevice->getDevice(), &allocInfo, allocationCallbacks, &vkDeviceMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(vulkanDevice->getDevice(), &memoryAllocateInfo, allocationCallbacks, &vkDeviceMemory) != VK_SUCCESS) {
             VD_LOG_ERROR("Could not allocate Vulkan image memory");
             return false;
         }

@@ -63,10 +63,10 @@ namespace Vulkandemo {
         bool windowResized = false;
 
         const std::vector<Vertex> vertices = {
-                {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-                {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+                {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+                {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+                {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+                {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
         };
 
         const std::vector<uint16_t> indices = {
@@ -79,6 +79,8 @@ namespace Vulkandemo {
         std::vector<VkDescriptorSet> descriptorSets;
 
         VulkanImage* vulkanTextureImage;
+        VkImageView textureImageView;
+        VkSampler textureSampler;
 
     public:
         explicit App(Config config);
@@ -92,7 +94,11 @@ namespace Vulkandemo {
 
         bool initializeTextureImage();
 
-        void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
+        bool initializeTextureImageView();
+
+        bool initializeTextureSampler();
+
+        bool transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const;
 

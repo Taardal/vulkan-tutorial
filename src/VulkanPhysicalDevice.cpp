@@ -13,6 +13,10 @@ namespace Vulkandemo {
         return deviceInfo.PhysicalDevice;
     }
 
+    const VkPhysicalDeviceProperties& VulkanPhysicalDevice::getProperties() const {
+        return deviceInfo.Properties;
+    }
+
     const VkPhysicalDeviceFeatures& VulkanPhysicalDevice::getFeatures() const {
         return deviceInfo.Features;
     }
@@ -178,6 +182,10 @@ namespace Vulkandemo {
     }
 
     int VulkanPhysicalDevice::getSuitabilityRating(const VulkanPhysicalDevice::DeviceInfo& deviceInfo) const {
+        if (!hasRequiredFeatures(deviceInfo.Features)) {
+            VD_LOG_DEBUG("{0} does not have required device features", deviceInfo.Properties.deviceName);
+            return 0;
+        }
         if (!hasRequiredExtensions(deviceInfo.Extensions)) {
             VD_LOG_DEBUG("{0} does not have required device extensions", deviceInfo.Properties.deviceName);
             return 0;
@@ -195,6 +203,10 @@ namespace Vulkandemo {
             rating += 1000;
         }
         return rating;
+    }
+
+    bool VulkanPhysicalDevice::hasRequiredFeatures(const VkPhysicalDeviceFeatures& availableDeviceFeatures) const {
+        return availableDeviceFeatures.samplerAnisotropy;
     }
 
     bool VulkanPhysicalDevice::hasRequiredExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const {

@@ -28,7 +28,7 @@ namespace Vulkandemo {
     public:
         VulkanImage(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice);
 
-        const VkImage getVkImage() const;
+        VkImage getVkImage() const;
 
         bool initialize(const Config& config);
 

@@ -43,6 +43,8 @@ namespace Vulkandemo {
 
         VkPhysicalDevice getPhysicalDevice() const;
 
+        const VkPhysicalDeviceProperties& getProperties() const;
+
         const VkPhysicalDeviceFeatures& getFeatures() const;
 
         const QueueFamilyIndices& getQueueFamilyIndices() const;
@@ -73,6 +75,8 @@ namespace Vulkandemo {
         QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device) const;
 
         SwapChainInfo findSwapChainInfo(VkPhysicalDevice device) const;
+
+        bool hasRequiredFeatures(const VkPhysicalDeviceFeatures& availableDeviceFeatures) const;
 
         bool hasRequiredExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const;
 
