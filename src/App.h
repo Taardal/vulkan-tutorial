@@ -63,14 +63,20 @@ namespace Vulkandemo {
         bool windowResized = false;
 
         const std::vector<Vertex> vertices = {
-                {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-                {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-                {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-                {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+                {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+                {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+                {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+                {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
         };
 
         const std::vector<uint16_t> indices = {
-                0, 1, 2, 2, 3, 0
+                0, 1, 2, 2, 3, 0,
+                4, 5, 6, 6, 7, 4
         };
 
         std::vector<VulkanUniformBuffer> uniformBuffers;
@@ -82,6 +88,9 @@ namespace Vulkandemo {
         VkImageView textureImageView;
         VkSampler textureSampler;
 
+        VulkanImage* vulkanDepthImage;
+        VkImageView depthImageView;
+
     public:
         explicit App(Config config);
 
@@ -91,6 +100,14 @@ namespace Vulkandemo {
 
     private:
         bool initialize();
+
+        bool initializeDepthResources();
+
+        VkFormat findDepthFormat();
+
+        bool hasStencilComponent(VkFormat format) const;
+
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
         bool initializeTextureImage();
 
@@ -125,6 +142,8 @@ namespace Vulkandemo {
         void terminateSyncObjects() const;
 
         void terminateFramebuffers();
+
+        void terminateDepthResources();
 
         void terminateRenderingObjects();
 

@@ -59,6 +59,8 @@ namespace Vulkandemo {
 
         uint32_t findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const;
 
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+
     private:
         std::vector<DeviceInfo> findAvailableDevices() const;
 

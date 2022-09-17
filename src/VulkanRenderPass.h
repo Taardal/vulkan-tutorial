@@ -18,10 +18,11 @@ namespace Vulkandemo {
     private:
         VulkanSwapChain* vulkanSwapChain;
         VulkanDevice* vulkanDevice;
+        VulkanPhysicalDevice* vulkanPhysicalDevice;
         VkRenderPass renderPass = VK_NULL_HANDLE;
 
     public:
-        VulkanRenderPass(VulkanSwapChain* vulkanSwapChain, VulkanDevice* vulkanDevice);
+        VulkanRenderPass(VulkanSwapChain* vulkanSwapChain, VulkanDevice* vulkanDevice, VulkanPhysicalDevice* vulkanPhysicalDevice);
 
         const VkRenderPass getRenderPass() const;
 
@@ -32,6 +33,9 @@ namespace Vulkandemo {
         void begin(const VulkanCommandBuffer& vulkanCommandBuffer, const VulkanFramebuffer& vulkanFramebuffer) const;
 
         void end(const VulkanCommandBuffer& vulkanCommandBuffer) const;
+
+    private:
+        VkFormat findDepthFormat();
     };
 
 }

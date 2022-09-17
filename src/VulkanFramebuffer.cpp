@@ -13,16 +13,17 @@ namespace Vulkandemo {
         return framebuffer;
     }
 
-    bool VulkanFramebuffer::initialize(VkImageView imageView) {
-        VkImageView attachments[] = {
-                imageView
+    bool VulkanFramebuffer::initialize(VkImageView colorImageView, VkImageView depthImageView) {
+        std::array<VkImageView, 2> attachments[] = {
+                colorImageView,
+                depthImageView
         };
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = vulkanRenderPass->getRenderPass();
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.attachmentCount = (uint32_t) attachments->size();
+        framebufferInfo.pAttachments = attachments->data();
         framebufferInfo.width = vulkanSwapChain->getExtent().width;
         framebufferInfo.height = vulkanSwapChain->getExtent().height;
         framebufferInfo.layers = 1;
