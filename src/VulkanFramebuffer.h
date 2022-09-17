@@ -22,7 +22,7 @@ namespace Vulkandemo {
 
         const VkFramebuffer getFramebuffer() const;
 
-        bool initialize(VkImageView imageView);
+        bool initialize(VkImageView colorImageView, VkImageView depthImageView);
 
         void terminate();
     };
