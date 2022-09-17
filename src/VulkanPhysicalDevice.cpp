@@ -13,6 +13,10 @@ namespace Vulkandemo {
         return deviceInfo.PhysicalDevice;
     }
 
+    const VkPhysicalDeviceProperties& VulkanPhysicalDevice::getProperties() const {
+        return deviceInfo.Properties;
+    }
+
     const VkPhysicalDeviceFeatures& VulkanPhysicalDevice::getFeatures() const {
         return deviceInfo.Features;
     }
@@ -178,6 +182,10 @@ namespace Vulkandemo {
     }
 
     int VulkanPhysicalDevice::getSuitabilityRating(const VulkanPhysicalDevice::DeviceInfo& deviceInfo) const {
+        if (!hasRequiredFeatures(deviceInfo.Features)) {
+            VD_LOG_DEBUG("{0} does not have required device features", deviceInfo.Properties.deviceName);
+            return 0;
+        }
         if (!hasRequiredExtensions(deviceInfo.Extensions)) {
             VD_LOG_DEBUG("{0} does not have required device extensions", deviceInfo.Properties.deviceName);
             return 0;
@@ -195,6 +203,10 @@ namespace Vulkandemo {
             rating += 1000;
         }
         return rating;
+    }
+
+    bool VulkanPhysicalDevice::hasRequiredFeatures(const VkPhysicalDeviceFeatures& availableDeviceFeatures) const {
+        return availableDeviceFeatures.samplerAnisotropy;
     }
 
     bool VulkanPhysicalDevice::hasRequiredExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const {
@@ -237,6 +249,31 @@ namespace Vulkandemo {
             default:
                 return "";
         }
+    }
+
+    uint32_t VulkanPhysicalDevice::findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const {
+        VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
+        vkGetPhysicalDeviceMemoryProperties(deviceInfo.PhysicalDevice, &physicalDeviceMemoryProperties);
+        for (uint32_t memoryTypeIndex = 0; memoryTypeIndex < physicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
+            /*
+             * The memoryTypeBits parameter will be used to specify the bit field of memory types that are suitable.
+             * That means that we can find the index of a suitable memory type by simply iterating over them and checking if the corresponding bit is set to 1.
+             */
+            bool isSuitableType = (memoryTypeBits & (1 << memoryTypeIndex)) > 0;
+
+            /*
+             * However, we're not just interested in a memory type that is suitable for the buffer. We also need to ensure that it has the necessary properties
+             * The memoryTypes array consists of VkMemoryType structs that specify the heap and properties of each type of memory.
+             */
+            VkMemoryType& memoryType = physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex];
+            bool hasNecessaryProperties = (memoryType.propertyFlags & memoryPropertyFlags) == memoryPropertyFlags;
+
+            if (isSuitableType && hasNecessaryProperties) {
+                return memoryTypeIndex;
+            }
+        }
+        VD_LOG_WARN("Could not find memory type [{}]", memoryTypeBits);
+        return -1;
     }
 
 }

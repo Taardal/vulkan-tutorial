@@ -38,7 +38,7 @@ namespace VulkandemoCLI {
             const CLI::Option* buildTypeOption = context.getOption("buildType");
             std::string_view buildType;
             if (buildTypeOption != nullptr) {
-                buildType = buildTypeOption->getValue();
+                buildType = buildTypeOption->getValueOrDefault();
             } else {
                 buildType = context.Command->getOption("buildType")->DefaultValue;
             }
@@ -54,7 +54,7 @@ namespace VulkandemoCLI {
             const CLI::Option* cmakeSourceDirectoryOption = context.getOption("cmakeDir");
             std::string_view cmakeSourceDirectory;
             if (cmakeSourceDirectoryOption != nullptr) {
-                cmakeSourceDirectory = cmakeSourceDirectoryOption->getValue();
+                cmakeSourceDirectory = cmakeSourceDirectoryOption->getValueOrDefault();
             } else {
                 cmakeSourceDirectory = context.Command->getOption("cmakeDir")->DefaultValue;
             }

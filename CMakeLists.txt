@@ -40,6 +40,8 @@ add_executable(
         ${SRC_DIR}/VulkanFramebuffer.h
         ${SRC_DIR}/VulkanGraphicsPipeline.cpp
         ${SRC_DIR}/VulkanGraphicsPipeline.h
+        ${SRC_DIR}/VulkanImage.cpp
+        ${SRC_DIR}/VulkanImage.h
         ${SRC_DIR}/VulkanIndexBuffer.cpp
         ${SRC_DIR}/VulkanIndexBuffer.h
         ${SRC_DIR}/VulkanPhysicalDevice.cpp
@@ -116,6 +118,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${GLM_DIR})
 
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SPDLOG_DIR}/include)
+
+set(STB_DIR ${LIB_DIR}/stb)
+target_include_directories(${PROJECT_NAME} PUBLIC ${STB_DIR})
 
 find_package(Vulkan REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})

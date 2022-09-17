@@ -55,7 +55,7 @@ namespace VulkandemoCLI {
             const CLI::Option* cmakeSourceDirectoryOption = context.getOption("cmakeDir");
             std::string_view cmakeSourceDirectory;
             if (cmakeSourceDirectoryOption != nullptr) {
-                cmakeSourceDirectory = cmakeSourceDirectoryOption->getValue();
+                cmakeSourceDirectory = cmakeSourceDirectoryOption->getValueOrDefault();
             } else {
                 cmakeSourceDirectory = context.Command->getOption("cmakeDir")->DefaultValue;
             }

@@ -15,6 +15,7 @@
 #include "VulkanRenderPass.h"
 #include "VulkanGraphicsPipeline.h"
 #include "VulkanFramebuffer.h"
+#include "VulkanImage.h"
 #include "Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -62,10 +63,10 @@ namespace Vulkandemo {
         bool windowResized = false;
 
         const std::vector<Vertex> vertices = {
-                {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-                {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+                {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+                {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+                {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+                {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
         };
 
         const std::vector<uint16_t> indices = {
@@ -73,9 +74,13 @@ namespace Vulkandemo {
         };
 
         std::vector<VulkanUniformBuffer> uniformBuffers;
-        VkDescriptorSetLayout descriptorSetLayout;
-        VkDescriptorPool descriptorPool;
+        VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
         std::vector<VkDescriptorSet> descriptorSets;
+
+        VulkanImage* vulkanTextureImage;
+        VkImageView textureImageView;
+        VkSampler textureSampler;
 
     public:
         explicit App(Config config);
@@ -86,6 +91,20 @@ namespace Vulkandemo {
 
     private:
         bool initialize();
+
+        bool initializeTextureImage();
+
+        bool initializeTextureImageView();
+
+        bool initializeTextureSampler();
+
+        bool transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
+
+        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const;
+
+        VkCommandBuffer beginSingleTimeCommands() const;
+
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
         bool initializeUniformBuffers();
 

@@ -38,7 +38,7 @@ namespace Vulkandemo {
         };
 
         VkVertexInputBindingDescription bindingDescription = Vertex::getBindingDescription();
-        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = Vertex::getAttributeDescriptions();
+        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = Vertex::getAttributeDescriptions();
 
         VkPipelineVertexInputStateCreateInfo vertexInputState{};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -165,6 +165,6 @@ namespace Vulkandemo {
     }
 
     void VulkanGraphicsPipeline::bind(const VulkanCommandBuffer& vulkanCommandBuffer) const {
-        vkCmdBindPipeline(vulkanCommandBuffer.getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        vkCmdBindPipeline(vulkanCommandBuffer.getVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 }

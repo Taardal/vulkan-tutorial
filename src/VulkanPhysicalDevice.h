@@ -43,17 +43,21 @@ namespace Vulkandemo {
 
         VkPhysicalDevice getPhysicalDevice() const;
 
+        const VkPhysicalDeviceProperties& getProperties() const;
+
         const VkPhysicalDeviceFeatures& getFeatures() const;
 
         const QueueFamilyIndices& getQueueFamilyIndices() const;
 
         const SwapChainInfo& getSwapChainInfo() const;
 
-        void updateSwapChainInfo();
-
         const std::vector<const char*>& getExtensions() const;
 
         bool initialize();
+
+        void updateSwapChainInfo();
+
+        uint32_t findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const;
 
     private:
         std::vector<DeviceInfo> findAvailableDevices() const;
@@ -71,6 +75,8 @@ namespace Vulkandemo {
         QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device) const;
 
         SwapChainInfo findSwapChainInfo(VkPhysicalDevice device) const;
+
+        bool hasRequiredFeatures(const VkPhysicalDeviceFeatures& availableDeviceFeatures) const;
 
         bool hasRequiredExtensions(const std::vector<VkExtensionProperties>& availableDeviceExtensions) const;
 

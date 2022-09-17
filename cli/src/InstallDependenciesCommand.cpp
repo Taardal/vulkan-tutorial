@@ -4,10 +4,10 @@
 
 namespace VulkandemoCLI {
 
-    CLI::Command createInstallDependenciesCommand(const FileSystem& fileSystem) {
+    CLI::Command createInstallLibrariesCommand(const FileSystem& fileSystem) {
         CLI::Command command;
-        command.Name = "deps";
-        command.Usage = "Install dependencies";
+        command.Name = "lib:install";
+        command.Usage = "Install libraries (git submodules)";
         command.Action = [&](const CLI::Context& context) -> void {
             std::system("git submodule update --init");
             printf("\n");
@@ -20,14 +20,16 @@ namespace VulkandemoCLI {
                 int equalSignPosition = (int) line.find('=');
                 const std::string& name = line.substr(0, equalSignPosition);
                 const std::string& version = line.substr(equalSignPosition + 1, line.length());
-                printf("%s%s%s%s%s\n", "-- Using [", name.c_str(), "] version [", version.c_str(), "]");
-                std::stringstream ss;
-                ss << "cd " << "lib" << "/" << name << " && git checkout " << version;
-                std::string command = ss.str();
+                if (version != "latest") {
+                    printf("%s%s%s%s%s\n", "-- Using [", name.c_str(), "] version [", version.c_str(), "]");
+                    std::stringstream ss;
+                    ss << "cd lib/" << name << " && git checkout " << version;
+                    std::string command = ss.str();
 #ifdef VDC_DEBUG
-                printf("%s\n", command.c_str());
+                    printf("%s\n", command.c_str());
 #endif
-                std::system(command.c_str());
+                    std::system(command.c_str());
+                }
                 printf("\n");
             }
             printf("\n");

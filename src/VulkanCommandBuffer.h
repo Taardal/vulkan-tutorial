@@ -14,9 +14,9 @@ namespace Vulkandemo {
     public:
         explicit VulkanCommandBuffer(VkCommandBuffer commandBuffer);
 
-        const VkCommandBuffer getCommandBuffer() const;
+        const VkCommandBuffer getVkCommandBuffer() const;
 
-        bool begin() const;
+        bool begin(VkCommandBufferUsageFlags usageFlags = 0) const;
 
         bool end() const;
 
