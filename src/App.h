@@ -62,23 +62,6 @@ namespace Vulkandemo {
         uint32_t currentFrame = 0;
         bool windowResized = false;
 
-        const std::vector<Vertex> vertices = {
-                {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-                {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-                {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-                {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-                {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-                {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-        };
-
-        const std::vector<uint16_t> indices = {
-                0, 1, 2, 2, 3, 0,
-                4, 5, 6, 6, 7, 4
-        };
-
         std::vector<VulkanUniformBuffer> uniformBuffers;
         VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
         VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
@@ -91,6 +74,17 @@ namespace Vulkandemo {
         VulkanImage* vulkanDepthImage;
         VkImageView depthImageView = VK_NULL_HANDLE;
 
+        const uint32_t WIDTH = 800;
+        const uint32_t HEIGHT = 600;
+
+        const std::string MODEL_PATH = "models/viking_room.obj";
+        const std::string TEXTURE_PATH = "textures/viking_room.png";
+
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+        //VkBuffer vertexBuffer;
+        //VkDeviceMemory vertexBufferMemory;
+
     public:
         explicit App(Config config);
 
@@ -100,6 +94,8 @@ namespace Vulkandemo {
 
     private:
         bool initialize();
+
+        bool loadModel();
 
         bool initializeDepthResources();
 

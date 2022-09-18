@@ -9,3 +9,5 @@ set(SHADER_OUTPUT_DIR ${BIN_DIR}/${BUILD_TYPE_DIR_NAME}/shaders)
 include(${CMAKE_SCRIPTS_DIR}/compile_shaders.cmake)
 
 file(COPY ${ASSETS_DIR}/textures DESTINATION ${BIN_DIR}/${BUILD_TYPE_DIR_NAME})
+
+file(COPY ${ASSETS_DIR}/models DESTINATION ${BIN_DIR}/${BUILD_TYPE_DIR_NAME})

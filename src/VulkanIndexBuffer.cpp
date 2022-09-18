@@ -10,7 +10,7 @@ namespace Vulkandemo {
         return buffer;
     }
 
-    bool VulkanIndexBuffer::initialize(const std::vector<uint16_t>& indices) {
+    bool VulkanIndexBuffer::initialize(const std::vector<uint32_t>& indices) {
         VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
         VulkanBuffer::Config stagingBufferConfig{};

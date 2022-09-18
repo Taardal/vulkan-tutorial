@@ -21,7 +21,7 @@ namespace Vulkandemo {
 
         const VulkanBuffer& getVulkanBuffer() const;
 
-        bool initialize(const std::vector<uint16_t>& indices);
+        bool initialize(const std::vector<uint32_t>& indices);
 
         void terminate();
     };
