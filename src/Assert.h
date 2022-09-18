@@ -35,5 +35,5 @@
             VD_BREAK(); \
         }
 #else
-    #define VD_ASSERT(tag, expression)
+    #define VD_ASSERT(expression)
 #endif

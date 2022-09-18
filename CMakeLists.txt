@@ -122,6 +122,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${SPDLOG_DIR}/include)
 set(STB_DIR ${LIB_DIR}/stb)
 target_include_directories(${PROJECT_NAME} PUBLIC ${STB_DIR})
 
+set(TINYOBJLOADER_DIR ${LIB_DIR}/tinyobjloader)
+target_include_directories(${PROJECT_NAME} PUBLIC ${TINYOBJLOADER_DIR})
+
 find_package(Vulkan REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
