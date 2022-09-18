@@ -85,11 +85,11 @@ namespace Vulkandemo {
         std::vector<VkDescriptorSet> descriptorSets;
 
         VulkanImage* vulkanTextureImage;
-        VkImageView textureImageView;
-        VkSampler textureSampler;
+        VkImageView textureImageView = VK_NULL_HANDLE;
+        VkSampler textureSampler = VK_NULL_HANDLE;
 
         VulkanImage* vulkanDepthImage;
-        VkImageView depthImageView;
+        VkImageView depthImageView = VK_NULL_HANDLE;
 
     public:
         explicit App(Config config);

@@ -18,3 +18,4 @@ glfw=3.3.4
 glm=0.9.9.8
 spdlog=v1.9.2
 stb=1ee679ca2ef753a528db5ba6801e1067b40481b8
+tinyobjloader=v1.0.6
