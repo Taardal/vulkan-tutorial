@@ -32,6 +32,7 @@ namespace Vulkandemo {
             std::vector<VkExtensionProperties> Extensions{};
             QueueFamilyIndices QueueFamilyIndices{};
             SwapChainInfo SwapChainInfo{};
+            VkSampleCountFlagBits SampleCount = VK_SAMPLE_COUNT_1_BIT;
         };
 
     private:
@@ -51,6 +52,8 @@ namespace Vulkandemo {
 
         const SwapChainInfo& getSwapChainInfo() const;
 
+        VkSampleCountFlagBits getSampleCount() const;
+
         const std::vector<const char*>& getExtensions() const;
 
         bool initialize();
@@ -64,19 +67,23 @@ namespace Vulkandemo {
     private:
         std::vector<DeviceInfo> findAvailableDevices() const;
 
-        std::string getDeviceTypeAsString(VkPhysicalDeviceType deviceType) const;
-
-        DeviceInfo findMostSuitableDevice(const std::vector<DeviceInfo>& availableDevices) const;
+        std::vector<VkExtensionProperties> findExtensions(VkPhysicalDevice device) const;
 
         std::vector<const char*>& getRequiredExtensions() const;
 
         const std::vector<const char*>& getOptionalExtensions() const;
 
-        std::vector<VkExtensionProperties> findExtensions(VkPhysicalDevice device) const;
-
         QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device) const;
 
         SwapChainInfo findSwapChainInfo(VkPhysicalDevice device) const;
+
+        VkSampleCountFlagBits getSampleCount(const VkPhysicalDeviceProperties& deviceProperties) const;
+
+        std::string getDeviceTypeAsString(VkPhysicalDeviceType deviceType) const;
+
+        DeviceInfo findMostSuitableDevice(const std::vector<DeviceInfo>& availableDevices) const;
+
+        uint32_t getSuitabilityRating(const DeviceInfo& deviceInfo) const;
 
         bool hasRequiredFeatures(const VkPhysicalDeviceFeatures& availableDeviceFeatures) const;
 
@@ -85,8 +92,6 @@ namespace Vulkandemo {
         bool hasRequiredSwapChainSupport(const SwapChainInfo& swapChainInfo) const;
 
         bool hasRequiredQueueFamilyIndices(const QueueFamilyIndices& queueFamilyIndices) const;
-
-        int getSuitabilityRating(const DeviceInfo& deviceInfo) const;
     };
 
 }

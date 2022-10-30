@@ -80,7 +80,10 @@ namespace Vulkandemo {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
 
-        uint32_t mipLevels;
+        uint32_t mipLevels = 0;
+
+        VulkanImage* vulkanColorImage;
+        VkImageView colorImageView = VK_NULL_HANDLE;
 
     public:
         explicit App(Config config);
@@ -93,6 +96,8 @@ namespace Vulkandemo {
         bool initialize();
 
         bool loadModel();
+
+        bool initializeColorResources();
 
         bool initializeDepthResources();
 
@@ -137,6 +142,8 @@ namespace Vulkandemo {
         void terminateSyncObjects() const;
 
         void terminateFramebuffers();
+
+        void terminateColorResources();
 
         void terminateDepthResources();
 

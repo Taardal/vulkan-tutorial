@@ -4,15 +4,13 @@
 namespace Vulkandemo {
 
     VulkanImage::VulkanImage(VulkanPhysicalDevice* vulkanPhysicalDevice, VulkanDevice* vulkanDevice)
-            : vulkanPhysicalDevice(vulkanPhysicalDevice), vulkanDevice(vulkanDevice), config() {}
+            : vulkanPhysicalDevice(vulkanPhysicalDevice), vulkanDevice(vulkanDevice) {}
 
     VkImage VulkanImage::getVkImage() const {
         return vkImage;
     }
 
     bool VulkanImage::initialize(const Config& config) {
-        this->config = config;
-
         constexpr VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
 
         VkImageCreateInfo imageInfo{};
@@ -28,7 +26,7 @@ namespace Vulkandemo {
         imageInfo.initialLayout = config.Layout;
         imageInfo.usage = config.Usage;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.samples = config.SampleCount;
 
         if (vkCreateImage(vulkanDevice->getDevice(), &imageInfo, allocationCallbacks, &vkImage) != VK_SUCCESS) {
             VD_LOG_ERROR("Could not create Vulkan image from texture");

@@ -6,8 +6,8 @@ namespace Vulkandemo {
 
     const VkAllocationCallbacks* VulkanGraphicsPipeline::ALLOCATOR = VK_NULL_HANDLE;
 
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanRenderPass* vulkanRenderPass, VulkanSwapChain* vulkanSwapChain, VulkanDevice* vulkanDevice)
-        : vulkanRenderPass(vulkanRenderPass), vulkanSwapChain(vulkanSwapChain), vulkanDevice(vulkanDevice) {
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanRenderPass* vulkanRenderPass, VulkanSwapChain* vulkanSwapChain, VulkanDevice* vulkanDevice, VulkanPhysicalDevice* vulkanPhysicalDevice)
+        : vulkanRenderPass(vulkanRenderPass), vulkanSwapChain(vulkanSwapChain), vulkanDevice(vulkanDevice), vulkanPhysicalDevice(vulkanPhysicalDevice) {
     }
 
     const VkPipeline VulkanGraphicsPipeline::getPipeline() const {
@@ -86,12 +86,21 @@ namespace Vulkandemo {
 
         VkPipelineMultisampleStateCreateInfo multisampleState{};
         multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampleState.sampleShadingEnable = VK_FALSE;
-        multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        multisampleState.minSampleShading = 1.0f;
+        multisampleState.rasterizationSamples = vulkanPhysicalDevice->getSampleCount();
         multisampleState.pSampleMask = nullptr;
         multisampleState.alphaToCoverageEnable = VK_FALSE;
         multisampleState.alphaToOneEnable = VK_FALSE;
+
+        /*
+         * There are certain limitations of our current MSAA implementation which may impact the quality of the output image in more detailed scenes.
+         * For example, we're currently not solving potential problems caused by shader aliasing, i.e. MSAA only smoothens out the edges of geometry but not the interior filling.
+         * This may lead to a situation when you get a smooth polygon rendered on screen but the applied texture will still look aliased if it contains high contrasting colors.
+         * One way to approach this problem is to enable Sample Shading which will improve the image quality even further, though at an additional performance cost:
+         */
+        multisampleState.sampleShadingEnable = VK_FALSE;
+        //multisampleState.sampleShadingEnable = VK_TRUE; // enable sample shading in the pipeline
+        multisampleState.minSampleShading = 1.0f;
+        //multisampleState.minSampleShading = .2f; // min fraction for sample shading; closer to one is smoother
 
         VkPipelineColorBlendAttachmentState colorBlendAttachmentState{};
         colorBlendAttachmentState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;

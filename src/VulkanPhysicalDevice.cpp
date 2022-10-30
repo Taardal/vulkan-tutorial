@@ -29,12 +29,12 @@ namespace Vulkandemo {
         return deviceInfo.SwapChainInfo;
     }
 
-    void VulkanPhysicalDevice::updateSwapChainInfo() {
-        deviceInfo.SwapChainInfo = findSwapChainInfo(deviceInfo.PhysicalDevice);
-    }
-
     const std::vector<const char*>& VulkanPhysicalDevice::getExtensions() const {
         return getRequiredExtensions();
+    }
+
+    VkSampleCountFlagBits VulkanPhysicalDevice::getSampleCount() const {
+        return deviceInfo.SampleCount;
     }
 
     bool VulkanPhysicalDevice::initialize() {
@@ -50,6 +50,49 @@ namespace Vulkandemo {
         }
         VD_LOG_INFO("Initialized Vulkan physical device");
         return true;
+    }
+
+    void VulkanPhysicalDevice::updateSwapChainInfo() {
+        deviceInfo.SwapChainInfo = findSwapChainInfo(deviceInfo.PhysicalDevice);
+    }
+
+    uint32_t VulkanPhysicalDevice::findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const {
+        VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
+        vkGetPhysicalDeviceMemoryProperties(deviceInfo.PhysicalDevice, &physicalDeviceMemoryProperties);
+        for (uint32_t memoryTypeIndex = 0; memoryTypeIndex < physicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
+            /*
+             * The memoryTypeBits parameter will be used to specify the bit field of memory types that are suitable.
+             * That means that we can find the index of a suitable memory type by simply iterating over them and checking if the corresponding bit is set to 1.
+             */
+            bool isSuitableType = (memoryTypeBits & (1 << memoryTypeIndex)) > 0;
+
+            /*
+             * However, we're not just interested in a memory type that is suitable for the buffer. We also need to ensure that it has the necessary properties
+             * The memoryTypes array consists of VkMemoryType structs that specify the heap and properties of each type of memory.
+             */
+            VkMemoryType& memoryType = physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex];
+            bool hasNecessaryProperties = (memoryType.propertyFlags & memoryPropertyFlags) == memoryPropertyFlags;
+
+            if (isSuitableType && hasNecessaryProperties) {
+                return memoryTypeIndex;
+            }
+        }
+        VD_LOG_WARN("Could not find memory type [{}]", memoryTypeBits);
+        return -1;
+    }
+
+    VkFormat VulkanPhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
+        for (VkFormat format : candidates) {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(deviceInfo.PhysicalDevice, format, &props);
+            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+                return format;
+            } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+        VD_LOG_WARN("Could not find supported format");
+        return VK_FORMAT_UNDEFINED;
     }
 
     std::vector<VulkanPhysicalDevice::DeviceInfo> VulkanPhysicalDevice::findAvailableDevices() const {
@@ -68,6 +111,14 @@ namespace Vulkandemo {
             VkPhysicalDeviceFeatures vkPhysicalDeviceFeatures;
             vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
 
+            /*
+             * There are certain limitations of our current MSAA implementation which may impact the quality of the output image in more detailed scenes.
+             * For example, we're currently not solving potential problems caused by shader aliasing, i.e. MSAA only smoothens out the edges of geometry but not the interior filling.
+             * This may lead to a situation when you get a smooth polygon rendered on screen but the applied texture will still look aliased if it contains high contrasting colors.
+             * One way to approach this problem is to enable Sample Shading which will improve the image quality even further, though at an additional performance cost:
+             */
+            //vkPhysicalDeviceFeatures.sampleRateShading = VK_TRUE; // enable sample shading feature for the device
+
             DeviceInfo device{};
             device.PhysicalDevice = vkPhysicalDevice;
             device.Properties = vkPhysicalDeviceProperties;
@@ -75,6 +126,7 @@ namespace Vulkandemo {
             device.Extensions = findExtensions(vkPhysicalDevice);
             device.QueueFamilyIndices = findQueueFamilyIndices(vkPhysicalDevice);
             device.SwapChainInfo = findSwapChainInfo(vkPhysicalDevice);
+            device.SampleCount = getSampleCount(vkPhysicalDeviceProperties);
 
             devices.push_back(device);
         }
@@ -83,20 +135,6 @@ namespace Vulkandemo {
             VD_LOG_DEBUG("{0} --> {1}", device.Properties.deviceName, getDeviceTypeAsString(device.Properties.deviceType));
         }
         return devices;
-    }
-
-    std::vector<const char*>& VulkanPhysicalDevice::getRequiredExtensions() const {
-        static std::vector<const char*> extensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME
-        };
-        return extensions;
-    }
-
-    const std::vector<const char*>& VulkanPhysicalDevice::getOptionalExtensions() const {
-        static std::vector<const char*> extensions = {
-                "VK_KHR_portability_subset"
-        };
-        return extensions;
     }
 
     std::vector<VkExtensionProperties> VulkanPhysicalDevice::findExtensions(VkPhysicalDevice device) const {
@@ -117,6 +155,20 @@ namespace Vulkandemo {
                 }
             }
         }
+        return extensions;
+    }
+
+    std::vector<const char*>& VulkanPhysicalDevice::getRequiredExtensions() const {
+        static std::vector<const char*> extensions = {
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
+        return extensions;
+    }
+
+    const std::vector<const char*>& VulkanPhysicalDevice::getOptionalExtensions() const {
+        static std::vector<const char*> extensions = {
+                "VK_KHR_portability_subset"
+        };
         return extensions;
     }
 
@@ -163,15 +215,55 @@ namespace Vulkandemo {
         return swapChainInfo;
     }
 
+    VkSampleCountFlagBits VulkanPhysicalDevice::getSampleCount(const VkPhysicalDeviceProperties& deviceProperties) const {
+        VkSampleCountFlags counts = deviceProperties.limits.framebufferColorSampleCounts & deviceProperties.limits.framebufferDepthSampleCounts;
+        if (counts & VK_SAMPLE_COUNT_64_BIT) {
+            return VK_SAMPLE_COUNT_64_BIT;
+        }
+        if (counts & VK_SAMPLE_COUNT_32_BIT) {
+            return VK_SAMPLE_COUNT_32_BIT;
+        }
+        if (counts & VK_SAMPLE_COUNT_16_BIT) {
+            return VK_SAMPLE_COUNT_16_BIT;
+        }
+        if (counts & VK_SAMPLE_COUNT_8_BIT) {
+            return VK_SAMPLE_COUNT_8_BIT;
+        }
+        if (counts & VK_SAMPLE_COUNT_4_BIT) {
+            return VK_SAMPLE_COUNT_4_BIT;
+        }
+        if (counts & VK_SAMPLE_COUNT_2_BIT) {
+            return VK_SAMPLE_COUNT_2_BIT;
+        }
+        return VK_SAMPLE_COUNT_1_BIT;
+    }
+
+    std::string VulkanPhysicalDevice::getDeviceTypeAsString(VkPhysicalDeviceType deviceType) const {
+        switch (deviceType) {
+            case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+                return "VK_PHYSICAL_DEVICE_TYPE_OTHER";
+            case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+                return "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
+            case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+                return "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
+            case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+                return "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
+            case VK_PHYSICAL_DEVICE_TYPE_CPU:
+                return "VK_PHYSICAL_DEVICE_TYPE_CPU";
+            default:
+                return "";
+        }
+    }
+
     VulkanPhysicalDevice::DeviceInfo VulkanPhysicalDevice::findMostSuitableDevice(const std::vector<VulkanPhysicalDevice::DeviceInfo>& availableDevices) const {
-        std::multimap<int, VulkanPhysicalDevice::DeviceInfo> devicesByRating;
+        std::multimap<uint32_t, VulkanPhysicalDevice::DeviceInfo> devicesByRating;
         VD_LOG_DEBUG("Device suitability ratings");
         for (const VulkanPhysicalDevice::DeviceInfo& device : availableDevices) {
-            int suitabilityRating = getSuitabilityRating(device);
+            uint32_t suitabilityRating = getSuitabilityRating(device);
             VD_LOG_DEBUG("{0} --> {1}", device.Properties.deviceName, suitabilityRating);
             devicesByRating.insert(std::make_pair(suitabilityRating, device));
         }
-        int highestRating = devicesByRating.rbegin()->first;
+        uint32_t highestRating = devicesByRating.rbegin()->first;
         if (highestRating == 0) {
             return {};
         }
@@ -181,7 +273,7 @@ namespace Vulkandemo {
         return device;
     }
 
-    int VulkanPhysicalDevice::getSuitabilityRating(const VulkanPhysicalDevice::DeviceInfo& deviceInfo) const {
+    uint32_t VulkanPhysicalDevice::getSuitabilityRating(const VulkanPhysicalDevice::DeviceInfo& deviceInfo) const {
         if (!hasRequiredFeatures(deviceInfo.Features)) {
             VD_LOG_DEBUG("{0} does not have required device features", deviceInfo.Properties.deviceName);
             return 0;
@@ -198,7 +290,10 @@ namespace Vulkandemo {
             VD_LOG_DEBUG("{0} does not have required queue family indices", deviceInfo.Properties.deviceName);
             return 0;
         }
-        int rating = (int) deviceInfo.Properties.limits.maxImageDimension2D;
+        uint32_t rating = 0;
+        rating += (uint32_t) deviceInfo.Properties.limits.maxImageDimension2D;
+        rating += (uint32_t) deviceInfo.Properties.limits.framebufferColorSampleCounts;
+        rating += (uint32_t) deviceInfo.Properties.limits.framebufferDepthSampleCounts;
         if (deviceInfo.Properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             rating += 1000;
         }
@@ -232,62 +327,6 @@ namespace Vulkandemo {
 
     bool VulkanPhysicalDevice::hasRequiredQueueFamilyIndices(const QueueFamilyIndices& queueFamilyIndices) const {
         return queueFamilyIndices.GraphicsFamily.has_value() && queueFamilyIndices.PresentationFamily.has_value();
-    }
-
-    std::string VulkanPhysicalDevice::getDeviceTypeAsString(VkPhysicalDeviceType deviceType) const {
-        switch (deviceType) {
-            case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-                return "VK_PHYSICAL_DEVICE_TYPE_OTHER";
-            case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-                return "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
-            case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-                return "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
-            case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-                return "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
-            case VK_PHYSICAL_DEVICE_TYPE_CPU:
-                return "VK_PHYSICAL_DEVICE_TYPE_CPU";
-            default:
-                return "";
-        }
-    }
-
-    uint32_t VulkanPhysicalDevice::findMemoryType(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryPropertyFlags) const {
-        VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
-        vkGetPhysicalDeviceMemoryProperties(deviceInfo.PhysicalDevice, &physicalDeviceMemoryProperties);
-        for (uint32_t memoryTypeIndex = 0; memoryTypeIndex < physicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
-            /*
-             * The memoryTypeBits parameter will be used to specify the bit field of memory types that are suitable.
-             * That means that we can find the index of a suitable memory type by simply iterating over them and checking if the corresponding bit is set to 1.
-             */
-            bool isSuitableType = (memoryTypeBits & (1 << memoryTypeIndex)) > 0;
-
-            /*
-             * However, we're not just interested in a memory type that is suitable for the buffer. We also need to ensure that it has the necessary properties
-             * The memoryTypes array consists of VkMemoryType structs that specify the heap and properties of each type of memory.
-             */
-            VkMemoryType& memoryType = physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex];
-            bool hasNecessaryProperties = (memoryType.propertyFlags & memoryPropertyFlags) == memoryPropertyFlags;
-
-            if (isSuitableType && hasNecessaryProperties) {
-                return memoryTypeIndex;
-            }
-        }
-        VD_LOG_WARN("Could not find memory type [{}]", memoryTypeBits);
-        return -1;
-    }
-
-    VkFormat VulkanPhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
-        for (VkFormat format : candidates) {
-            VkFormatProperties props;
-            vkGetPhysicalDeviceFormatProperties(deviceInfo.PhysicalDevice, format, &props);
-            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
-                return format;
-            } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
-                return format;
-            }
-        }
-        VD_LOG_WARN("Could not find supported format");
-        return VK_FORMAT_UNDEFINED;
     }
 
 }

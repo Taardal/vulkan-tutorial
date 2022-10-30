@@ -17,12 +17,12 @@ namespace Vulkandemo {
             VkImageUsageFlags Usage;
             VkMemoryPropertyFlags MemoryProperties;
             VkImageLayout Layout;
+            VkSampleCountFlagBits SampleCount;
         };
 
     private:
         VulkanPhysicalDevice* vulkanPhysicalDevice;
         VulkanDevice* vulkanDevice;
-        Config config;
         VkImage vkImage = VK_NULL_HANDLE;
         VkDeviceMemory vkDeviceMemory = VK_NULL_HANDLE;
 
