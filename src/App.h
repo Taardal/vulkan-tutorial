@@ -80,6 +80,8 @@ namespace Vulkandemo {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
 
+        uint32_t mipLevels;
+
     public:
         explicit App(Config config);
 
@@ -98,7 +100,7 @@ namespace Vulkandemo {
 
         bool hasStencilComponent(VkFormat format) const;
 
-        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 
         bool initializeTextureImage();
 
@@ -106,7 +108,9 @@ namespace Vulkandemo {
 
         bool initializeTextureSampler();
 
-        bool transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
+        bool transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) const;
+
+        bool generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels) const;
 
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const;
 

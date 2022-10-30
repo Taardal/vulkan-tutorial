@@ -11,6 +11,7 @@ namespace Vulkandemo {
         struct Config {
             uint32_t Width;
             uint32_t Height;
+            uint32_t MipLevels;
             VkFormat Format;
             VkImageTiling Tiling;
             VkImageUsageFlags Usage;

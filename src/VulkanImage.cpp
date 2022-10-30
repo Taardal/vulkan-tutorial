@@ -21,7 +21,7 @@ namespace Vulkandemo {
         imageInfo.extent.width = config.Width;
         imageInfo.extent.height = config.Height;
         imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = 1;
+        imageInfo.mipLevels = config.MipLevels;
         imageInfo.arrayLayers = 1;
         imageInfo.format = config.Format;
         imageInfo.tiling = config.Tiling;
