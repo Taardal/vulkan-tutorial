@@ -17,11 +17,12 @@ namespace Vulkandemo {
         VulkanRenderPass* vulkanRenderPass;
         VulkanSwapChain* vulkanSwapChain;
         VulkanDevice* vulkanDevice;
+        VulkanPhysicalDevice* vulkanPhysicalDevice;
         VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
         VkPipeline pipeline = VK_NULL_HANDLE;
 
     public:
-        VulkanGraphicsPipeline(VulkanRenderPass* vulkanRenderPass, VulkanSwapChain* vulkanSwapChain, VulkanDevice* vulkanDevice);
+        VulkanGraphicsPipeline(VulkanRenderPass* vulkanRenderPass, VulkanSwapChain* vulkanSwapChain, VulkanDevice* vulkanDevice, VulkanPhysicalDevice* vulkanPhysicalDevice);
 
         const VkPipelineLayout getPipelineLayout() const;
 

@@ -36,6 +36,7 @@ namespace Vulkandemo {
               vulkanDevice(new VulkanDevice(vulkan, vulkanPhysicalDevice)),
               vulkanCommandPool(new VulkanCommandPool(vulkanPhysicalDevice, vulkanDevice)),
               vulkanDepthImage(new VulkanImage(vulkanPhysicalDevice, vulkanDevice)),
+              vulkanColorImage(new VulkanImage(vulkanPhysicalDevice, vulkanDevice)),
               vulkanTextureImage(new VulkanImage(vulkanPhysicalDevice, vulkanDevice)),
               vertexShader(new VulkanShader(vulkanDevice)),
               fragmentShader(new VulkanShader(vulkanDevice)),
@@ -43,7 +44,7 @@ namespace Vulkandemo {
               vulkanIndexBuffer(new VulkanIndexBuffer(vulkanPhysicalDevice, vulkanDevice, vulkanCommandPool)),
               vulkanSwapChain(new VulkanSwapChain(vulkanDevice, vulkanPhysicalDevice, vulkan, window)),
               vulkanRenderPass(new VulkanRenderPass(vulkanSwapChain, vulkanDevice, vulkanPhysicalDevice)),
-              vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice)) {
+              vulkanGraphicsPipeline(new VulkanGraphicsPipeline(vulkanRenderPass, vulkanSwapChain, vulkanDevice, vulkanPhysicalDevice)) {
     }
 
     App::~App() {
@@ -55,6 +56,8 @@ namespace Vulkandemo {
         delete fragmentShader;
         delete vertexShader;
         delete vulkanTextureImage;
+        delete vulkanColorImage;
+        delete vulkanDepthImage;
         delete vulkanCommandPool;
         delete vulkanDevice;
         delete vulkanPhysicalDevice;
@@ -131,6 +134,10 @@ namespace Vulkandemo {
         }
         if (!vulkanGraphicsPipeline->initialize(*vertexShader, *fragmentShader, descriptorSetLayout)) {
             VD_LOG_ERROR("Could not initialize Vulkan graphics pipeline");
+            return false;
+        }
+        if (!initializeColorResources()) {
+            VD_LOG_ERROR("Could not initialize color resources");
             return false;
         }
         if (!initializeDepthResources()) {
@@ -242,6 +249,27 @@ namespace Vulkandemo {
         return true;
     }
 
+    bool App::initializeColorResources() {
+        VkFormat colorFormat = vulkanSwapChain->getSurfaceFormat().format;
+
+        VulkanImage::Config colorImageConfig{};
+        colorImageConfig.Width = vulkanSwapChain->getExtent().width;
+        colorImageConfig.Height = vulkanSwapChain->getExtent().height;
+        colorImageConfig.MipLevels = 1;
+        colorImageConfig.SampleCount = vulkanPhysicalDevice->getSampleCount();
+        colorImageConfig.Format = colorFormat;
+        colorImageConfig.Tiling = VK_IMAGE_TILING_OPTIMAL;
+        colorImageConfig.Usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        colorImageConfig.MemoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+        if (!vulkanColorImage->initialize(colorImageConfig)) {
+            VD_LOG_ERROR("Could not initialize color image");
+            return false;
+        }
+        colorImageView = createImageView(vulkanColorImage->getVkImage(), colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, colorImageConfig.MipLevels);
+        return true;
+    }
+
     bool App::initializeDepthResources() {
         VkFormat depthFormat = findDepthFormat();
 
@@ -253,6 +281,7 @@ namespace Vulkandemo {
         depthImageConfig.Usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         depthImageConfig.MemoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         depthImageConfig.MipLevels = 1;
+        depthImageConfig.SampleCount = vulkanPhysicalDevice->getSampleCount();
 
         if (!vulkanDepthImage->initialize(depthImageConfig)) {
             VD_LOG_ERROR("Could not initialize depth image");
@@ -392,6 +421,7 @@ namespace Vulkandemo {
         textureImageConfig.MemoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         textureImageConfig.Layout = VK_IMAGE_LAYOUT_UNDEFINED;
         textureImageConfig.MipLevels = mipLevels;
+        textureImageConfig.SampleCount = VK_SAMPLE_COUNT_1_BIT;
 
         if (!vulkanTextureImage->initialize(textureImageConfig)) {
             VD_LOG_ERROR("Could not initialize texture image");
@@ -845,6 +875,10 @@ namespace Vulkandemo {
             VD_LOG_ERROR("Could not initialize Vulkan graphics pipeline");
             return false;
         }
+        if (!initializeColorResources()) {
+            VD_LOG_ERROR("Could not initialize color resources");
+            return false;
+        }
         if (!initializeDepthResources()) {
             VD_LOG_ERROR("Could not initialize depth resources");
             return false;
@@ -859,7 +893,7 @@ namespace Vulkandemo {
     bool App::initializeFramebuffers() {
         for (VkImageView swapChainImageView : vulkanSwapChain->getImageViews()) {
             VulkanFramebuffer framebuffer(vulkanDevice, vulkanSwapChain, vulkanRenderPass);
-            if (!framebuffer.initialize(swapChainImageView, depthImageView)) {
+            if (!framebuffer.initialize(colorImageView, depthImageView, swapChainImageView)) {
                 VD_LOG_ERROR("Could not initialize framebuffers");
                 return false;
             }
@@ -947,13 +981,21 @@ namespace Vulkandemo {
     void App::terminateRenderingObjects() {
         terminateFramebuffers();
         terminateDepthResources();
+        terminateColorResources();
         vulkanGraphicsPipeline->terminate();
         vulkanRenderPass->terminate();
         vulkanSwapChain->terminate();
     }
 
+    void App::terminateColorResources() {
+        VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
+        vkDestroyImageView(vulkanDevice->getDevice(), colorImageView, allocationCallbacks);
+        vulkanColorImage->terminate();
+    }
+
     void App::terminateDepthResources() {
-        vkDestroyImageView(vulkanDevice->getDevice(), depthImageView, nullptr);
+        VkAllocationCallbacks* allocationCallbacks = VK_NULL_HANDLE;
+        vkDestroyImageView(vulkanDevice->getDevice(), depthImageView, allocationCallbacks);
         vulkanDepthImage->terminate();
     }
 

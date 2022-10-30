@@ -13,10 +13,11 @@ namespace Vulkandemo {
         return framebuffer;
     }
 
-    bool VulkanFramebuffer::initialize(VkImageView colorImageView, VkImageView depthImageView) {
-        std::array<VkImageView, 2> attachments[] = {
+    bool VulkanFramebuffer::initialize(VkImageView colorImageView, VkImageView depthImageView, VkImageView swapChainImageView) {
+        std::array<VkImageView, 3> attachments[] = {
                 colorImageView,
-                depthImageView
+                depthImageView,
+                swapChainImageView
         };
 
         VkFramebufferCreateInfo framebufferInfo{};
