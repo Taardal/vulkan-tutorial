@@ -1,5 +1,6 @@
 #include "Vulkan.h"
 #include "Log.h"
+#include "Environment.h"
 
 #include <GLFW/glfw3.h>
 #include <utility>
@@ -99,6 +100,9 @@ namespace Vulkandemo {
         createInfo.pApplicationInfo = &appInfo;
         createInfo.enabledExtensionCount = extensions.size();
         createInfo.ppEnabledExtensionNames = extensions.data();
+        if (Environment::isMacOS()) {
+            createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+        }
         if (config.ValidationLayersEnabled) {
             createInfo.enabledLayerCount = validationLayers.size();
             createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -171,6 +175,9 @@ namespace Vulkandemo {
         const char** glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+        if (Environment::isMacOS()) {
+            extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+        }
         if (config.ValidationLayersEnabled) {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }

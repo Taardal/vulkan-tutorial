@@ -11,7 +11,7 @@ int main()
     config.Window.Width = 800;
     config.Window.Height = 600;
     config.Vulkan.Name = config.Name;
-#ifdef VD_DEBUG
+#ifdef VD_BUILD_DEBUG
     config.Vulkan.ValidationLayersEnabled = true;
 #endif
 

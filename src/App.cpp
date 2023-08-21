@@ -1168,8 +1168,7 @@ namespace Vulkandemo {
         CameraUniform cameraUniform{};
 
         auto modelTransform = glm::mat4(1.0f);
-        //float rotationAngle = time * glm::radians(90.0f);
-        float rotationAngle = glm::radians(0.0f);
+        float rotationAngle = time * glm::radians(90.0f);
         auto rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
         cameraUniform.model = glm::rotate(modelTransform, rotationAngle, rotationAxis);
 

@@ -3,7 +3,7 @@
 #include "Environment.h"
 #include "Log.h"
 
-#ifdef VD_DEBUG
+#ifdef VD_BUILD_DEBUG
     #define VD_ENABLE_BREAK
     #define VD_ENABLE_ASSERT
 #endif
